@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import 'echarts-wordcloud';
 import * as echarts from 'echarts';
+import { EChartsType } from 'echarts';
 import { StudentYearCountDTO } from '../../../types';
 import { StudentMarksReportComponent } from '@components/student-marks-report/student-marks-report.component';
 import { SubjectService } from '@services/subject.service';
@@ -16,6 +17,10 @@ import { Router } from '@angular/router';
   styleUrl: './vedenie-home.component.scss',
 })
 export class VedenieHomeComponent implements OnInit {
+  barChart: Chart | undefined;
+  wordCloudChart: EChartsType | undefined;
+  pieChart: Chart<'pie', number[], string> | undefined;
+
   constructor(
     private readonly subjectService: SubjectService,
     private readonly leadService: LeadService,
@@ -27,7 +32,7 @@ export class VedenieHomeComponent implements OnInit {
   ngOnInit() {
     this.leadService.getAllKeywords().subscribe({
       next: (data) => {
-        const chart = echarts.init(
+        this.wordCloudChart = echarts.init(
           document.getElementById('wordcloud-chart') as HTMLDivElement,
         );
 
@@ -73,8 +78,8 @@ export class VedenieHomeComponent implements OnInit {
           ],
         };
 
-        chart.setOption(options);
-        chart.on('click', (params) => {
+        this.wordCloudChart.setOption(options);
+        this.wordCloudChart.on('click', (params) => {
           const clickedWord = params.name;
           this.redirectToKeywordsPage(clickedWord);
 
@@ -102,14 +107,13 @@ export class VedenieHomeComponent implements OnInit {
         };
         // Calculate percentages
         const labels = data.map((item) => item.focusCategory);
-
         const percentages = data.map((item) =>
-          ((item.totalSum / totalSum) * 100).toFixed(2),
+          Number(((item.totalSum / totalSum) * 100).toFixed(2)),
         );
 
         // Chart.js configuration
         const ctx = document.getElementById('pieChart') as HTMLCanvasElement;
-        new Chart(ctx, {
+        this.pieChart = new Chart(ctx, {
           type: 'pie',
           data: {
             labels: labels.map((key) => {
@@ -143,7 +147,8 @@ export class VedenieHomeComponent implements OnInit {
                   label: (context) => {
                     const label = context.label || '';
                     const value = context.raw || '';
-                    return `${label}: ${value}%`;
+                    const formattedValue = typeof value === 'number' ? value.toFixed(2) : String(value);
+                    return `${label}: ${formattedValue}%`;
                   },
                 },
               },
@@ -151,7 +156,7 @@ export class VedenieHomeComponent implements OnInit {
                 position: 'bottom',
               },
             },
-          },
+          }
         });
       },
     });
@@ -165,7 +170,7 @@ export class VedenieHomeComponent implements OnInit {
 
         // Render the bar chart
         const ctx = document.getElementById('barChart') as HTMLCanvasElement;
-        new Chart(ctx, {
+        this.barChart = new Chart(ctx, {
           type: 'bar',
           data: {
             labels: years,
@@ -189,9 +194,10 @@ export class VedenieHomeComponent implements OnInit {
               tooltip: {
                 callbacks: {
                   label: (context) => {
-                    const label = context.dataset.label || '';
+                    const label = context.dataset.label ?? '';
                     const value = context.raw || '';
-                    return `${label}: ${value}`;
+                    const formattedValue = typeof value === 'number' ? value.toFixed(2) : String(value);
+                    return `${label}: ${formattedValue}`;
                   },
                 },
               },

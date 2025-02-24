@@ -72,13 +72,6 @@
             Predikcia absolvovania
           </div>
         </a>
-
-        <!--        <a mat-list-item href="javascript:void(0)" (click)="navigateToSubjectChances()">-->
-        <!--          <div class="d-flex align-items-center gap-1">-->
-        <!--            <mat-icon>question_mark</mat-icon>-->
-        <!--            Predikcia-->
-        <!--          </div>-->
-        <!--        </a>-->
       </mat-expansion-panel>
 
       <mat-expansion-panel
@@ -167,9 +160,7 @@
             <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
           </button>
 
-          <span role="button" class="curs" (click)="navigateToHome()"
-            >ALFRI</span
-          >
+          <span role="button" class="curs" (click)="navigateToHome()" onKeyDown="navigateToHome()">ALFRI</span>
 
           <div class="d-none d-md-block">
             <button
