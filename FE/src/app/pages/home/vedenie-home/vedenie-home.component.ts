@@ -6,6 +6,7 @@ import { StudentYearCountDTO } from '../../../types';
 import { StudentMarksReportComponent } from '@components/student-marks-report/student-marks-report.component';
 import { SubjectService } from '@services/subject.service';
 import { LeadService } from '@services/lead.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-vedenie-home',
@@ -18,6 +19,7 @@ export class VedenieHomeComponent implements OnInit {
   constructor(
     private readonly subjectService: SubjectService,
     private readonly leadService: LeadService,
+    private readonly router: Router,
   ) {
     Chart.register(...registerables);
   }
@@ -71,9 +73,12 @@ export class VedenieHomeComponent implements OnInit {
           ],
         };
 
-        // Set options and render the chart
-        console.log(options);
         chart.setOption(options);
+        chart.on('click', (params) => {
+          const clickedWord = params.name;
+          this.redirectToKeywordsPage(clickedWord);
+
+        });
       },
     });
 
@@ -213,5 +218,11 @@ export class VedenieHomeComponent implements OnInit {
         console.error('Error fetching student counts by year:', error);
       },
     });
+  }
+
+
+  redirectToKeywordsPage(word: string): void {
+    // Navigate to /keywords and pass the word in the state
+    this.router.navigate(['/keywords'], { state: { word } });
   }
 }

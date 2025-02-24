@@ -213,7 +213,7 @@
             aria-label="Open menu"
             class="menu-avatar-button"
           >
-            <div mat-icon class="avatar">M</div>
+            <div mat-icon class="avatar">{{ userService.userData.firstName.at(0)?.toUpperCase() }}</div>
           </button>
           <mat-menu #menu="matMenu">
             <button

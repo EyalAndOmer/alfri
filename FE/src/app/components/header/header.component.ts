@@ -49,11 +49,11 @@ export class HeaderComponent implements OnInit {
   formData: AnsweredForm | undefined;
 
   constructor(
-    private readonly userService: UserService,
+    readonly userService: UserService,
     protected readonly authService: AuthService,
     private readonly router: Router,
-    private notificationService: NotificationService,
-    private formDataService: FormDataService,
+    private readonly notificationService: NotificationService,
+    private readonly formDataService: FormDataService,
   ) {}
 
   ngOnInit() {
@@ -61,7 +61,7 @@ export class HeaderComponent implements OnInit {
     this.routerSubscription = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd)) // Listen only for NavigationEnd events
       .subscribe(() => {
-        if (this.drawer.opened) {
+        if (this.drawer?.opened) {
           this.drawer.close(); // Close the drawer if it's open
         }
       });

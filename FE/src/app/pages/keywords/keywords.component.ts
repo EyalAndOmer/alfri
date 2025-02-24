@@ -57,11 +57,13 @@ export class KeywordsComponent implements OnInit {
   isError = false;
 
   constructor(
-    private router: Router,
-    private keywordService: KeywordService,
+    private readonly router: Router,
+    private readonly keywordService: KeywordService,
   ) {}
 
   ngOnInit(): void {
+    this.handleRedirect();
+
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((searchText) => {
@@ -123,5 +125,21 @@ export class KeywordsComponent implements OnInit {
 
   displayKeyword(keyword: string): string {
     return keyword || '';
+  }
+
+  /**
+   * Handles the redirect to the keywords component from a keyword click
+   */
+  private handleRedirect() {
+    const keyword = history.state.word;
+    if (!keyword) {
+      return;
+    }
+
+    this.selectedKeywords.push(keyword);
+    this.keywordService.showSubjects(keyword).subscribe((subjects) => {
+      this.keywordSubjects[keyword] = subjects;
+    });
+
   }
 }
