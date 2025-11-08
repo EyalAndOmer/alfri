@@ -4,8 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.io.IOException;
 
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import sk.uniza.fri.alfri.entity.Student;
 import sk.uniza.fri.alfri.entity.StudyProgram;
 import sk.uniza.fri.alfri.entity.User;
@@ -13,18 +13,23 @@ import sk.uniza.fri.alfri.repository.StudentRepository;
 import sk.uniza.fri.alfri.repository.StudyProgramRepository;
 import sk.uniza.fri.alfri.service.IStudentService;
 import sk.uniza.fri.alfri.util.ProcessUtils;
+import sk.uniza.fri.alfri.client.PythonMlClient;
+import sk.uniza.fri.alfri.service.PythonPredictionService;
 
 @Service
 public class StudentService implements IStudentService {
   private final StudentRepository studentRepository;
   private final StudyProgramRepository studyProgramRepository;
-  private final ResourceLoader resourceLoader;
+  private final PythonMlClient pythonMlClient;
+
+  @Value("${python.service.enabled:false}")
+  private boolean pythonServiceEnabled;
 
   public StudentService(StudentRepository studentRepository,
-      StudyProgramRepository studyProgramRepository, ResourceLoader resourceLoader) {
+      StudyProgramRepository studyProgramRepository, PythonMlClient pythonMlClient) {
     this.studentRepository = studentRepository;
     this.studyProgramRepository = studyProgramRepository;
-    this.resourceLoader = resourceLoader;
+    this.pythonMlClient = pythonMlClient;
   }
 
   public StudyProgram getUsersStudyProgram(String userEmail) {
@@ -44,6 +49,13 @@ public class StudentService implements IStudentService {
 
   @Override
   public void makePrediction() throws IOException {
+    if (pythonServiceEnabled) {
+      // Use remote python service to trigger predictions
+      pythonMlClient.triggerPrediction();
+      return;
+    }
+
+    // Fallback to original behavior: run local python script
     ProcessBuilder processBuilder =
         new ProcessBuilder("python3", "./python_scripts/passing_chance_prediction.py");
     String output = ProcessUtils.getOutputFromProces(processBuilder, false);

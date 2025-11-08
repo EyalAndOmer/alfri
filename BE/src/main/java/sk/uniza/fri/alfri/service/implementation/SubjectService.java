@@ -40,6 +40,9 @@ import sk.uniza.fri.alfri.repository.SubjectRepository;
 import sk.uniza.fri.alfri.service.FormService;
 import sk.uniza.fri.alfri.service.ISubjectService;
 import sk.uniza.fri.alfri.util.ProcessUtils;
+import sk.uniza.fri.alfri.client.PythonMlClient;
+import sk.uniza.fri.alfri.client.dto.*;
+import sk.uniza.fri.alfri.service.PythonPredictionService;
 
 @Service
 @Slf4j
@@ -75,6 +78,8 @@ public class SubjectService implements ISubjectService {
   private final SubjectKeywordRepository subjectKeywordRepository;
   private final AuthService authService;
   private final StudentSubjectRepository studentSubjectRepository;
+  private final PythonMlClient pythonMlClient;
+  private final PythonPredictionService pythonPredictionService;
 
 
   @Value("${python.executable_path}")
@@ -95,11 +100,14 @@ public class SubjectService implements ISubjectService {
   @Value("${python.passing_mark_prediction_script_path}")
   private String passingMarkPredictionScriptPath;
 
+  @Value("${python.service.enabled:false}")
+  private boolean pythonServiceEnabled;
+
   public SubjectService(StudyProgramSubjectRepository studyProgramSubjectRepository,
       SubjectRepository subjectRepository, AnswerRepository answerRepository,
       FocusRepository focusRepository, SubjectGradeRepository subjectGradeRepository,
       StudentService studentService, FormService formService,
-        SubjectKeywordRepository subjectKeywordRepository, AuthService authService, StudentSubjectRepository studentSubjectRepository) {
+        SubjectKeywordRepository subjectKeywordRepository, AuthService authService, StudentSubjectRepository studentSubjectRepository, PythonMlClient pythonMlClient, PythonPredictionService pythonPredictionService) {
     this.studyProgramSubjectRepository = studyProgramSubjectRepository;
     this.subjectRepository = subjectRepository;
     this.subjectGradeRepository = subjectGradeRepository;
@@ -110,6 +118,8 @@ public class SubjectService implements ISubjectService {
     this.subjectKeywordRepository = subjectKeywordRepository;
     this.authService = authService;
     this.studentSubjectRepository = studentSubjectRepository;
+    this.pythonMlClient = pythonMlClient;
+    this.pythonPredictionService = pythonPredictionService;
   }
 
   private static List<List<Integer>> getFocusesAttributes(List<Focus> subjectsFocuses) {
@@ -153,6 +163,30 @@ public class SubjectService implements ISubjectService {
     List<List<Integer>> focusesAttributes = getFocusesAttributes(subjectsFocuses);
     User currentUser = this.authService.getCurrentUser().orElseThrow(() -> new RuntimeException("Cannot find user."));
     Integer studyProgramId = currentUser.getStudent().getStudyProgramId();
+
+    if (pythonServiceEnabled) {
+      // Prepare request for remote service
+      ClusteringRequestDto req = new ClusteringRequestDto();
+      // convert List<List<Integer>> to List<List<Double>>
+      List<List<Double>> doubleList = new ArrayList<>();
+      for (List<Integer> l : focusesAttributes) {
+        List<Double> inner = new ArrayList<>();
+        for (Integer v : l) inner.add(v == null ? 0.0 : v.doubleValue());
+        doubleList.add(inner);
+      }
+      req.setFocusVectors(doubleList);
+      req.setStudyProgramId(String.valueOf(studyProgramId));
+
+      ClusteringResponseDto resp = pythonPredictionService.clustering(req);
+      List<Integer> result = resp.getCluster_indices();
+      // apply offset if the service didn't already do it
+      if (resp.getOffset_applied() == 0 && studyProgramId != null && studyProgramId != 3) {
+        // TODO: maintain same offset logic as before
+        result = result.stream().map(i -> i + 87).toList();
+      }
+
+      return findSubjectByIds(result);
+    }
 
     ProcessBuilder processBuilder =
         new ProcessBuilder(pythonExcecutablePath, clusteringPredictionScriptPath,
@@ -274,6 +308,23 @@ public class SubjectService implements ISubjectService {
             subjectName -> getModelPath(subjectName, ModelType.CHANCE)));
 
     ObjectMapper mapper = new ObjectMapper();
+
+    if (pythonServiceEnabled) {
+      // call remote python service
+      PassingChanceRequestDto req = new PassingChanceRequestDto();
+      // convert integers to doubles
+      Map<String, List<Double>> doubleData = new HashMap<>();
+      for (Map.Entry<String, List<Integer>> e : subjectInputs.entrySet()) {
+        List<Double> doubles = e.getValue().stream().map(i -> i == null ? 6.0 : i.doubleValue()).toList();
+        doubleData.put(e.getKey(), doubles);
+      }
+      req.setSubjects(doubleData);
+
+      PassingChanceResponseDto resp = pythonPredictionService.passingChance(req);
+      Map<String, ProbabilityResultDto> results = resp.getResults();
+      return results.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue().getPercentage()).toList();
+    }
+
     String inputJson;
     String modelPathsJson;
     try {
@@ -331,6 +382,20 @@ public class SubjectService implements ISubjectService {
     ObjectMapper mapper = new ObjectMapper();
     String inputJson;
     String modelPathsJson;
+
+    if (pythonServiceEnabled) {
+      // call remote python service per subject and aggregate results
+      List<String> results = new ArrayList<>();
+      for (String subjectName : subjectNames) {
+        PassingMarkRequestDto req = new PassingMarkRequestDto();
+        req.setSubject(subjectName);
+        List<Double> doubles = subjectInputs.get(subjectName).stream().map(i -> i == null ? 6.0 : i.doubleValue()).toList();
+        req.setFeatures(doubles);
+        PassingMarkResponseDto resp = pythonPredictionService.passingMark(req);
+        results.add(subjectName + ": " + resp.getChosen_grade());
+      }
+      return results;
+    }
 
     try {
       inputJson = mapper.writeValueAsString(Map.of("data", subjectInputs));

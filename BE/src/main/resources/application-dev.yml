@@ -23,6 +23,33 @@ python:
   passing_change_prediction_script_path: ${DEV_PASSING_CHANGE_PREDICTION_SCRIPT_PATH:./python_scripts/passing_chance_prediction.py}
   passing_mark_prediction_script_path: ${DEV_PASSING_MARK_PREDICTION_SCRIPT_PATH:./python_scripts/neural_network_marks_predictions.py}
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      pythonService:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 1s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - feign.RetryableException
+          - java.io.IOException
+          - org.springframework.web.client.HttpServerErrorException
+  retry:
+    instances:
+      pythonServiceRetry:
+        maxAttempts: 2
+        waitDuration: 50ms
+        retryExceptions:
+          - feign.RetryableException
+          - org.springframework.web.client.HttpServerErrorException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException
 
 
 frontend-url: ${FRONTEND_DEV_URL:*}

@@ -27,6 +27,24 @@ python:
   passing_change_prediction_script_path: ${PROD_PASSING_CHANGE_PREDICTION_SCRIPT_PATH}
   passing_mark_prediction_script_path: ${PROD_PASSING_MARK_PREDICTION_SCRIPT_PATH}
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      pythonService:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+        recordExceptions:
+          - sk.uniza.fri.alfri.client.PythonServiceServerException
+  retry:
+    instances:
+      pythonServiceRetry:
+        maxAttempts: 2
+        waitDuration: 200ms
+        retryExceptions:
+          - sk.uniza.fri.alfri.client.PythonServiceServerException
+
 frontend-url: ${FRONTEND_PROD_URL}
 default-user-email: "-" # no default user in production
 default-user-roles:
