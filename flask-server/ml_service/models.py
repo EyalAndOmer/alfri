@@ -35,6 +35,13 @@ import time
 import logging
 import traceback
 import threading
+from pathlib import Path
+
+# Import Config so we can resolve MODEL_DIR defaults if callers pass config
+try:
+    from .config import Config
+except Exception:
+    Config = None  # pragma: no cover
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +123,39 @@ class ModelRegistry:
             logger.exception("Unable to set MODELS_LOADED on config")
 
     # -- Loader helpers -------------------------------------------------
+    def _resolve_path(self, path: Optional[str]) -> Optional[str]:
+        """Resolve a given model path. If the path is already absolute and exists,
+        return it. If the path is relative, try resolving it relative to
+        Config.MODEL_DIR (if available) and finally relative to this package's
+        `models` dir. Returns None if `path` is falsy.
+        """
+        if not path:
+            return None
+        p = Path(path)
+        # if absolute path and exists, return
+        if p.is_absolute() and p.exists():
+            return str(p)
+
+        # Try environment/package MODEL_DIR
+        model_dir = None
+        try:
+            model_dir = getattr(Config, "MODEL_DIR", None) if Config is not None else None
+        except Exception:
+            model_dir = None
+
+        if model_dir:
+            candidate = Path(model_dir) / path
+            if candidate.exists():
+                return str(candidate)
+
+        # As a last resort, try the `models` directory next to this file
+        candidate = Path(__file__).parent / "models" / path
+        if candidate.exists():
+            return str(candidate)
+
+        # If none found, return the original (may raise later when opening)
+        return str(p)
+
     def _load_generic(self, meta: Dict[str, Any]) -> Any:
         """Load a pickled or joblib model from `meta['path']`.
 
@@ -125,6 +165,8 @@ class ModelRegistry:
         path = (meta or {}).get("path")
         if not path:
             raise ValueError("No 'path' in model metadata for generic loader")
+
+        path = self._resolve_path(path)
 
         # Try joblib first, fall back to pickle
         try:
@@ -147,6 +189,8 @@ class ModelRegistry:
         path = (meta or {}).get("path")
         if not path:
             raise ValueError("No 'path' in model metadata for keras loader")
+
+        path = self._resolve_path(path)
 
         # Try to import tensorflow.keras first, then keras
         try:
