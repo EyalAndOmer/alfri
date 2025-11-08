@@ -7,9 +7,11 @@
   <mat-form-field appearance="fill" class="w-100">
     <mat-label>Katedra</mat-label>
     <mat-select [(ngModel)]="selectedDepartmentId">
-      <mat-option *ngFor="let department of availableDepartments" [value]="department.id" >
-        {{ department.name }}
-      </mat-option>
+      @for (department of availableDepartments; track department) {
+        <mat-option [value]="department.id" >
+          {{ department.name }}
+        </mat-option>
+      }
     </mat-select>
   </mat-form-field>
 

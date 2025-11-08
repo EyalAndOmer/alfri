@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { SubjectService } from '@services/subject.service';
 import { ActivatedRoute } from '@angular/router';
-import { NgIf } from '@angular/common';
+
 import {
   BarController,
   BarElement,
@@ -31,7 +31,7 @@ import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/m
 @Component({
   selector: 'app-subject-detail',
   standalone: true,
-  imports: [NgIf, BaseChartDirective, MatCard, MatCardHeader, MatCardContent, MatCardTitle],
+  imports: [BaseChartDirective, MatCard, MatCardHeader, MatCardContent, MatCardTitle],
   templateUrl: './subject-detail.component.html',
   styleUrl: './subject-detail.component.scss',
 })

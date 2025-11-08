@@ -5,7 +5,7 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatSelect } from '@angular/material/select';
-import { NgForOf, NgIf, NgOptimizedImage } from '@angular/common';
+import { NgOptimizedImage } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -30,11 +30,9 @@ import { NotificationService } from '@services/notification.service';
     MatLabel,
     MatOption,
     MatSelect,
-    NgForOf,
-    NgIf,
     ReactiveFormsModule,
-    NgOptimizedImage,
-  ],
+    NgOptimizedImage
+],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

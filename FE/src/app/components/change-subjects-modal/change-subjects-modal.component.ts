@@ -11,7 +11,7 @@ import { DepartmentService } from '@services/department.service';
 import { TeacherService } from '@services/teacher.service';
 import { AdminService } from '@services/admin.service';
 import { FormsModule } from '@angular/forms';
-import { NgForOf } from '@angular/common';
+
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
@@ -33,7 +33,6 @@ import { switchMap } from 'rxjs/operators';
   standalone: true,
   imports: [
     FormsModule,
-    NgForOf,
     MatDialogContent,
     MatButton,
     MatDialogActions,
@@ -53,7 +52,7 @@ import { switchMap } from 'rxjs/operators';
     MatColumnDef,
     MatRowDef,
     MatHeaderRowDef
-  ],
+],
   templateUrl: './change-subjects-modal.component.html',
   styleUrl: './change-subjects-modal.component.scss'
 })

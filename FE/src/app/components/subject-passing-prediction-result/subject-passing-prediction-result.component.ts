@@ -5,7 +5,7 @@ import { MatList, MatListItem, MatListItemIcon } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatLine, ThemePalette } from '@angular/material/core';
-import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { SubjectPassingPrediction } from '../../types';
 
@@ -23,11 +23,9 @@ import { SubjectPassingPrediction } from '../../types';
     MatTooltip,
     MatListItemIcon,
     MatLine,
-    NgForOf,
     AsyncPipe,
-    NgIf,
-    NgClass,
-  ],
+    NgClass
+],
   templateUrl: './subject-passing-prediction-result.component.html',
   styleUrl: './subject-passing-prediction-result.component.scss',
 })

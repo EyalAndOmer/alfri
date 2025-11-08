@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SubjectService } from '@services/subject.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { MatAnchor } from '@angular/material/button';
@@ -21,8 +21,6 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     MatTableModule,
     MatProgressBarModule,
     AsyncPipe,
-    NgIf,
-    NgForOf,
     MatAnchor,
     MatRadioButton,
     MatRadioGroup,
@@ -31,8 +29,8 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     MatCardHeader,
     MatCardTitle,
     MatCardContent,
-    NgxSkeletonLoaderModule,
-  ],
+    NgxSkeletonLoaderModule
+],
 })
 export class SubjectReportsComponent implements OnInit {
   subjects: SubjectGradesDto[] = [];

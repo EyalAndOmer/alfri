@@ -23,7 +23,7 @@ import {
   MatTable, MatTableDataSource,
 } from '@angular/material/table';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { AsyncPipe, NgClass, NgIf } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatCard } from '@angular/material/card';
@@ -44,12 +44,11 @@ import { MatCard } from '@angular/material/card';
     MatCellDef,
     MatHeaderRowDef,
     MatRowDef,
-    NgIf,
     MatCheckbox,
     AsyncPipe,
     NgClass,
-    MatCard,
-  ],
+    MatCard
+],
   templateUrl: './subjects-table.component.html',
   styleUrl: './subjects-table.component.scss',
 })

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { Router } from '@angular/router';
-import { NgForOf, NgIf } from '@angular/common';
+
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { KeywordService } from '@services/keyword.service';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
@@ -21,8 +21,6 @@ import { MatIcon } from '@angular/material/icon';
   imports: [
     MatTableModule,
     MatChipsModule,
-    NgForOf,
-    NgIf,
     MatFormField,
     MatInput,
     MatLabel,
@@ -35,8 +33,8 @@ import { MatIcon } from '@angular/material/icon';
     MatOption,
     MatAutocompleteTrigger,
     MatAutocomplete,
-    MatIcon,
-  ],
+    MatIcon
+],
 })
 export class KeywordsComponent implements OnInit {
   filteredKeywords: string[] = [];

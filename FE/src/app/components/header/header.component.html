@@ -6,24 +6,26 @@
     fixedInViewport
     mode="over"
     [opened]="false"
-  >
+    >
     <mat-toolbar>ALFRI</mat-toolbar>
     <mat-nav-list>
       <mat-expansion-panel [class.mat-elevation-z0]="true">
-        <mat-expansion-panel-header *ngIf="formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])" style="padding: 0 16px">
-          <mat-panel-title>
-            <div class="d-flex align-items-center gap-1">
-              <mat-icon>book</mat-icon>
-              Predmety
-            </div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
+        @if (formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])) {
+          <mat-expansion-panel-header style="padding: 0 16px">
+            <mat-panel-title>
+              <div class="d-flex align-items-center gap-1">
+                <mat-icon>book</mat-icon>
+                Predmety
+              </div>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+        }
 
         <a
           mat-list-item
           href="javascript:void(0)"
           (click)="navigateToSubjects()"
-        >
+          >
           <div class="d-flex align-items-center gap-1">
             <mat-icon>list_view</mat-icon>
             Prehľad predmetov
@@ -34,7 +36,7 @@
           mat-list-item
           href="javascript:void(0)"
           (click)="navigateToPrediction()"
-        >
+          >
           <div class="d-flex align-items-center gap-1">
             <mat-icon>interests</mat-icon>
             Záujmy
@@ -45,7 +47,7 @@
           mat-list-item
           href="javascript:void(0)"
           (click)="navigateToSubjectsClustering()"
-        >
+          >
           <div class="d-flex align-items-center gap-1">
             <mat-icon>bubble_chart</mat-icon>
             Podobné predmety
@@ -56,7 +58,7 @@
           mat-list-item
           href="javascript:void(0)"
           (click)="navigateToPassingPrediction()"
-        >
+          >
           <div class="d-flex align-items-center gap-1">
             <mat-icon>check_circle</mat-icon>
             Predikcia absolvovania
@@ -67,74 +69,75 @@
         <!--          <div class="d-flex align-items-center gap-1">-->
         <!--            <mat-icon>question_mark</mat-icon>-->
         <!--            Predikcia-->
-        <!--          </div>-->
-        <!--        </a>-->
-      </mat-expansion-panel>
+      <!--          </div>-->
+    <!--        </a>-->
+  </mat-expansion-panel>
 
-      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])">
-        <mat-expansion-panel-header style="padding: 0 16px">
-          <mat-panel-title>
-            <div class="d-flex align-items-center gap-1">
-              <mat-icon>bar_chart</mat-icon>
-              Analýzy a Reporty
-            </div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <a
-          mat-list-item
-          href="javascript:void(0)"
-          (click)="navigateToSubjectsReports()"
-        >
+  @if (formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])) {
+    <mat-expansion-panel [class.mat-elevation-z0]="true">
+      <mat-expansion-panel-header style="padding: 0 16px">
+        <mat-panel-title>
           <div class="d-flex align-items-center gap-1">
-            <mat-icon>summarize</mat-icon>
-            Predmety podľa známok
+            <mat-icon>bar_chart</mat-icon>
+            Analýzy a Reporty
           </div>
-        </a>
-
-        <a
-          mat-list-item
-          href="javascript:void(0)"
-          (click)="navigateToSubjectGradeCorrelation()"
-        >
-          <div class="d-flex align-items-center gap-1">
-            <mat-icon>query_stats</mat-icon>
-            Korelačná analýza známok
-          </div>
-        </a>
-      </mat-expansion-panel>
-
+        </mat-panel-title>
+      </mat-expansion-panel-header>
       <a
-        *appHasRole="[AuthRole.ADMIN]"
         mat-list-item
         href="javascript:void(0)"
-        (click)="navigateToAdminPage()"
-      >
+        (click)="navigateToSubjectsReports()"
+        >
         <div class="d-flex align-items-center gap-1">
-          <mat-icon>admin_panel_settings</mat-icon>
-          Administrácia
+          <mat-icon>summarize</mat-icon>
+          Predmety podľa známok
         </div>
       </a>
-
-      <a mat-list-item href="javascript:void(0)" (click)="navigateToProfile()">
+      <a
+        mat-list-item
+        href="javascript:void(0)"
+        (click)="navigateToSubjectGradeCorrelation()"
+        >
         <div class="d-flex align-items-center gap-1">
-          <mat-icon>account_circle</mat-icon>
-          Profil
+          <mat-icon>query_stats</mat-icon>
+          Korelačná analýza známok
         </div>
       </a>
+    </mat-expansion-panel>
+  }
 
-      <a mat-list-item href="javascript:void(0)" (click)="logOut()">
-        <div class="d-flex align-items-center gap-1">
-          <mat-icon>logout</mat-icon>
-          Odhlásiť sa
-        </div>
-      </a>
-    </mat-nav-list>
-  </mat-sidenav>
+  <a
+    *appHasRole="[AuthRole.ADMIN]"
+    mat-list-item
+    href="javascript:void(0)"
+    (click)="navigateToAdminPage()"
+    >
+    <div class="d-flex align-items-center gap-1">
+      <mat-icon>admin_panel_settings</mat-icon>
+      Administrácia
+    </div>
+  </a>
 
-  <!--   top toolbar - PC   -->
-  <mat-sidenav-content>
-    <div *ngIf="loggedIn(); else loggedOut">
+  <a mat-list-item href="javascript:void(0)" (click)="navigateToProfile()">
+    <div class="d-flex align-items-center gap-1">
+      <mat-icon>account_circle</mat-icon>
+      Profil
+    </div>
+  </a>
+
+  <a mat-list-item href="javascript:void(0)" (click)="logOut()">
+    <div class="d-flex align-items-center gap-1">
+      <mat-icon>logout</mat-icon>
+      Odhlásiť sa
+    </div>
+  </a>
+</mat-nav-list>
+</mat-sidenav>
+
+<!--   top toolbar - PC   -->
+<mat-sidenav-content>
+  @if (loggedIn()) {
+    <div>
       <mat-toolbar color="secondary" class="row">
         <div class="col-12 col-md-8 d-flex align-items-center gap-3 p-0">
           <button
@@ -143,57 +146,62 @@
             aria-label="Toggle sidenav"
             mat-icon-button
             (click)="openDrawer()"
-          >
+            >
             <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
           </button>
-
           <span role="button" class="curs" (click)="navigateToHome()"
             >ALFRI</span
-          >
-
-          <div class="d-none d-md-block">
-          <button mat-button [matMenuTriggerFor]="subjects_menu" *ngIf="formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])">
-              <mat-icon>book</mat-icon>
-              Predmety
-            </button>
-
-            <button mat-button [matMenuTriggerFor]="reports_menu" *ngIf="formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])">
-              <mat-icon>bar_chart</mat-icon>
-              Analýzy a Reporty
-            </button>
-          </div>
-        </div>
-
-        <div class="col-4 d-none d-md-flex justify-content-end">
-          <button
-            mat-icon-button
-            [matMenuTriggerFor]="menu"
-            aria-label="Open menu"
-            class="menu-avatar-button"
-          >
-            <div mat-icon class="avatar">M</div>
-          </button>
-          <mat-menu #menu="matMenu">
-            <button
-              mat-menu-item
-              (click)="navigateToAdminPage()"
-              *appHasRole="[AuthRole.ADMIN]"
             >
-              <mat-icon>admin_panel_settings</mat-icon>
-              Administrácia
+            <div class="d-none d-md-block">
+              @if (formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])) {
+                <button mat-button [matMenuTriggerFor]="subjects_menu">
+                  <mat-icon>book</mat-icon>
+                  Predmety
+                </button>
+              }
+              @if (formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])) {
+                <button mat-button [matMenuTriggerFor]="reports_menu">
+                  <mat-icon>bar_chart</mat-icon>
+                  Analýzy a Reporty
+                </button>
+              }
+            </div>
+          </div>
+          <div class="col-4 d-none d-md-flex justify-content-end">
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="menu"
+              aria-label="Open menu"
+              class="menu-avatar-button"
+              >
+              <div mat-icon class="avatar">M</div>
             </button>
-            <button mat-menu-item (click)="navigateToProfile()">
-              <mat-icon>account_circle</mat-icon>
-              Profil
-            </button>
-            <button mat-menu-item (click)="logOut()">
-              <mat-icon>logout</mat-icon>
-              Odhlásiť sa
-            </button>
-          </mat-menu>
-        </div>
+            <mat-menu #menu="matMenu">
+              <button
+                mat-menu-item
+                (click)="navigateToAdminPage()"
+                *appHasRole="[AuthRole.ADMIN]"
+                >
+                <mat-icon>admin_panel_settings</mat-icon>
+                Administrácia
+              </button>
+              <button mat-menu-item (click)="navigateToProfile()">
+                <mat-icon>account_circle</mat-icon>
+                Profil
+              </button>
+              <button mat-menu-item (click)="logOut()">
+                <mat-icon>logout</mat-icon>
+                Odhlásiť sa
+              </button>
+            </mat-menu>
+          </div>
+        </mat-toolbar>
+      </div>
+    } @else {
+      <mat-toolbar class="row">
+        <span>Alfri</span>
       </mat-toolbar>
-    </div>
+    }
 
     <mat-menu #subjects_menu="matMenu">
       <button mat-menu-item (click)="navigateToSubjects()">
@@ -234,11 +242,6 @@
       </button>
     </mat-menu>
 
-    <ng-template #loggedOut>
-      <mat-toolbar class="row">
-        <span>Alfri</span>
-      </mat-toolbar>
-    </ng-template>
     <ng-content></ng-content>
   </mat-sidenav-content>
 </mat-sidenav-container>

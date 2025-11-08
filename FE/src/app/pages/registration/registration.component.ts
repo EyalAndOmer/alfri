@@ -15,7 +15,7 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { NgForOf, NgIf } from '@angular/common';
+
 import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '@services/auth.service';
 import { NotificationService } from '@services/notification.service';
@@ -36,10 +36,8 @@ import { RegisterUserDto, Role } from '../../types';
     MatInput,
     MatError,
     MatSelectModule,
-    NgIf,
-    NgForOf,
-    HttpClientModule,
-  ],
+    HttpClientModule
+],
   providers: [HttpClientModule],
   templateUrl: './registration.component.html',
   styleUrl: './registration.component.scss',

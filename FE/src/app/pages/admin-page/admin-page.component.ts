@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '@services/admin.service';
 import { UserService } from '@services/user.service';
-import { NgForOf, NgIf } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import {
   ChangePasswordDto, PasswordPair,
@@ -32,7 +32,7 @@ import { CreateUserModalComponent } from '@components/create-user-modal/create-u
   selector: 'app-admin',
   templateUrl: './admin-page.component.html',
   styleUrls: ['./admin-page.component.scss'],
-  imports: [NgForOf, NgIf, FormsModule, MatMenu, MatMenuItem, MatIconButton, MatMenuTrigger, MatIcon, HasRoleDirective, MatColumnDef, MatHeaderCell, MatCell, MatCellDef, MatHeaderCellDef, MatHeaderRow, MatRow, MatRowDef, MatHeaderRowDef, MatTable, MatButton],
+  imports: [FormsModule, MatMenu, MatMenuItem, MatIconButton, MatMenuTrigger, MatIcon, HasRoleDirective, MatColumnDef, MatHeaderCell, MatCell, MatCellDef, MatHeaderCellDef, MatHeaderRow, MatRow, MatRowDef, MatHeaderRowDef, MatTable, MatButton],
   standalone: true,
 })
 export class AdminPageComponent implements OnInit {

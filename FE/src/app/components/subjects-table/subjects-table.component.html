@@ -12,7 +12,7 @@
             !selectedSubjectsMap.has(subject.code) &&
             getSelectedSubjectsCount() >= maxSelectableSubjects
           "
-        >
+          >
         </mat-checkbox>
       </td>
     </ng-container>
@@ -24,7 +24,7 @@
           class="text-decoration-none"
           href="javascript:void(0)"
           (click)="navigateToSubjectDetail(subject.code)"
-        >
+          >
           {{ subject.name }}
         </a>
       </td>
@@ -67,10 +67,11 @@
 </div>
 @if (isPageable) {
   <div>
-    <mat-progress-bar
-      *ngIf="isLoading"
-      mode="indeterminate"
-    ></mat-progress-bar>
+    @if (isLoading) {
+      <mat-progress-bar
+        mode="indeterminate"
+      ></mat-progress-bar>
+    }
     <mat-paginator
       [length]="pageData.totalElements"
       [pageSize]="pageData.size"

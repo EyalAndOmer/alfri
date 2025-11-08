@@ -10,7 +10,7 @@ import { MatOption } from '@angular/material/autocomplete';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { MatSelect } from '@angular/material/select';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
-import { NgForOf, NgIf, NgSwitch, NgSwitchCase } from '@angular/common';
+
 import { Question } from '../../types';
 
 @Component({
@@ -32,12 +32,8 @@ import { Question } from '../../types';
     MatSelect,
     MatSlider,
     MatSliderThumb,
-    NgForOf,
-    NgIf,
-    NgSwitchCase,
-    NgSwitch,
-    ReactiveFormsModule,
-  ],
+    ReactiveFormsModule
+],
   templateUrl: './form-question.component.html',
   styleUrl: './form-question.component.scss',
 })

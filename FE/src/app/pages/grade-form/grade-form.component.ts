@@ -18,15 +18,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import {
-  AsyncPipe,
-  KeyValuePipe,
-  NgClass,
-  NgForOf,
-  NgIf,
-  NgSwitch,
-  NgSwitchCase,
-} from '@angular/common';
+import { AsyncPipe, KeyValuePipe, NgClass } from '@angular/common';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { FormService } from '@services/form.service';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
@@ -68,13 +60,9 @@ import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/
     MatStepper,
     KeyValuePipe,
     MatSlider,
-    NgForOf,
     MatSliderThumb,
-    NgSwitch,
-    NgSwitchCase,
     MatRadioGroup,
     MatRadioButton,
-    NgIf,
     MatList,
     MatListItem,
     MatError,
@@ -94,7 +82,7 @@ import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/
     MatCardHeader,
     MatCardTitle,
     MatCardSubtitle
-  ],
+],
   templateUrl: './grade-form.component.html',
   styleUrl: './grade-form.component.scss',
 })

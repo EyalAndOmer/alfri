@@ -4,7 +4,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormQuestionComponent } from '@components/form-question/form-question.component';
 import { MatButton } from '@angular/material/button';
 import { MatStepLabel, MatStepperPrevious } from '@angular/material/stepper';
-import { NgForOf } from '@angular/common';
+
 
 @Component({
   selector: 'app-hobby-step',
@@ -14,9 +14,8 @@ import { NgForOf } from '@angular/common';
     MatButton,
     MatStepperPrevious,
     ReactiveFormsModule,
-    MatStepLabel,
-    NgForOf,
-  ],
+    MatStepLabel
+],
   templateUrl: './hobby-step.component.html',
   styleUrl: './hobby-step.component.scss',
 })

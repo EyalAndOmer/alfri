@@ -6,7 +6,7 @@ import {
   MatCardTitle,
 } from '@angular/material/card';
 import { SubjectGradeCorrelation } from '../../types';
-import { DecimalPipe, NgIf, PercentPipe } from '@angular/common';
+import { DecimalPipe, PercentPipe } from '@angular/common';
 import { Router } from '@angular/router';
 
 @Component({
@@ -18,9 +18,8 @@ import { Router } from '@angular/router';
     MatCardHeader,
     MatCardTitle,
     PercentPipe,
-    NgIf,
-    DecimalPipe,
-  ],
+    DecimalPipe
+],
   templateUrl: './subject-grade-correlation-detail.component.html',
   styleUrl: './subject-grade-correlation-detail.component.scss',
 })

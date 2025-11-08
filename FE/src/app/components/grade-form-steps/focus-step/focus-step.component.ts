@@ -4,7 +4,7 @@ import { Section } from '../../../types';
 import { MatStepLabel, MatStepperNext, MatStepperPrevious } from '@angular/material/stepper';
 import { MatButton } from '@angular/material/button';
 import { FormQuestionComponent } from '@components/form-question/form-question.component';
-import { NgForOf } from '@angular/common';
+
 import {
   BarController,
   BarElement,
@@ -34,9 +34,8 @@ import {
     MatButton,
     MatStepperNext,
     MatStepperPrevious,
-    FormQuestionComponent,
-    NgForOf,
-  ],
+    FormQuestionComponent
+],
   templateUrl: './focus-step.component.html',
   styleUrl: './focus-step.component.scss',
 })

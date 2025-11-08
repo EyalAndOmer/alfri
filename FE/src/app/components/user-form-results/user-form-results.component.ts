@@ -37,7 +37,7 @@ import {
   MatRowDef,
   MatTable, MatTableDataSource,
 } from '@angular/material/table';
-import { NgForOf, NgIf } from '@angular/common';
+
 import { MatChip, MatChipSet } from '@angular/material/chips';
 import { AnsweredForm, StudyPrograms } from '../../types';
 import { MatPaginator } from '@angular/material/paginator';
@@ -48,7 +48,6 @@ import { MatPaginator } from '@angular/material/paginator';
   imports: [
     BaseChartDirective,
     MatCell,
-    NgForOf,
     MatChip,
     MatChipSet,
     MatRow,
@@ -60,9 +59,8 @@ import { MatPaginator } from '@angular/material/paginator';
     MatTable,
     MatHeaderRowDef,
     MatHeaderCellDef,
-    NgIf,
-    MatPaginator,
-  ],
+    MatPaginator
+],
   templateUrl: './user-form-results.component.html',
   styleUrl: './user-form-results.component.scss',
 })

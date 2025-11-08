@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { AsyncPipe, NgClass, NgIf } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -34,15 +34,14 @@ import { AnsweredForm } from '../../types';
     MatIconModule,
     AsyncPipe,
     NgClass,
-    NgIf,
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
     MatExpansionPanel,
     MatExpansionPanelTitle,
     MatExpansionPanelHeader,
-    HasRoleDirective,
-  ],
+    HasRoleDirective
+],
 })
 export class HeaderComponent implements OnInit {
   readonly AuthRole = AuthRole;

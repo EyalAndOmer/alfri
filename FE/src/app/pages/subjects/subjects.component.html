@@ -11,13 +11,14 @@
             formControlName="subjectForm"
             [(value)]="selectedStudyProgramId"
             (selectionChange)="studyProgramChanged()"
-          >
-            <mat-option
-              *ngFor="let program of studyPrograms$ | async"
-              [value]="program.id"
             >
-              {{ program.name }}
-            </mat-option>
+            @for (program of studyPrograms$ | async; track program) {
+              <mat-option
+                [value]="program.id"
+                >
+                {{ program.name }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
       </form>
@@ -30,7 +31,7 @@
       [isLoading]="isLoading"
       (pageChange)="onPageChange($event)"
       (subjectDetailNavigate)="navigateToSubjectDetail($event)"
-    >
+      >
     </app-subjects-table>
   </mat-card-content>
 </mat-card>

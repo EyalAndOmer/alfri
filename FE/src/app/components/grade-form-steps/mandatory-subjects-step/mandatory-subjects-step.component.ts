@@ -14,7 +14,7 @@ import {
 } from '@angular/material/stepper';
 import { MatButton } from '@angular/material/button';
 import { FormQuestionComponent } from '@components/form-question/form-question.component';
-import { NgForOf, NgIf } from '@angular/common';
+
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { FormService } from '@services/form.service';
 
@@ -27,13 +27,11 @@ import { FormService } from '@services/form.service';
     MatStepperNext,
     MatStepperPrevious,
     FormQuestionComponent,
-    NgForOf,
     MatStepLabel,
     FormsModule,
     ReactiveFormsModule,
-    MatProgressSpinner,
-    NgIf,
-  ],
+    MatProgressSpinner
+],
   templateUrl: './mandatory-subjects-step.component.html',
   styleUrl: './mandatory-subjects-step.component.scss',
 })
