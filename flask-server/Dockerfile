@@ -1,15 +1,33 @@
-# Simple Dockerfile for running ml_service
+# Updated Dockerfile: non-root user, install requirements, expose port 5000, gunicorn entrypoint
 FROM python:3.12-slim
 
+# Keep python output unbuffered
+ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Create a non-root user to run the app
+RUN groupadd -r app && useradd -r -g app -d /home/app -m -s /usr/sbin/nologin app
 
+# Copy requirements and install them. Install minimal build tools then remove them to keep image small.
+COPY requirements.txt /app/
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential gcc curl \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y --auto-remove build-essential gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy application code and make app user the owner
 COPY . /app
+RUN chown -R app:app /app
 
+# Set flask entrypoint and switch to non-root user
 ENV FLASK_APP=ml_service.wsgi
-ENV PYTHONUNBUFFERED=1
+USER app
 
+EXPOSE 5000
+
+# Simple Docker HEALTHCHECK -- ensures Docker can report container health based on /health/live
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s CMD curl -f http://127.0.0.1:5000/health/live || exit 1
+
+# Use gunicorn to serve the WSGI app. 2 workers is a reasonable default for small containers.
 CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5000", "ml_service.wsgi:app"]
-
