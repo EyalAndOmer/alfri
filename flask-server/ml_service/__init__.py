@@ -1,6 +1,6 @@
 """ml_service package - app factory and wiring
 """
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 from .logging_setup import configure_logging
 
@@ -22,6 +22,27 @@ def create_app(test_config=None):
     from .config import Config
     app.config.from_object(Config())
 
+    # --- API key middleware: enforce X-API-Key for API routes starting with /api/ ---
+    @app.before_request
+    def _require_api_key():
+        # Only enforce for API routes
+        path = request.path or ""
+        if not path.startswith("/api/"):
+            return None
+
+        configured_keys = app.config.get("API_KEYS", []) or []
+        # if no keys configured, skip enforcement (useful for local dev)
+        if len(configured_keys) == 0:
+            return None
+
+        header = request.headers.get("X-API-Key") or request.headers.get("X-API-KEY")
+        if not header:
+            return jsonify({"error": "Missing X-API-Key header"}), 401
+        # allow exact match to any configured key
+        if header not in configured_keys:
+            return jsonify({"error": "Invalid API key"}), 401
+        return None
+
     # register blueprints
     from .blueprints.health import health_bp
     app.register_blueprint(health_bp)
@@ -29,6 +50,10 @@ def create_app(test_config=None):
     # register predict blueprint
     from .blueprints.predict import predict_bp
     app.register_blueprint(predict_bp)
+
+    # register clustering blueprint
+    from .blueprints.clustering import clustering_bp
+    app.register_blueprint(clustering_bp)
 
     # register JSON error handlers for our API errors
     from . import errors
