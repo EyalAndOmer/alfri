@@ -16,9 +16,17 @@ RUN apt-get update \
     && apt-get purge -y --auto-remove build-essential gcc \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy model artifacts first (keeps them in a separate layer and helps cache during builds).
+# If you prefer to mount models at runtime (recommended for very large models), you can
+# skip this copy and set MODEL_DIR to a mounted path instead.
+COPY ml_service/models /app/ml_service/models
+
 # Copy application code and make app user the owner
 COPY . /app
 RUN chown -R app:app /app
+
+# Set MODEL_DIR to the in-image models location; can be overridden with env at runtime
+ENV MODEL_DIR=/app/ml_service/models
 
 # Set flask entrypoint and switch to non-root user
 ENV FLASK_APP=ml_service.wsgi
