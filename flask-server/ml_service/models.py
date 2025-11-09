@@ -104,9 +104,19 @@ class ModelRegistry:
             except Exception as exc:
                 duration = time.perf_counter() - start
                 self.timings[name] = duration
-                tb = traceback.format_exc()
-                self.errors[name] = tb
-                logger.exception("Failed to load model '%s' (%.3fs): %s", name, duration, exc)
+                # For common environment issues (missing ML libraries) avoid
+                # noisy exception tracebacks and log a concise warning instead.
+                if isinstance(exc, (ModuleNotFoundError, ImportError)):
+                    # Record the concise import error message so callers can see
+                    # which dependency was missing, but don't flood the logs
+                    # with full tracebacks when running in a lightweight dev env.
+                    msg = f"{type(exc).__name__}: {exc}"
+                    self.errors[name] = msg
+                    logger.warning("Could not load model '%s' (%.3fs): %s", name, duration, msg)
+                else:
+                    tb = traceback.format_exc()
+                    self.errors[name] = tb
+                    logger.exception("Failed to load model '%s' (%.3fs): %s", name, duration, exc)
 
         total_duration = time.perf_counter() - total_start
         logger.info("Finished loading models in %.3fs; %d succeeded, %d failed",

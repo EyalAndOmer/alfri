@@ -1,16 +1,16 @@
 # Dockerfile.backend
-# Builds the Spring Boot app from the BE directory and produces a runnable image.
+# Builds the Spring Boot app from the BE module and produces a runnable image.
 
 # Build stage
 FROM maven:3.9.6-sapmachine-21 AS build
-WORKDIR /app
+WORKDIR /build
 
-# Copy only the pom first and download dependencies to leverage Docker cache and avoid repeated downloads
-COPY pom.xml /app/pom.xml
+# Copy only the BE pom first (for better layer caching)
+COPY BE/pom.xml ./pom.xml
 RUN mvn -B -DskipTests dependency:go-offline
 
-# Copy the rest of the source and build
-COPY . /app
+# Copy the rest of the BE sources
+COPY BE /build
 RUN mvn -B -DskipTests clean package
 
 # Final runtime image
@@ -31,10 +31,10 @@ RUN python3 -m venv /opt/venv \
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy the built jar from the build stage
-COPY --from=build /app/target/*.jar /app/app.jar
+COPY --from=build /build/target/*.jar /app/app.jar
 
-# Copy python helper scripts from the build stage (they were added to /app in the build stage)
-COPY --from=build /app/python_scripts /app/python_scripts
+# Copy python helper scripts from the build stage
+COPY --from=build /build/python_scripts /app/python_scripts
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

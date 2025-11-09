@@ -339,3 +339,15 @@ def _predict_with_model(model, X):
         return model.predict_proba(X)
     # last-resort: try call as a function
     return model(X)
+
+
+# --- new test endpoint ---
+@predict_bp.route("/api/v1/predictions/test", methods=["GET"])
+def predictions_test():
+    """Lightweight test endpoint for the predictions blueprint.
+
+    Returns a simple string indicating the endpoint is working. Does not
+    call any registry or other application logic (keeps the function minimal
+    and safe to run in any environment).
+    """
+    return "predictions test OK", 200

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import sk.uniza.fri.alfri.client.PythonMlClient;
 import sk.uniza.fri.alfri.dto.TeacherDto;
 import sk.uniza.fri.alfri.dto.subject.SubjectDto;
 import sk.uniza.fri.alfri.entity.Subject;
@@ -24,10 +25,12 @@ import java.util.List;
 public class TeacherController {
   private final ModelMapper modelMapper;
   private final TeacherService teacherService;
+  private final PythonMlClient pythonMlClient;
 
-  public TeacherController(TeacherService teacherService, ModelMapper modelMapper) {
+  public TeacherController(TeacherService teacherService, ModelMapper modelMapper, PythonMlClient pythonMlClient) {
     this.teacherService = teacherService;
     this.modelMapper = modelMapper;
+      this.pythonMlClient = pythonMlClient;
   }
 
   @GetMapping("/{userId}")
@@ -52,4 +55,9 @@ public class TeacherController {
 
     return ResponseEntity.ok(subjectDtos);
   }
+
+  @GetMapping("/test")
+    public ResponseEntity<String> testEndpoint() {
+        return pythonMlClient.test();
+    }
 }
