@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 05-foreign-keys
+      author: liquibase
+      changes:
+        - tagDatabase:
+            tag: version-1.0

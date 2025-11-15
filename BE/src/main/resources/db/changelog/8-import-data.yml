@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 08-import-full-scratch2
+      author: liquibase
+      context: seed
+      changes:
+        - sqlFile:
+            path: ../data/seed-scratch2.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            endDelimiter: ;
+            stripComments: true
+      rollback:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            sql: |
+              -- Basic rollback deleting inserted rows (danger: may remove existing data if IDs collide)
+              DELETE FROM subject_grades;
+              DELETE FROM focus;
+              DELETE FROM study_program_subject WHERE study_program_id = 3;
+              DELETE FROM student_subject WHERE student_id IN (2,3,4);
+              DELETE FROM student WHERE student_id IN (2,3,4);
+              DELETE FROM subject WHERE subject_id BETWEEN 89 AND 175;
+              DELETE FROM "user" WHERE user_id IN (1,2,3);
+              DELETE FROM questionnaire WHERE questionnaire_id = 2;
+              DELETE FROM study_program WHERE study_program_id = 3;
+              DELETE FROM role WHERE role_id IN (1,2,3);
+              DELETE FROM answer_type WHERE answer_type_id IN (1,2,3,4);
+  - changeSet:
+      id: 08-sequence-setvals
+      author: liquibase
+      context: seed
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            sql: |
+              SELECT setval('public.user_user_id_seq', 4, true);
+              SELECT setval('public.role_role_id_seq', 5, true);
+              SELECT setval('public.answer_type_answer_type_id_seq', 5, true);
+              SELECT setval('public.study_program_id_sequence', 4, true);
+              SELECT setval('public.subject_subject_id_seq', 176, true);
+              SELECT setval('public.student_id', 5, true);

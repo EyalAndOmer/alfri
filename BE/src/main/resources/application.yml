@@ -14,6 +14,10 @@ spring:
     hibernate:
       # Spring Boot won't modify the database based on @Entity classes - we must update the database ourselves
       ddl-auto: none
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yml
+    contexts: ${LIQUIBASE_CONTEXTS:base}
   security:
     jwt:
       secret-key: ${JWT_PROD_SECRET_KEY}

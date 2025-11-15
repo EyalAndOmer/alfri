@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - logicalFilePath: db/changelog/db.changelog-master.yml
+  - include:
+      file: db/changelog/1-sequences.yml
+  - include:
+      file: db/changelog/2-tables.yml
+  - include:
+      file: db/changelog/3-defaults.yml
+  - include:
+      file: db/changelog/4-primary-unique.yml
+  - include:
+      file: db/changelog/5-foreign-keys.yml
+  - include:
+      file: db/changelog/6-indexes.yml
+  - include:
+      file: db/changelog/7-grants.yml
+  - include:
+      file: db/changelog/8-reference-data.yml
+  - include:
+      file: db/changelog/8-import-data.yml
+  - include:
+      file: db/changelog/10-new-entities.yml
+  - include:
+      file: db/changelog/11-subject-grade-correlation-data.yml
+  - include:
+      file: db/changelog/12-subject-grade-self-correlation.yml
+  - include:
+      file: db/changelog/9-tag.yml
+  - include:
+      file: db/changelog/13-questionnaire-data.yml
