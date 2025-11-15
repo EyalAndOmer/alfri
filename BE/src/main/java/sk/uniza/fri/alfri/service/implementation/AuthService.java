@@ -56,15 +56,22 @@ public class AuthService implements IAuthService {
           String.format("User with email %s is already registered!", userToRegister.getEmail()));
     }
 
-    List<Role> roles = List.of(this.roleRepository.findById(UserRoles.STUDENT.getRoleId()).orElseThrow(
-            () -> new EntityNotFoundException(String.format("Role with id %d was not found", UserRoles.STUDENT.getRoleId()))));
+    Role studentRole = this.roleRepository.findById(UserRoles.STUDENT.getRoleId()).orElseThrow(
+            () -> new EntityNotFoundException(String.format("Role with id %d was not found", UserRoles.STUDENT.getRoleId())));
 
-    User user = User.builder().firstName(userToRegister.getFirstName())
-        .lastName(userToRegister.getLastName()).email(userToRegister.getEmail())
-        .password(passwordEncoder.encode(userToRegister.getPassword())).build();
+    User user = User.builder()
+        .firstName(userToRegister.getFirstName())
+        .lastName(userToRegister.getLastName())
+        .email(userToRegister.getEmail())
+        .password(passwordEncoder.encode(userToRegister.getPassword()))
+        .build();
 
-    List<UserRole> userRoles = roles.stream().map(role -> new UserRole(null, user, role)).toList();
-    user.setUserRoles(userRoles);
+    UserRole userRole = UserRole.builder()
+        .user(user)
+        .role(studentRole)
+        .build();
+
+    user.setUserRoles(List.of(userRole));
 
     log.info("User with email {} was registered!", user.getEmail());
 

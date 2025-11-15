@@ -28,3 +28,5 @@ databaseChangeLog:
       file: db/changelog/9-tag.yml
   - include:
       file: db/changelog/13-questionnaire-data.yml
+  - include:
+      file: db/changelog/14-remove-user-role-id-column.yml
