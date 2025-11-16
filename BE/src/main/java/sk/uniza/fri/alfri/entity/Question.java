@@ -53,9 +53,8 @@ public class Question {
     @Column(name = "optional", nullable = false)
     private Boolean optional = false;
 
-    @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL,
+    @OneToMany(mappedBy = "question", fetch = FetchType.EAGER, cascade = CascadeType.ALL,
       orphanRemoval = true)
-    @JsonBackReference
     private List<QuestionOption> options = new ArrayList<>();
 
     @OneToMany(mappedBy = "answerQuestion", fetch = FetchType.LAZY, cascade = CascadeType.ALL,

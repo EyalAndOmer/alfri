@@ -34,3 +34,5 @@ databaseChangeLog:
       file: db/changelog/16-questionnaire-initial-data.yml
   - include:
       file: db/changelog/17-volnocasove-aktivity-options.yml
+  - include:
+      file: db/changelog/18-mark-dynamic-section.yml

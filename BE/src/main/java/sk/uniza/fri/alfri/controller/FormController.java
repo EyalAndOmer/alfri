@@ -52,14 +52,7 @@ public class FormController {
 
   @GetMapping(value = "/get-form/{formId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public QuestionnaireDTO getForm(@PathVariable int formId) throws IllegalArgumentException {
-    Questionnaire questionnaire = this.formService.getForm(formId);
-    QuestionnaireDTO questionnaireDTO = QuestionnaireMapper.INSTANCE.toDto(questionnaire);
-      questionnaireDTO.sections().forEach(section -> {
-          if (!section.shouldFetchData()) {
-              section.questions().clear(); // Remove all questions from the section
-          }
-      });
-    return questionnaireDTO;
+      return this.formService.getForm(formId);
   }
 
     @GetMapping(value = "/get-user-answers/{formId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,6 +60,11 @@ public class FormController {
         String parsedToken = token.replace("Bearer ", "");
         String username = this.jwtService.extractUsername(parsedToken);
         User user = this.userService.getUser(username);
+
+        if (user == null) {
+            log.error("User not found for username: {}", username);
+            throw new IllegalArgumentException("User not found for username: " + username);
+        }
 
         Questionnaire questionnaire = this.formService.getUserFilledForm(formId, user.getId());
         return QuestionnaireMapper.INSTANCE.toAnsweredDto(questionnaire);

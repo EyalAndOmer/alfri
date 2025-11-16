@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import sk.uniza.fri.alfri.dto.questionnaire.AnswerDTO;
 import sk.uniza.fri.alfri.dto.questionnaire.AnswerTextDTO;
 import sk.uniza.fri.alfri.dto.questionnaire.AnswerType;
+import sk.uniza.fri.alfri.dto.questionnaire.QuestionDTO;
 import sk.uniza.fri.alfri.dto.questionnaire.QuestionnaireDTO;
 import sk.uniza.fri.alfri.dto.questionnaire.UserFormAnswersDTO;
 import sk.uniza.fri.alfri.entity.Answer;
@@ -27,6 +28,7 @@ import sk.uniza.fri.alfri.entity.Questionnaire;
 import sk.uniza.fri.alfri.entity.QuestionnaireSection;
 import sk.uniza.fri.alfri.entity.Student;
 import sk.uniza.fri.alfri.entity.StudyProgramSubject;
+import sk.uniza.fri.alfri.entity.Subject;
 import sk.uniza.fri.alfri.entity.User;
 import sk.uniza.fri.alfri.exception.QuestionnaireNotFilledException;
 import sk.uniza.fri.alfri.mapper.AnswerMapper;
@@ -48,8 +50,8 @@ public class FormServiceImpl implements FormService {
   private final AnswerRepository answerRepository;
   private final AnswerTextRepository answerTextRepository;
   private final StudyProgramSubjectRepository studyProgramSubjectRepository;
-    private final EntityManager entityManager;
-    private final StudentRepository studentRepository;
+  private final EntityManager entityManager;
+  private final StudentRepository studentRepository;
 
   public FormServiceImpl(QuestionnaireRepository questionnaireRepository,
       QuestionRepository questionRepository, AnswerRepository answerRepository,
@@ -151,7 +153,7 @@ public class FormServiceImpl implements FormService {
     // Validate answers for each question in the questionnaire
     for (QuestionnaireSection section : questionnaire.getSections()) {
         // If the section data was fetched independently, skip it
-        if (Boolean.FALSE.equals(section.getShouldFetchData())) {
+        if (Boolean.TRUE.equals(section.getShouldFetchData())) {
             continue;
         }
 
@@ -252,23 +254,21 @@ public class FormServiceImpl implements FormService {
         List<StudyProgramSubject> mandatorySubjects = this.studyProgramSubjectRepository.findMandatorySubjects(studyProgramId, year);
         // Now join the data with the question entity
         return this.questionRepository.findAllByQuestionIdentifierIn(mandatorySubjects.stream()
-                .map(obj -> obj.getId().getSubject().getCode())
+                .map(obj -> String.format("question_%s", obj.getId().getSubject().getCode()))
                 .toList());
     }
 
     @Override
-    public Questionnaire getForm(int formId) {
-        Optional<Questionnaire> questionnaireOptional = this.questionnaireRepository.findById(formId);
+    public QuestionnaireDTO getForm(int formId) {
+        Questionnaire questionnaire = this.questionnaireRepository.findById(formId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("The questionnaire with the specified formId %d does not exist.", formId)));
 
-        if (questionnaireOptional.isEmpty()) {
-            throw new IllegalArgumentException(
-                    String.format("The questionnaire with the specified formId %d does not exist.", formId));
-        }
+        questionnaire.getSections().forEach(section ->
+                section.getQuestions().sort(Comparator.comparing(Question::getPositionInQuestionnaire)));
 
-        Questionnaire questionnaire = questionnaireOptional.get();
-        questionnaire.getSections().forEach(s -> s.getQuestions().sort(Comparator.comparing(Question::getPositionInQuestionnaire)));
-
-        return questionnaire;
+        // Map to DTO inside the transactional context to ensure lazy collections are loaded
+        return QuestionnaireMapper.INSTANCE.toDto(questionnaire);
     }
 
     @Transactional

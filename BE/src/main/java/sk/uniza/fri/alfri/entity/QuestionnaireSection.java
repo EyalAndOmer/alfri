@@ -50,7 +50,7 @@ public class QuestionnaireSection {
   @Column(name = "should_fetch_data")
   private Boolean shouldFetchData;
 
-  @OneToMany(mappedBy = "questionnaireSection", fetch = FetchType.LAZY, cascade = CascadeType.ALL,
+  @OneToMany(mappedBy = "questionnaireSection", fetch = FetchType.EAGER, cascade = CascadeType.ALL,
       orphanRemoval = true)
   @Filter(name = "answeredByUserFilter", condition = "EXISTS (SELECT 1 FROM answer a WHERE a.question_id = question_id AND a.user_id = :userId)")
   private List<Question> questions = new ArrayList<>();

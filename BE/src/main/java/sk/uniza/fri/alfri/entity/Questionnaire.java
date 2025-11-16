@@ -37,7 +37,7 @@ public class Questionnaire {
   @Column(name = "date_of_creation", nullable = false)
   private Instant dateOfCreation;
 
-  @OneToMany(mappedBy = "questionnaire", fetch = FetchType.LAZY, cascade = CascadeType.ALL,
+  @OneToMany(mappedBy = "questionnaire", fetch = FetchType.EAGER, cascade = CascadeType.ALL,
       orphanRemoval = true)
   @OrderBy("sectionId ASC")
   private List<QuestionnaireSection> sections = new ArrayList<>();

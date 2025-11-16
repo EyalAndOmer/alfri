@@ -1,5 +1,6 @@
 package sk.uniza.fri.alfri.service;
 
+import sk.uniza.fri.alfri.dto.questionnaire.QuestionDTO;
 import sk.uniza.fri.alfri.dto.questionnaire.QuestionnaireDTO;
 import sk.uniza.fri.alfri.dto.questionnaire.UserFormAnswersDTO;
 import sk.uniza.fri.alfri.entity.Question;
@@ -23,7 +24,7 @@ public interface FormService {
 
   List<Question> getMandatorySubjects(Long studyProgramId, int year);
 
-  Questionnaire getForm(int formId);
+  QuestionnaireDTO getForm(int formId);
 
   Questionnaire getUserFilledForm(int formId, Integer userId);
 }
