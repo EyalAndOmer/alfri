@@ -36,8 +36,8 @@ DEFAULT_MODEL_MAP = {
     "dp_h5": {"type": "keras", "path": "dp.h5"},
     "dp_pkl": {"type": "logistic", "path": "dp.pkl"},
 
-    "kmeans_model": {"type": "kmeans", "path": "kmeans_model.pkl", "studyProgramId": "default"},
-    "kmeans_model_manazment": {"type": "kmeans", "path": "kmeans_model_manazment.pkl", "studyProgramId": "manazment"},
+    "kmeans_model": {"type": "kmeans", "path": "kmeans_model.pkl", "studyProgramId": 3},
+    "kmeans_model_manazment": {"type": "kmeans", "path": "kmeans_model_manazment.pkl", "studyProgramId": 4},
 
     "mata1_h5": {"type": "keras", "path": "mata1.h5"},
     "mata1_pkl": {"type": "logistic", "path": "mata1.pkl"},
@@ -74,6 +74,21 @@ class Config:
     _raw_api_keys = os.getenv("API_KEYS") or os.getenv("API_KEY") or ""
     # split by comma and strip whitespace, filter out empty strings
     API_KEYS: List[str] = [k.strip() for k in _raw_api_keys.split(",") if k.strip()] if _raw_api_keys else []
+
+    # Database configuration
+    DATABASE_HOST = os.getenv("DATABASE_DEV_URL", "localhost:5432/alfri")
+    DATABASE_USER = os.getenv("DATABASE_DEV_USER", "alfri")
+    DATABASE_PASSWORD = os.getenv("DATABASE_DEV_PASSWORD", "changeme")
+
+    # Parse host:port/database format
+    _db_parts = DATABASE_HOST.split("/")
+    DATABASE_NAME = _db_parts[1] if len(_db_parts) > 1 else "alfri"
+    _host_port = _db_parts[0].split(":")
+    DATABASE_HOST_ONLY = _host_port[0] if _host_port else "localhost"
+    DATABASE_PORT = int(_host_port[1]) if len(_host_port) > 1 else 5432
+
+    # Construct PostgreSQL connection string
+    DATABASE_URL = f"postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST_ONLY}:{DATABASE_PORT}/{DATABASE_NAME}"
 
     # Add other config defaults as needed
 

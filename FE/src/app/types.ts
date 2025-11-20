@@ -67,6 +67,7 @@ export interface FocusDto {
 }
 
 export interface SubjectDto {
+  id: number;
   name: string;
   code: string;
   abbreviation: string;

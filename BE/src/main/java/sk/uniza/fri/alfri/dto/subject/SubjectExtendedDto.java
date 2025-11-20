@@ -9,6 +9,7 @@ import java.io.Serializable;
 import sk.uniza.fri.alfri.dto.focus.FocusDTO;
 
 public record SubjectExtendedDto(
+    Integer id,
     @Size(max = 100) @NotBlank(message = "Subject's name cannot be blank or null!") String name,
     @Size(max = 50) @NotBlank(message = "Subject's code cannot be blank or null!") String code,
     @NotBlank(message = "Subject's abbreviation cannot be blank or null!") String abbreviation,

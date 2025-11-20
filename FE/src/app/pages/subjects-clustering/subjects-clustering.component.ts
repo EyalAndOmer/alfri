@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import { SubjectsTableComponent } from '@components//subjects-table/subjects-table.component';
 import {
   catchError,
@@ -111,12 +111,10 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
     return this._recommendedSubjectsDataSource$;
   }
 
-  constructor(
-    private subjectService: SubjectService,
-    private studentService: StudentService,
-    private errorService: NotificationService,
-    private router: Router,
-  ) {}
+  private readonly subjectService = inject(SubjectService);
+  private readonly studentService = inject(StudentService);
+  private readonly errorService = inject(NotificationService);
+  private readonly router = inject(Router);
 
   ngOnInit() {
     this.init();

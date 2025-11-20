@@ -21,6 +21,7 @@ public interface SubjectMapper {
             StudyProgramSubject studyProgramSubject = subject.getStudyProgramSubjects().getFirst();
 
             return new SubjectExtendedDto(
+                    subject.getId(),
                     subject.getName(),
                     subject.getCode(),
                     subject.getAbbreviation(),
@@ -50,6 +51,7 @@ public interface SubjectMapper {
   @Mapping(target = "recommendedYear", ignore = true)
   @Mapping(target = "obligation", ignore = true)
   @Mapping(source = "focus", target = "focusDTO")
+  @Mapping(target = "id", source = "id")
   SubjectExtendedDto toSubjectExtendedDto(Subject studyProgram);
 
   FocusDTO toFocusDTO(Focus focus);
@@ -64,7 +66,6 @@ public interface SubjectMapper {
   @Mapping(target = "obligation", ignore = true)
   SubjectDto toDto(Subject subject);
 
-  @Mapping(target = "id", ignore = true)
   @Mapping(target = "focus", source = "subjectExtendedDto.focusDTO")
   Subject fromSubjectExtendedDtotoEntity(SubjectExtendedDto subjectExtendedDto);
 

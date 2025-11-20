@@ -106,7 +106,8 @@ public class AuthService implements IAuthService {
     public Optional<User> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
-            return Optional.of((User) userDetails); // Handle null username
+            String email = userDetails.getUsername();
+            return userRepository.findByEmail(email);
         }
         return Optional.empty();
     }

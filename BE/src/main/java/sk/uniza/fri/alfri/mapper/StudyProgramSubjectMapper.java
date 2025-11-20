@@ -22,6 +22,7 @@ public interface StudyProgramSubjectMapper {
       qualifiedByName = "mapSemester")
   SubjectDto studyProgramSubjectToSubjectDto(StudyProgramSubject studyProgramSubject);
 
+  @Mapping(target = "id", source = "studyProgramSubject.id.subject.id")
   @Mapping(target = "studyProgramName", source = "studyProgramSubject.id.studyProgram.name")
   @Mapping(target = "semester", source = "studyProgramSubject.semesterWinter",
       qualifiedByName = "mapSemester")

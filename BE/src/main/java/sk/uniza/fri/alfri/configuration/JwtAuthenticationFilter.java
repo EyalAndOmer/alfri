@@ -14,7 +14,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -34,9 +33,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Value("${default-user-email}")
   private String defaultUserEmail;
 
-  @Value("${default-user-roles}")
-  private String[] defaultUserRoles;
-
   public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService,
       Environment environment) {
     this.jwtService = jwtService;
@@ -54,13 +50,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         .stream(environment.getActiveProfiles()).allMatch(profile -> profile.equals(DEV_PROFILE))) {
       log.info(Arrays.toString(environment.getActiveProfiles()));
 
-      UserDetails devUserDetails = User.builder().username(defaultUserEmail).password("") // Empty
-                                                                                          // password
-                                                                                          // as it's
-                                                                                          // not
-                                                                                          // needed
-                                                                                          // here
-          .roles(defaultUserRoles).build();
+      // Load the actual User entity from database instead of creating a mock Spring Security User
+      UserDetails devUserDetails = this.userDetailsService.loadUserByUsername(defaultUserEmail);
 
       UsernamePasswordAuthenticationToken devAuthToken = new UsernamePasswordAuthenticationToken(
           devUserDetails, null, devUserDetails.getAuthorities());

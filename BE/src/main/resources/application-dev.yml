@@ -31,6 +31,7 @@ python:
   passing_mark_prediction_script_path: ${DEV_PASSING_MARK_PREDICTION_SCRIPT_PATH:./python_scripts/neural_network_marks_predictions.py}
   service:
     base-url: ${PYTHON_SERVICE_URL}
+    enabled: true
 
 resilience4j:
   circuitbreaker:

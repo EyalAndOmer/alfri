@@ -168,24 +168,27 @@ public class SubjectService implements ISubjectService {
       // Prepare request for remote service
       ClusteringRequestDto req = new ClusteringRequestDto();
       // convert List<List<Integer>> to List<List<Double>>
-      List<List<Double>> doubleList = new ArrayList<>();
-      for (List<Integer> l : focusesAttributes) {
-        List<Double> inner = new ArrayList<>();
-        for (Integer v : l) inner.add(v == null ? 0.0 : v.doubleValue());
-        doubleList.add(inner);
-      }
-      req.setFocusVectors(doubleList);
-      req.setStudyProgramId(String.valueOf(studyProgramId));
+      List<Integer> subjectIds = originalSubjects.stream().map(Subject::getId).toList();
+      req.setSubjectIds(subjectIds);
+      req.setStudyProgramId(studyProgramId);
 
       ClusteringResponseDto resp = pythonPredictionService.clustering(req);
-      List<Integer> result = resp.getCluster_indices();
-      // apply offset if the service didn't already do it
-      if (resp.getOffset_applied() == 0 && studyProgramId != null && studyProgramId != 3) {
-        // TODO: maintain same offset logic as before
-        result = result.stream().map(i -> i + 87).toList();
+
+      if (resp == null) {
+        // graceful degradation: no clustering available
+        return List.of();
       }
 
-      return findSubjectByIds(result);
+      List<Integer> resultIds = new ArrayList<>();
+
+      if (resp.getRecommendations() != null && !resp.getRecommendations().isEmpty()) {
+        for (ClusteringResponseDto.RecommendationDto r : resp.getRecommendations()) {
+          if (r != null && r.getId() != null) resultIds.add(r.getId());
+        }
+      }
+
+      // Ensure we return StudyProgramSubject entities; if resultIds are indexes from legacy flow they may need adjustment in findSubjectByIds
+      return resultIds.isEmpty() ? List.of() : findSubjectByIds(resultIds);
     }
 
     ProcessBuilder processBuilder =
@@ -216,8 +219,7 @@ public class SubjectService implements ISubjectService {
     User currentUser = this.authService.getCurrentUser().orElseThrow(() -> new RuntimeException("Cannot find user."));
 
     ids.forEach(id -> {
-        Integer fixedId = id + 1; // Due to data change
-      StudyProgramSubject subject = studyProgramSubjectRepository.findByIdSubjectId(fixedId, currentUser.getStudent().getStudyProgramId())
+      StudyProgramSubject subject = studyProgramSubjectRepository.findByIdSubjectId(id, currentUser.getStudent().getStudyProgramId())
           .orElseThrow(() -> new EntityNotFoundException(
               String.format("Subject with id %d was not found!", id)));
       subjectList.add(subject);

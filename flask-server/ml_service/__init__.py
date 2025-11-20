@@ -51,9 +51,13 @@ def create_app(test_config=None):
     from .blueprints.predict import predict_bp
     app.register_blueprint(predict_bp)
 
-    # register clustering blueprint
+    # register clustering blueprint (legacy)
     from .blueprints.clustering import clustering_bp
     app.register_blueprint(clustering_bp)
+
+    # register clustering_v2 blueprint (corrected implementation)
+    from .blueprints.clustering_v2 import clustering_v2_bp
+    app.register_blueprint(clustering_v2_bp)
 
     # register JSON error handlers for our API errors
     from . import errors
@@ -69,6 +73,28 @@ def create_app(test_config=None):
         app.logger.exception("Unhandled exception: %s", err)
         internal = errors.InternalError("Internal server error")
         return jsonify({"error": internal.to_dict()}), internal.status_code
+
+    # Initialize database connection pool
+    from .database import DatabaseManager
+    import atexit
+    try:
+        db_url = app.config.get("DATABASE_URL")
+        db_manager = DatabaseManager(db_url, min_connections=1, max_connections=2)
+        db_manager.init_pool()
+        app.config["DB_MANAGER"] = db_manager
+
+        # Test connection
+        if db_manager.test_connection():
+            app.logger.info("Database connection successful")
+        else:
+            app.logger.warning("Database connection test failed - clustering endpoints may not work")
+
+        # Register cleanup handler for application shutdown (not per-request)
+        atexit.register(lambda: db_manager.close_pool())
+    except Exception as e:
+        app.logger.error(f"Failed to initialize database: {e}")
+        app.logger.warning("Clustering endpoints will not be available")
+
 
     # start model loading in background (non-blocking)
     from . import models
