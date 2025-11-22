@@ -6,24 +6,25 @@
       <div
         class="d-flex col-12 col-md-6 justify-content-center flex-column align-items-center info-wrapper p-3"
         >
-        <h2>Prihlásenie</h2>
         <img
-          src="assets/images/brain_lb.png"
+          ngSrc="assets/images/brain_lb.png"
           class="img-fluid w-75"
           alt="logo"
-          />
+          priority
+          height="1012" width="1408"/>
         <h5 class="p-4">
           Prvý inteligentný asistent pre študentov a učiteľov FRI UNIZA.
         </h5>
       </div>
 
       <div
-        class="container-fluid p-3 form-wrapper d-flex col-12 col-md-6 m-0 align-items-center"
+        class="container-fluid p-3 form-wrapper d-flex col-12 col-md-6 m-0 align-items-center row row-gap-2"
         >
+        <h2 class="text-center col-12">Prihlásenie</h2>
         <form
           [formGroup]="loginForm"
           (ngSubmit)="onSubmit()"
-          class="d-flex flex-column row-gap-2 w-100 m-1"
+          class="d-flex flex-column row-gap-2 w-100 m-1 col-12"
           >
           <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
@@ -42,14 +43,12 @@
               formControlName="password"
               type="password"
               required
-              pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{8,}$"
               />
-            @if (loginForm.controls['password'].invalid) {
-              <mat-error>
-                Heslo nie je príliš komplexné.
-              </mat-error>
-            }
           </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit">
+            Prihlásiť sa
+          </button>
 
           <div class="text-center">
             <p>
@@ -62,10 +61,6 @@
                 >
               </p>
             </div>
-
-            <button mat-raised-button color="primary" type="submit">
-              Prihlásiť sa
-            </button>
           </form>
         </div>
       </mat-card>

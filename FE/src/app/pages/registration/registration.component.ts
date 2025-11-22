@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import {Component, inject, OnDestroy} from '@angular/core';
 import {
   AbstractControl,
   AbstractControlOptions,
@@ -47,15 +47,15 @@ export class RegistrationComponent implements OnDestroy {
   roles: Role[] = [];
   readonly destroyed$: ReplaySubject<void> = new ReplaySubject(1);
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private authService: AuthService,
-    private errorService: NotificationService,
-    private userService: UserService,
-    private jwtService: JwtService,
-    private notificationService: NotificationService
-  ) {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly errorService = inject(NotificationService);
+  private readonly userService = inject(UserService);
+  private readonly jwtService = inject(JwtService);
+  private readonly notificationService = inject(NotificationService);
+
+  constructor() {
     const formOptions: AbstractControlOptions = {
       validators: [this.mustMatch('password', 'confirmPassword')],
     };

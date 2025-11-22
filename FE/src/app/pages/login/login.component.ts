@@ -1,10 +1,8 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { MatOption } from '@angular/material/autocomplete';
-import { MatSelect } from '@angular/material/select';
 import { NgOptimizedImage } from '@angular/common';
 import {
   FormBuilder,
@@ -28,8 +26,6 @@ import { NotificationService } from '@services/notification.service';
     MatFormField,
     MatInput,
     MatLabel,
-    MatOption,
-    MatSelect,
     ReactiveFormsModule,
     NgOptimizedImage
 ],
@@ -38,14 +34,13 @@ import { NotificationService } from '@services/notification.service';
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly jwtService = inject(JwtService);
+  private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private authService: AuthService,
-    private jwtService: JwtService,
-    private router: Router,
-    private notificationService: NotificationService,
-  ) {
+  constructor() {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],

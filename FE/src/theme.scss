@@ -1,0 +1,36 @@
+@use '@angular/material' as mat;
+
+$my-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$violet-palette,
+    tertiary: mat.$magenta-palette,
+  ),
+  typography: (
+    brand-family: 'Roboto, sans-serif',
+    plain-family: 'Roboto, sans-serif',
+  ),
+  density: (
+    scale: 0
+  )
+));
+
+// Apply the theme globally
+:root {
+  @include mat.all-component-themes($my-theme);
+
+  --mdc-filled-button-container-shape: 10px;
+  --mdc-outlined-button-container-shape: 10px;
+  --mdc-text-button-container-shape: 10px;
+}
+
+button,
+button.mat-mdc-button,
+button.mat-mdc-raised-button,
+button.mat-mdc-unelevated-button,
+button.mat-mdc-outlined-button,
+button.mat-mdc-icon-button,
+button.mdc-button {
+  padding: 20px;
+  border-radius: 10px;
+}
