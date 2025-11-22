@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { SubjectService } from '@services/subject.service';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 
 import {
   BarController,
@@ -24,21 +25,21 @@ import {
   Title,
   Tooltip,
 } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts';
 import { SubjectExtendedDto } from '../../types';
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import { MatCard } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-subject-detail',
   standalone: true,
-  imports: [BaseChartDirective, MatCard, MatCardHeader, MatCardContent, MatCardTitle],
+  imports: [ MatCard, MatButtonModule],
   templateUrl: './subject-detail.component.html',
   styleUrl: './subject-detail.component.scss',
 })
-export class SubjectDetailComponent implements OnInit, AfterViewInit {
+export class SubjectDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chart') public focusChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('barChart') public barChartRef!: ElementRef<HTMLCanvasElement>;
-  public subjectData: SubjectExtendedDto | undefined;
+  public subjectData!: SubjectExtendedDto;
   public loading = true;
   private chart!: Chart;
   private barChart!: Chart;
@@ -112,10 +113,11 @@ export class SubjectDetailComponent implements OnInit, AfterViewInit {
 
   public barChartType: ChartType = 'bar';
 
-  constructor(
-    private subjectService: SubjectService,
-    private activateRoute: ActivatedRoute,
-  ) {
+  private readonly subjectService = inject(SubjectService);
+  private readonly activateRoute = inject(ActivatedRoute);
+  private readonly location = inject(Location);
+
+  constructor() {
     chartJs.register(
       CategoryScale,
       LinearScale,
@@ -161,6 +163,19 @@ export class SubjectDetailComponent implements OnInit, AfterViewInit {
           this.updateCharts();
         });
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.chart) {
+      this.chart.destroy();
+    }
+    if (this.barChart) {
+      this.barChart.destroy();
+    }
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   private updateCharts() {
