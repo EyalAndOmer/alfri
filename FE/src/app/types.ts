@@ -74,6 +74,7 @@ export interface SubjectDto {
   studyProgramName: string;
   recommendedYear: number;
   semester: string;
+  obligation?: string;
 }
 
 export interface SubjectExtendedDto extends SubjectDto {

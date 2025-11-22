@@ -1,5 +1,4 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
 import {
   catchError,
   map,
@@ -13,9 +12,10 @@ import {
 import { SubjectService } from '@services/subject.service';
 import { StudyProgramService } from '@services/study-program.service';
 import { CommonModule } from '@angular/common';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatOptionModule } from '@angular/material/core';
 import {
   FormBuilder,
   FormGroup,
@@ -26,26 +26,26 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
 import { Page, StudyProgramDto, SubjectDto } from '../../types';
-import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
+import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
 
 @Component({
   selector: 'app-subjects',
   standalone: true,
   imports: [
-    MatTableModule,
     CommonModule,
-    MatPaginatorModule,
-    MatProgressBarModule,
     MatSelectModule,
+    MatFormFieldModule,
+    MatOptionModule,
     FormsModule,
     ReactiveFormsModule,
     SubjectsTableComponent,
     MatCard,
-    MatCardHeader,
     MatCardContent,
+    MatTableModule,
   ],
   templateUrl: './subjects.component.html',
-  styleUrl: './subjects.component.scss',
+  styleUrls: ['./subjects.component.scss'],
 })
 export class SubjectsComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();
@@ -122,7 +122,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
       .getAll()
       .pipe(takeUntil(this._destroy$));
 
-    this._selectedStudyProgramId = 3; // informatika
+    this._selectedStudyProgramId = 3;
     this.filterForm.patchValue({ subjectForm: this._selectedStudyProgramId });
 
     this._dataSource$ = this.getSubjects(0, 10, this._selectedStudyProgramId);
@@ -141,6 +141,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
       )
       .pipe(
         tap((page: Page<SubjectDto>) => {
+          console.log(page)
           this.pageData.size = page.size;
           this.pageData.totalElements = page.totalElements;
           this.pageData.number = page.number;
@@ -165,6 +166,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
 
   public onPageChange(event: PageEvent) {
     this.isLoading = true;
+    console.log(event)
 
     this._dataSource$ = this.getSubjects(
       event.pageIndex,

@@ -22,7 +22,7 @@
   <mat-card-content>
     <app-subjects-table
       class="overflow-x-scroll"
-      [dataSource$]="dataSource$"
+      [dataSourceInput]="dataSource$"
       [pageData]="pageData"
       [isLoading]="isLoading"
       (pageChange)="onPageChange($event)"

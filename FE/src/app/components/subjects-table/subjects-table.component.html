@@ -1,19 +1,15 @@
 <div class="table-wrapper">
-  <table mat-table [dataSource]="dataSource$" aria-description="subject table">
-    <ng-container matColumnDef="select">
+  <table mat-table [dataSource]="resolvedDataSource" aria-description="subject table">
+    <ng-container matColumnDef="select" *ngIf="isSelectable()">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let subject">
         <mat-checkbox
           (click)="$event.stopPropagation()"
           (change)="toggleSelection(subject)"
           (keyup.enter)="toggleSelection(subject)"
-          [checked]="selectedSubjectsMap.has(subject.code)"
-          [disabled]="
-            !selectedSubjectsMap.has(subject.code) &&
-            getSelectedSubjectsCount() >= maxSelectableSubjects
-          "
-          >
-        </mat-checkbox>
+          [checked]="isSelected(subject)"
+          [disabled]="isDisabled(subject)"
+        ></mat-checkbox>
       </td>
     </ng-container>
 
@@ -24,7 +20,7 @@
           class="text-decoration-none"
           href="javascript:void(0)"
           (click)="navigateToSubjectDetail(subject.code)"
-          >
+        >
           {{ subject.name }}
         </a>
       </td>
@@ -57,15 +53,15 @@
       <td mat-cell *matCellDef="let subject">{{ subject.semester }}</td>
     </ng-container>
 
-    <ng-container matColumnDef="empty">
+    <ng-container matColumnDef="empty" *ngIf="!resolvedDataSource.data?.length && !isLoading()">
       <td mat-cell colspan="7">No subjects are present</td>
     </ng-container>
 
     <!-- Skeleton rows when loading -->
-    @if (isLoading) {
+    @if (isLoading()) {
       @for (_ of [1, 2, 3, 4, 5]; track $index) {
         <tr mat-row class="skeleton-row">
-          @for (col of columnsToDisplay; track col) {
+          @for (col of columnsToDisplay(); track col) {
             <td mat-cell>
               <div class="skeleton skeleton-text"></div>
             </td>
@@ -73,22 +69,20 @@
         </tr>
       }
     } @else {
-      <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
+      <tr mat-header-row *matHeaderRowDef="columnsToDisplay(); sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnsToDisplay(); trackBy: trackByCode"></tr>
     }
   </table>
 </div>
-@if (isPageable) {
+@if (isPageable()) {
   <div>
-    @if (isLoading) {
-      <mat-progress-bar
-        mode="indeterminate"
-      ></mat-progress-bar>
+    @if (isLoading()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
     <mat-paginator
-      [length]="pageData.totalElements"
-      [pageSize]="pageData.size"
-      [pageIndex]="pageData.number"
+      [length]="pageData().totalElements"
+      [pageSize]="pageData().size"
+      [pageIndex]="pageData().number"
       (page)="onPageChange($event)"
       [pageSizeOptions]="[5, 10, 100]"
     ></mat-paginator>
