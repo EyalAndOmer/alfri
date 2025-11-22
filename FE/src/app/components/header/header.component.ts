@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { AsyncPipe, NgClass } from '@angular/common';
+import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -32,8 +31,6 @@ import { AnsweredForm } from '../../types';
     MatSidenavModule,
     MatListModule,
     MatIconModule,
-    AsyncPipe,
-    NgClass,
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
@@ -49,13 +46,11 @@ export class HeaderComponent implements OnInit {
   routerSubscription!: Subscription;
   formData: AnsweredForm | undefined;
 
-  constructor(
-    private readonly userService: UserService,
-    protected readonly authService: AuthService,
-    private readonly router: Router,
-    private notificationService: NotificationService,
-    private formDataService: FormDataService
-  ) {}
+  private readonly userService = inject(UserService);
+  protected readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
+  private readonly formDataService = inject(FormDataService);
 
   ngOnInit() {
     // Subscribe to router events

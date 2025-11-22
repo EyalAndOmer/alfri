@@ -61,8 +61,21 @@
       <td mat-cell colspan="7">No subjects are present</td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
+    <!-- Skeleton rows when loading -->
+    @if (isLoading) {
+      @for (_ of [1, 2, 3, 4, 5]; track $index) {
+        <tr mat-row class="skeleton-row">
+          @for (col of columnsToDisplay; track col) {
+            <td mat-cell>
+              <div class="skeleton skeleton-text"></div>
+            </td>
+          }
+        </tr>
+      }
+    } @else {
+      <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
+    }
   </table>
 </div>
 @if (isPageable) {

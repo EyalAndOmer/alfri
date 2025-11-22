@@ -2,7 +2,7 @@ import type { Routes } from '@angular/router';
 import { HomeComponent } from '@pages/home/home.component';
 import { LoginComponent } from '@pages/login/login.component';
 import { RegistrationComponent } from '@pages/registration/registration.component';
-import { AuthGuards, roleAppGuard, tokenAppGuard } from './auth-guards';
+import { AuthGuards, loggedOutOnlyGuard, roleAppGuard, tokenAppGuard } from './auth-guards';
 import { ErrorPageComponent } from '@pages/error-page/error-page.component';
 import { ProfileComponent } from '@pages/profile/profile.component';
 import { inject } from '@angular/core';
@@ -26,8 +26,16 @@ export const routes: Routes = [
     component: HomeComponent,
     canActivate: [() => inject(AuthGuards).canActivate()],
   },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegistrationComponent },
+  {
+    path: 'login',
+    component: LoginComponent,
+    canActivate: [loggedOutOnlyGuard],
+  },
+  {
+    path: 'register',
+    component: RegistrationComponent,
+    canActivate: [loggedOutOnlyGuard],
+  },
   {
     path: 'subjects',
     component: SubjectsComponent,
@@ -84,11 +92,13 @@ export const routes: Routes = [
     component: KeywordsComponent,
     canActivate: [() => inject(AuthGuards).canActivate()],
   },
-  { path: 'profile',
+  {
+    path: 'profile',
     component: ProfileComponent,
     canActivate: [tokenAppGuard],
   },
-  { path: 'grade-form',
+  {
+    path: 'grade-form',
     component: GradeFormComponent,
     canActivate: [tokenAppGuard],
   },

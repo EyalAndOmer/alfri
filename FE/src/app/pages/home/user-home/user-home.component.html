@@ -1,9 +1,4 @@
 <ng-container>
-  <div class="card">
-    <div class="card-header">
-      <h2 class="card-title mb-0">Dotazník študenta</h2>
-    </div>
-    <div class="card-body">
       @if (loading) {
         <ng-container class="row">
           <ngx-skeleton-loader count="5" appearance="line"></ngx-skeleton-loader>
@@ -60,7 +55,4 @@
           <app-user-form-results [existingAnswers]="formData" />
         }
       }
-
-    </div>
-  </div>
 </ng-container>

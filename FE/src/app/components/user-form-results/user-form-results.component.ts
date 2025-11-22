@@ -24,7 +24,6 @@ import {
   Title,
   Tooltip,
 } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts';
 import {
   MatCell,
   MatCellDef,
@@ -41,12 +40,12 @@ import {
 import { MatChip, MatChipSet } from '@angular/material/chips';
 import { AnsweredForm, StudyPrograms } from '../../types';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 
 @Component({
   selector: 'app-user-form-results',
   standalone: true,
   imports: [
-    BaseChartDirective,
     MatCell,
     MatChip,
     MatChipSet,
@@ -59,7 +58,11 @@ import { MatPaginator } from '@angular/material/paginator';
     MatTable,
     MatHeaderRowDef,
     MatHeaderCellDef,
-    MatPaginator
+    MatPaginator,
+    MatCard,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardContent,
 ],
   templateUrl: './user-form-results.component.html',
   styleUrl: './user-form-results.component.scss',

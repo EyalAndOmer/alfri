@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import {
   catchError,
@@ -23,8 +23,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatInput } from '@angular/material/input';
-import { MatButton } from '@angular/material/button';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
 import { Page, StudyProgramDto, SubjectDto } from '../../types';
@@ -40,9 +38,7 @@ import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
     MatProgressBarModule,
     MatSelectModule,
     FormsModule,
-    MatInput,
     ReactiveFormsModule,
-    MatButton,
     SubjectsTableComponent,
     MatCard,
     MatCardHeader,
@@ -105,13 +101,13 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     this._selectedStudyProgramId = selected;
   }
 
-  constructor(
-    private subjectService: SubjectService,
-    private studyProgramService: StudyProgramService,
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-  ) {
+  private readonly subjectService = inject(SubjectService);
+  private readonly studyProgramService = inject(StudyProgramService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+
+  constructor() {
     this.filterForm = this.formBuilder.group({
       subjectForm: ['', [Validators.required]],
     });
