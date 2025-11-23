@@ -1,7 +1,7 @@
-import {Component, computed, effect, input, output, signal, viewChild} from '@angular/core';
+import {Component, computed, effect, input, output, signal} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Page, SubjectDto} from '../../types';
-import {MatPaginator, MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -40,13 +40,19 @@ export class SubjectsTableComponent {
   // Internal signals
   readonly internalDataSource = signal<MatTableDataSource<SubjectDto>>(new MatTableDataSource<SubjectDto>([]));
   private readonly selectedSubjectsMap = signal<Map<string, SubjectDto>>(new Map());
+  readonly showLoader = signal<boolean>(false);
+  private loadingTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Computed: list of columns
   columnsToDisplay = computed(() => {
     const full = this.displayFullInfo();
-    return full
-      ? ['select', 'name', 'code', 'abbreviation', 'obligation', 'recommendedYear', 'semester']
-      : ['select', 'name', 'abbreviation', 'obligation'];
+    const selectable = this.isSelectable();
+
+    const baseColumns = full
+      ? ['name', 'code', 'abbreviation', 'obligation', 'recommendedYear', 'semester']
+      : ['name', 'abbreviation', 'obligation'];
+
+    return selectable ? ['select', ...baseColumns] : baseColumns;
   });
 
   // Computed: selected subjects array & count
@@ -62,6 +68,26 @@ export class SubjectsTableComponent {
       }
     });
 
+    // Effect: delayed loading indicator (only show after 200ms)
+    effect(() => {
+      const loading = this.isLoading();
+
+      // Clear any existing timeout
+      if (this.loadingTimeout) {
+        clearTimeout(this.loadingTimeout);
+        this.loadingTimeout = null;
+      }
+
+      if (loading) {
+        // Start a timeout to show loader after 200ms
+        this.loadingTimeout = setTimeout(() => {
+          this.showLoader.set(true);
+        }, 200);
+      } else {
+        // Immediately hide loader when not loading
+        this.showLoader.set(false);
+      }
+    });
 
     // Effect: emit selected subjects whenever list changes
     effect(() => {

@@ -1,12 +1,17 @@
-<div class="table-wrapper">
-  @if (isLoading()) {
+@if (showLoader()) {
+  <div style="height: 4px;">
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  }
+  </div>
+} @else {
+  <div style="height: 4px;"></div>
+}
+<div class="table-wrapper">
   <table mat-table [dataSource]="internalDataSource()" [trackBy]="trackByCode" aria-description="subject table">
+    @if (isSelectable()) {
     <ng-container matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let subject">
-        @if (isSelectable()) {
+
           <mat-checkbox
             (click)="$event.stopPropagation()"
             (change)="toggleSelection(subject)"
@@ -14,9 +19,9 @@
             [checked]="isSelected(subject)"
             [disabled]="isDisabled(subject)"
           ></mat-checkbox>
-        }
       </td>
     </ng-container>
+    }
 
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>Názov</th>
@@ -64,13 +69,11 @@
   </table>
 </div>
 @if (isPageable()) {
-  <div>
-    <mat-paginator
-      [length]="pageData().totalElements"
-      [pageSize]="pageData().size"
-      [pageIndex]="pageData().number"
-      (page)="onPageChange($event)"
-      [pageSizeOptions]="[5, 10, 100]"
-    ></mat-paginator>
-  </div>
+  <mat-paginator
+    [length]="pageData().totalElements"
+    [pageSize]="pageData().size"
+    [pageIndex]="pageData().number"
+    (page)="onPageChange($event)"
+    [pageSizeOptions]="[5, 10, 100]"
+  ></mat-paginator>
 }
