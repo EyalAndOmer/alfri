@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, take } from 'rxjs';
@@ -23,10 +23,10 @@ export class UserService {
   private readonly _userData: BehaviorSubject<UserDto | undefined> = new BehaviorSubject<UserDto | undefined>(undefined);
   private readonly BE_URL = `${environment.API_URL}/user`;
 
-  constructor(
-    private readonly http: HttpClient,
-    public jwtHelper: JwtHelperService,
-  ) {
+  private readonly http = inject(HttpClient);
+  public jwtHelper = inject(JwtHelperService);
+
+  constructor() {
     this.loadUserData();
   }
 
@@ -47,7 +47,6 @@ export class UserService {
 
   loggedIn() {
     const expired = this.jwtHelper.isTokenExpired();
-    console.log(expired)
     return !expired
   }
 

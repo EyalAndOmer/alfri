@@ -1,10 +1,8 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {
   catchError,
-  map,
   Observable,
   of,
-  shareReplay,
   Subject,
   takeUntil,
   tap,
@@ -27,7 +25,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
 import { Page, StudyProgramDto, SubjectDto } from '../../types';
 import { MatCard, MatCardContent } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-subjects',
@@ -42,14 +40,13 @@ import { MatTableModule } from '@angular/material/table';
     SubjectsTableComponent,
     MatCard,
     MatCardContent,
-    MatTableModule,
   ],
   templateUrl: './subjects.component.html',
   styleUrls: ['./subjects.component.scss'],
 })
 export class SubjectsComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();
-  private _dataSource$!: Observable<Page<SubjectDto>>;
+  public dataSource = new MatTableDataSource<SubjectDto>([]);
   private _studyPrograms$!: Observable<StudyProgramDto[]>;
   private _selectedStudyProgramId!: number;
   public filterForm: FormGroup;
@@ -85,9 +82,6 @@ export class SubjectsComponent implements OnInit, OnDestroy {
 
   public isLoading = false;
 
-  get dataSource$(): Observable<SubjectDto[]> {
-    return this._dataSource$.pipe(map((page) => page.content));
-  }
 
   get studyPrograms$(): Observable<StudyProgramDto[]> {
     return this._studyPrograms$;
@@ -125,15 +119,15 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     this._selectedStudyProgramId = 3;
     this.filterForm.patchValue({ subjectForm: this._selectedStudyProgramId });
 
-    this._dataSource$ = this.getSubjects(0, 10, this._selectedStudyProgramId);
+    this.getSubjects(0, 10, this._selectedStudyProgramId);
   }
 
   private getSubjects(
     pageNumber: number,
     pageSize: number,
     studyProgramId: number,
-  ): Observable<Page<SubjectDto>> {
-    return this.subjectService
+  ): void {
+    this.subjectService
       .getSubjectsWithFocusByStudyProgramId(
         studyProgramId,
         pageNumber,
@@ -141,23 +135,32 @@ export class SubjectsComponent implements OnInit, OnDestroy {
       )
       .pipe(
         tap((page: Page<SubjectDto>) => {
-          console.log(page)
-          this.pageData.size = page.size;
-          this.pageData.totalElements = page.totalElements;
-          this.pageData.number = page.number;
+          this.dataSource.data = page.content;
+          Object.assign(this.pageData, {
+            size: page.size,
+            totalElements: page.totalElements,
+            number: page.number,
+            content: page.content,
+            totalPages: page.totalPages,
+            last: page.last,
+            first: page.first,
+            numberOfElements: page.numberOfElements,
+            empty: page.empty
+          });
           this.isLoading = false;
         }),
         takeUntil(this._destroy$),
         catchError(() => {
+          this.isLoading = false;
           return of();
         }),
-        shareReplay(1),
-      );
+      )
+      .subscribe();
   }
 
   public studyProgramChanged() {
     this.isLoading = true;
-    this._dataSource$ = this.getSubjects(
+    this.getSubjects(
       0,
       this.pageData.size,
       this._selectedStudyProgramId,
@@ -166,9 +169,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
 
   public onPageChange(event: PageEvent) {
     this.isLoading = true;
-    console.log(event)
-
-    this._dataSource$ = this.getSubjects(
+    this.getSubjects(
       event.pageIndex,
       event.pageSize,
       this._selectedStudyProgramId,

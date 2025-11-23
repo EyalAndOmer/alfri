@@ -25,7 +25,7 @@
 
       <mat-card-content>
         <app-subjects-table
-          [dataSource$]="allSubjectsDataSource$"
+          [dataSourceInput]="undefined"
           [pageData]="allSubjectsPageData"
           [isLoading]="isLoadingAllSubjects"
           (pageChange)="onPageChangeAllSubjects($event)"
@@ -51,33 +51,26 @@
         </mat-card-header>
 
         <div class="d-flex flex-column clustering-max-height-75vh">
-        @if (recommendedSubjectsDataSource$ | async; as recommendedSubjects) {
-          @if (recommendedSubjects.length > 0) {
-            <mat-card-content>
+          <mat-card-content>
+            <app-subjects-table
+              class="w-100 h-100"
+              [dataSourceInput]="undefined"
+              [pageData]="recommendedSubjectsPageData"
+              [isLoading]="isLoadingRecommendetSubjects"
+              [displayFullInfo]="false"
+              [isPageable]="false"
+              [isScrollable]="true"
+              (subjectDetailNavigate)="navigateToSubjectDetail($event)"
+            ></app-subjects-table>
+          </mat-card-content>
 
-                <app-subjects-table
-                  class="w-100 h-100"
-                  [dataSource$]="recommendedSubjectsDataSource$"
-                  [isLoading]="isLoadingRecommendetSubjects"
-                  [displayFullInfo]="false"
-                  [isPageable]="false"
-                  [isScrollable]="true"
-                  (subjectDetailNavigate)="navigateToSubjectDetail($event)"
-                >
-                </app-subjects-table>
+          @if (isLoadingRecommendetSubjects) {
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          } @else if ((recommendedSubjectsDataSource$ | async)?.length === 0) {
+            <mat-card-content>
+              Vyber si predmety
             </mat-card-content>
           }
-        } @else if (isLoadingRecommendetSubjects) {
-          <mat-card-content>
-            <div class="d-flex flex-column clustering-max-height-75vh">
-              <ngx-skeleton-loader count="5" appearance="line"></ngx-skeleton-loader>
-            </div>
-          </mat-card-content>
-        } @else {
-          <mat-card-content>
-            Vyber si predmety
-          </mat-card-content>
-        }
         </div>
 
       </mat-card>

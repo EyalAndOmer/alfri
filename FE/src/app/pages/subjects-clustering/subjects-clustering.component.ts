@@ -1,5 +1,5 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import { SubjectsTableComponent } from '@components//subjects-table/subjects-table.component';
+import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
 import {
   catchError,
   finalize,
@@ -50,7 +50,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     NgxSkeletonLoaderModule,
   ],
   templateUrl: './subjects-clustering.component.html',
-  styleUrl: './subjects-clustering.component.scss',
+  styleUrls: ['./subjects-clustering.component.scss'],
 })
 export class SubjectsClusteringComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();
@@ -86,6 +86,27 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
     first: false,
     numberOfElements: 0,
     empty: false,
+  };
+
+  public readonly recommendedSubjectsPageData: Page<SubjectDto> = {
+    content: [],
+    totalElements: 0,
+    size: 0,
+    number: 0,
+    pageable: {
+      sort: { sorted: false, unsorted: false, empty: true },
+      offset: 0,
+      pageNumber: 0,
+      pageSize: 0,
+      paged: false,
+      unpaged: true,
+    },
+    last: true,
+    totalPages: 1,
+    sort: { sorted: false, unsorted: false, empty: true },
+    first: true,
+    numberOfElements: 0,
+    empty: true,
   };
 
   public isLoadingAllSubjects = false;
@@ -124,6 +145,7 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
     this.getStudentsStudyProgramAndItsSubjects();
 
     this._recommendedSubjectsDataSource$ = of();
+    this.recommendedSubjectsPageData.content = [];
   }
 
   private getStudentsStudyProgramAndItsSubjects() {
@@ -221,10 +243,17 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
     this._recommendedSubjectsDataSource$ = this.subjectService
       .getSimilarSubjects(this._selectedSubjects)
       .pipe(
-        shareReplay(1), // Share the result of the HTTP request
+        tap((subjects: SubjectDto[]) => {
+          // Update page data metrics
+          this.recommendedSubjectsPageData.content = subjects;
+          this.recommendedSubjectsPageData.totalElements = subjects.length;
+          this.recommendedSubjectsPageData.numberOfElements = subjects.length;
+          this.recommendedSubjectsPageData.size = subjects.length;
+          this.recommendedSubjectsPageData.empty = subjects.length === 0;
+        }),
+        shareReplay(1),
         finalize(() => {
           this.isLoadingRecommendetSubjects = false;
-          console.log('finished');
         }),
       );
   }
