@@ -1,9 +1,8 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild, signal, computed, effect} from '@angular/core';
 import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
 import {
   catchError,
   finalize,
-  map,
   Observable,
   of,
   shareReplay,
@@ -19,18 +18,18 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { StudentService } from '@services//student.service';
 import { NotificationService } from '@services//notification.service';
 import { MatButton } from '@angular/material/button';
-import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { AsyncPipe } from '@angular/common';
 import {
   Page,
   StudyProgramDto,
   SubjectDto,
   SubjectExtendedDto,
 } from '../../types';
-import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import {MatTableDataSource} from "@angular/material/table";
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 
 @Component({
   selector: 'app-subjects-clustering',
@@ -38,28 +37,32 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
   imports: [
     SubjectsTableComponent,
     MatButton,
-    MatDivider,
     MatIcon,
     MatProgressBar,
-    AsyncPipe,
     MatCard,
     MatCardHeader,
     MatCardContent,
     MatCardTitle,
-    MatCardSubtitle,
     NgxSkeletonLoaderModule,
+    MatStepperModule,
   ],
   templateUrl: './subjects-clustering.component.html',
   styleUrls: ['./subjects-clustering.component.scss'],
 })
 export class SubjectsClusteringComponent implements OnInit, OnDestroy {
-  private readonly _destroy$: Subject<void> = new Subject();
-  private _allSubjectsDataSource$!: Observable<Page<SubjectExtendedDto>>;
-  private _recommendedSubjectsDataSource$!: Observable<SubjectDto[]>;
-  private _userStudyProgramId!: number;
-  private _selectedSubjects: SubjectExtendedDto[] = [];
+  @ViewChild('stepper') stepper!: MatStepper;
 
-  public readonly allSubjectsPageData: Page<SubjectExtendedDto> = {
+  private readonly _destroy$: Subject<void> = new Subject();
+  dataSource = new MatTableDataSource<SubjectDto>([]);
+  private _userStudyProgramId!: number;
+
+  // Signals for reactive state management
+  private _selectedSubjects = signal<SubjectExtendedDto[]>([]);
+  private _recommendedSubjects = signal<SubjectDto[]>([]);
+  readonly isLoadingAllSubjects = signal<boolean>(false);
+  readonly isLoadingRecommendetSubjects = signal<boolean>(false);
+
+  readonly allSubjectsPageData: Page<SubjectExtendedDto> = {
     content: [],
     totalElements: 0,
     size: 10,
@@ -88,54 +91,75 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
     empty: false,
   };
 
-  public readonly recommendedSubjectsPageData: Page<SubjectDto> = {
-    content: [],
-    totalElements: 0,
-    size: 0,
-    number: 0,
-    pageable: {
-      sort: { sorted: false, unsorted: false, empty: true },
-      offset: 0,
-      pageNumber: 0,
-      pageSize: 0,
-      paged: false,
-      unpaged: true,
-    },
-    last: true,
-    totalPages: 1,
-    sort: { sorted: false, unsorted: false, empty: true },
-    first: true,
-    numberOfElements: 0,
-    empty: true,
-  };
+  // Computed signals for reactive page data
+  readonly selectedSubjects = computed(() => this._selectedSubjects());
 
-  public isLoadingAllSubjects = false;
-  public isLoadingRecommendetSubjects = false;
+  readonly selectedSubjectsPageData = computed<Page<SubjectExtendedDto>>(() => {
+    const subjects = this._selectedSubjects();
+    return {
+      content: subjects,
+      totalElements: subjects.length,
+      size: subjects.length,
+      number: 0,
+      pageable: {
+        sort: { sorted: false, unsorted: true, empty: true },
+        offset: 0,
+        pageNumber: 0,
+        pageSize: subjects.length,
+        paged: false,
+        unpaged: true
+      },
+      last: true,
+      totalPages: 1,
+      sort: { sorted: false, unsorted: true, empty: true },
+      first: true,
+      numberOfElements: subjects.length,
+      empty: subjects.length === 0
+    };
+  });
 
-  get allSubjectsDataSource$(): Observable<SubjectExtendedDto[]> {
-    if (!this._allSubjectsDataSource$) {
-      return of([]);
-    }
-
-    return this._allSubjectsDataSource$.pipe(map((page) => page.content));
-  }
-
-  get selectedSubjects() {
-    return this._selectedSubjects;
-  }
-
-  get recommendedSubjectsDataSource$(): Observable<SubjectDto[]> {
-    if (!this._recommendedSubjectsDataSource$) {
-      return of();
-    }
-
-    return this._recommendedSubjectsDataSource$;
-  }
+  readonly recommendedSubjectsPageDataComputed = computed<Page<SubjectDto>>(() => {
+    const subjects = this._recommendedSubjects();
+    return {
+      content: subjects,
+      totalElements: subjects.length,
+      size: subjects.length,
+      number: 0,
+      pageable: {
+        sort: { sorted: false, unsorted: true, empty: true },
+        offset: 0,
+        pageNumber: 0,
+        pageSize: subjects.length,
+        paged: false,
+        unpaged: true
+      },
+      last: true,
+      totalPages: 1,
+      sort: { sorted: false, unsorted: true, empty: true },
+      first: true,
+      numberOfElements: subjects.length,
+      empty: subjects.length === 0
+    };
+  });
 
   private readonly subjectService = inject(SubjectService);
   private readonly studentService = inject(StudentService);
   private readonly errorService = inject(NotificationService);
   private readonly router = inject(Router);
+
+  constructor() {
+    // Debug effect to log when selected subjects change
+    effect(() => {
+      const selected = this._selectedSubjects();
+      console.log('Selected subjects changed:', selected.length, selected);
+    });
+
+    // Debug effect to log when recommended subjects change
+    effect(() => {
+      const recommended = this._recommendedSubjects();
+      console.log('Recommended subjects changed:', recommended.length, recommended);
+    });
+  }
 
   ngOnInit() {
     this.init();
@@ -143,9 +167,7 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
 
   private init(): void {
     this.getStudentsStudyProgramAndItsSubjects();
-
-    this._recommendedSubjectsDataSource$ = of();
-    this.recommendedSubjectsPageData.content = [];
+    this._recommendedSubjects.set([]);
   }
 
   private getStudentsStudyProgramAndItsSubjects() {
@@ -189,7 +211,19 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         }),
       )
       .subscribe((page) => {
-        this._allSubjectsDataSource$ = of(page);
+        this.dataSource.data = page.content;
+        Object.assign(this.allSubjectsPageData, {
+          size: page.size,
+          totalElements: page.totalElements,
+          number: page.number,
+          content: page.content,
+          totalPages: page.totalPages,
+          last: page.last,
+          first: page.first,
+          numberOfElements: page.numberOfElements,
+          empty: page.empty
+        });
+        this.isLoadingAllSubjects.set(false);
       });
   }
 
@@ -205,12 +239,6 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         pageSize,
       )
       .pipe(
-        tap((page: Page<SubjectExtendedDto>) => {
-          this.allSubjectsPageData.size = page.size;
-          this.allSubjectsPageData.totalElements = page.totalElements;
-          this.allSubjectsPageData.number = page.number;
-          this.isLoadingAllSubjects = false;
-        }),
         takeUntil(this._destroy$),
         catchError(() => {
           return of();
@@ -219,14 +247,62 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
       );
   }
 
-  public onPageChangeAllSubjects(event: PageEvent) {
-    this.isLoadingAllSubjects = true;
+  onPageChangeAllSubjects(event: PageEvent) {
+    this.isLoadingAllSubjects.set(true);
 
-    this._allSubjectsDataSource$ = this.getAllSubjects(
+    this.getAllSubjects(
       event.pageIndex,
       event.pageSize,
       this._userStudyProgramId,
-    );
+    )
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          this.errorService.showError(error.error);
+          return of({
+            content: [],
+            totalElements: 0,
+            size: event.pageSize,
+            number: event.pageIndex,
+            pageable: {
+              sort: {
+                sorted: false,
+                unsorted: false,
+                empty: false,
+              },
+              offset: 0,
+              pageNumber: 0,
+              pageSize: 0,
+              paged: false,
+              unpaged: false,
+            },
+            last: false,
+            totalPages: 0,
+            sort: {
+              sorted: false,
+              unsorted: false,
+              empty: false,
+            },
+            first: false,
+            numberOfElements: 0,
+            empty: true,
+          });
+        }),
+      )
+      .subscribe((page) => {
+        this.dataSource.data = page.content;
+        Object.assign(this.allSubjectsPageData, {
+          size: page.size,
+          totalElements: page.totalElements,
+          number: page.number,
+          content: page.content,
+          totalPages: page.totalPages,
+          last: page.last,
+          first: page.first,
+          numberOfElements: page.numberOfElements,
+          empty: page.empty
+        });
+        this.isLoadingAllSubjects.set(false);
+      });
   }
 
   ngOnDestroy() {
@@ -234,31 +310,35 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
     this._destroy$.complete();
   }
 
-  public navigateToSubjectDetail(code: string) {
+  navigateToSubjectDetail(code: string) {
     this.router.navigate(['/subjects/' + code]);
   }
 
-  public getSimilarSubjects() {
-    this.isLoadingRecommendetSubjects = true;
-    this._recommendedSubjectsDataSource$ = this.subjectService
-      .getSimilarSubjects(this._selectedSubjects)
+  getSimilarSubjects() {
+    this.isLoadingRecommendetSubjects.set(true);
+
+    this.subjectService
+      .getSimilarSubjects(this._selectedSubjects())
       .pipe(
         tap((subjects: SubjectDto[]) => {
-          // Update page data metrics
-          this.recommendedSubjectsPageData.content = subjects;
-          this.recommendedSubjectsPageData.totalElements = subjects.length;
-          this.recommendedSubjectsPageData.numberOfElements = subjects.length;
-          this.recommendedSubjectsPageData.size = subjects.length;
-          this.recommendedSubjectsPageData.empty = subjects.length === 0;
+          // Update signal with recommended subjects
+          this._recommendedSubjects.set(subjects);
         }),
-        shareReplay(1),
         finalize(() => {
-          this.isLoadingRecommendetSubjects = false;
+          this.isLoadingRecommendetSubjects.set(false);
+          // Move to next step after loading is complete
+          setTimeout(() => {
+            if (this.stepper) {
+              this.stepper.next();
+            }
+          }, 100);
         }),
-      );
+        takeUntil(this._destroy$)
+      )
+      .subscribe();
   }
 
-  public onSelectedSubjectsChanged($event: SubjectDto[]) {
-    this._selectedSubjects = $event as SubjectExtendedDto[];
+  onSelectedSubjectsChanged($event: SubjectDto[]) {
+    this._selectedSubjects.set($event as SubjectExtendedDto[]);
   }
 }

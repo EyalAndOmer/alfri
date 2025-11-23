@@ -46,12 +46,13 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class SubjectsComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();
-  public dataSource = new MatTableDataSource<SubjectDto>([]);
+  dataSource = new MatTableDataSource<SubjectDto>([]);
   private _studyPrograms$!: Observable<StudyProgramDto[]>;
   private _selectedStudyProgramId!: number;
-  public filterForm: FormGroup;
+  filterForm: FormGroup;
+  isLoading = false;
 
-  public readonly pageData: Page<SubjectDto> = {
+  readonly pageData: Page<SubjectDto> = {
     content: [],
     totalElements: 0,
     size: 10,
@@ -79,9 +80,6 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     numberOfElements: 0,
     empty: false,
   };
-
-  public isLoading = false;
-
 
   get studyPrograms$(): Observable<StudyProgramDto[]> {
     return this._studyPrograms$;
@@ -158,7 +156,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  public studyProgramChanged() {
+  studyProgramChanged() {
     this.isLoading = true;
     this.getSubjects(
       0,
@@ -167,7 +165,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     );
   }
 
-  public onPageChange(event: PageEvent) {
+  onPageChange(event: PageEvent) {
     this.isLoading = true;
     this.getSubjects(
       event.pageIndex,
