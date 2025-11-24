@@ -11,6 +11,14 @@ import math
 
 DEFAULT_GRADE_LABELS = ["A", "B", "C", "D", "E", "F"]
 
+subject_id_model_map = {
+    "Algoritmy a udajove struktury 1": "best_model_AUS"
+}
+
+subject_chance_model_map = {
+    "Algoritmy a udajove struktury 1": "model_AUS"
+}
+
 predict_bp = Blueprint("predict", __name__)
 
 
@@ -327,7 +335,7 @@ def predict_passing_mark():
     distribution = {label: prob for label, prob in zip(labels, probs_norm)}
     chosen_grade = labels[int(chosen_idx)]
 
-    return jsonify({"subject": subject, "distribution": distribution, "chosen_grade": chosen_grade}), 200
+    return jsonify({"subject": subject, "distribution": distribution, "chosenGrade": chosen_grade}), 200
 
 
 def _predict_with_model(model, X):

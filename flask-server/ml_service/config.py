@@ -26,23 +26,23 @@ def _parse_json_env(var_name: str, default=None):
 #   should adjust them for your actual routing/lookup logic. You can override
 #   the entire mapping by setting the MODEL_MAP environment variable (JSON).
 DEFAULT_MODEL_MAP = {
-    "aus1_h5": {"type": "keras", "path": "aus1.h5"},
-    "aus1_pkl": {"type": "logistic", "path": "aus1.pkl"},
+    "aus1_h5": {"type": "keras", "role": "mark", "path": "aus1.h5", "subject": 'Algoritmy a udajove struktury 1'},
+    "aus1_pkl": {"type": "logistic", "path": "aus1.pkl", "role": "chance", "subject": "Algoritmy a udajove struktury 1"},
+
+    "dp_h5": {"type": "keras", "path": "dp.h5", "role": "mark", "subject": "Diskretna pravdepodobnost"},
+    "dp_pkl": {"type": "logistic", "path": "dp.pkl", "role": "chance", "subject": "Diskretna pravdepodobnost"},
+
+    "mata1_h5": {"type": "keras", "path": "mata1.h5", "role": "mark", "subject": "Matematicka analyza 1"},
+    "mata1_pkl": {"type": "logistic", "path": "mata1.pkl", "role": "chance", "subject": "Matematicka analyza 1"},
+
+    "kmeans_model": {"type": "kmeans", "path": "kmeans_model.pkl", "studyProgramId": 3},
+    "kmeans_model_manazment": {"type": "kmeans", "path": "kmeans_model_manazment.pkl", "studyProgramId": 4},
 
     "best_model_AUS": {"type": "keras", "path": "best_model_AUS.h5"},
     "best_model_DIS": {"type": "keras", "path": "best_model_DIS.h5"},
     "best_model_OPTS": {"type": "keras", "path": "best_model_OPTS.h5"},
 
-    "dp_h5": {"type": "keras", "path": "dp.h5"},
-    "dp_pkl": {"type": "logistic", "path": "dp.pkl"},
-
-    "kmeans_model": {"type": "kmeans", "path": "kmeans_model.pkl", "studyProgramId": 3},
-    "kmeans_model_manazment": {"type": "kmeans", "path": "kmeans_model_manazment.pkl", "studyProgramId": 4},
-
-    "mata1_h5": {"type": "keras", "path": "mata1.h5"},
-    "mata1_pkl": {"type": "logistic", "path": "mata1.pkl"},
-
-    "model_AUS": {"type": "logistic", "path": "model_AUS.pkl", "role": "chance", "subject": "AUS"},
+    "model_AUS": {"type": "logistic", "path": "model_AUS.pkl", "role": "chance", "subject": "Algoritmy a udajove struktury 2"},
     "model_DIS": {"type": "logistic", "path": "model_DIS.pkl", "role": "chance", "subject": "DIS"},
     "model_OPTS": {"type": "logistic", "path": "model_OPTS.pkl", "role": "chance", "subject": "OPTS"},
 }
