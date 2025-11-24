@@ -38,15 +38,6 @@ public class ResilientPythonPredictionService implements PythonPredictionService
         return pythonMlClient.passingMark(request);
     }
 
-    public PassingMarkResponseDto passingMarkFallback(PassingMarkRequestDto request, Throwable t) {
-        log.warn("passingMark fallback due to: {}", t.toString());
-        PassingMarkResponseDto resp = new PassingMarkResponseDto();
-        resp.setDistribution(java.util.Collections.emptyMap());
-        resp.setChosen_grade(null);
-        resp.setSubject(null);
-        return resp;
-    }
-
     @Override
     @Retry(name = "pythonServiceRetry")
     @CircuitBreaker(name = "pythonService", fallbackMethod = "clusteringFallback")
@@ -54,20 +45,11 @@ public class ResilientPythonPredictionService implements PythonPredictionService
         return pythonMlClient.clustering(request);
     }
 
-    public ClusteringResponseDto clusteringFallback(ClusteringRequestDto request, Throwable t) {
-        log.warn("clustering fallback due to: {}", t.toString());
-        return null; // callers should handle null as 'no clustering available'
-    }
-
     @Override
     @Retry(name = "pythonServiceRetry")
     @CircuitBreaker(name = "pythonService", fallbackMethod = "triggerPredictionFallback")
     public void triggerPrediction() {
         pythonMlClient.triggerPrediction();
-    }
-
-    public void triggerPredictionFallback(Throwable t) {
-        log.warn("triggerPrediction fallback due to: {}", t.toString());
     }
 }
 

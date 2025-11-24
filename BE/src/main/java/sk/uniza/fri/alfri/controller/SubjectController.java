@@ -192,8 +192,10 @@ public class SubjectController {
 
   @GetMapping("/makePredictions")
   public ResponseEntity<List<SubjectsPredictionsResult>> makeMarkAndPassingChangePredictionsByStudentYear() {
-    String currentUserEmail = authService.getCurrentUserEmail()
+    User currentUser = authService.getCurrentUser()
         .orElseThrow(() -> new EntityNotFoundException("User's email was not found!"));
+
+    String currentUserEmail = currentUser.getEmail();
 
     log.info("Making prediction by student year for user with email {}", currentUserEmail);
 

@@ -5,10 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,19 +22,12 @@ import sk.uniza.fri.alfri.service.implementation.JwtService;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   public static final int BEGIN_INDEX_OF_JWT = 7;
-  public static final String DEV_PROFILE = "dev";
   private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
-  private final Environment environment;
 
-  @Value("${default-user-email}")
-  private String defaultUserEmail;
-
-  public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService,
-      Environment environment) {
+  public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
     this.jwtService = jwtService;
     this.userDetailsService = userDetailsService;
-    this.environment = environment;
   }
 
   @Override
@@ -45,23 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
       throws IOException, java.io.IOException, ServletException {
     final String authHeader = request.getHeader("Authorization");
-
-    if (environment.getActiveProfiles().length != 0 && Arrays
-        .stream(environment.getActiveProfiles()).allMatch(profile -> profile.equals(DEV_PROFILE))) {
-      log.info(Arrays.toString(environment.getActiveProfiles()));
-
-      // Load the actual User entity from database instead of creating a mock Spring Security User
-      UserDetails devUserDetails = this.userDetailsService.loadUserByUsername(defaultUserEmail);
-
-      UsernamePasswordAuthenticationToken devAuthToken = new UsernamePasswordAuthenticationToken(
-          devUserDetails, null, devUserDetails.getAuthorities());
-
-      devAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-      SecurityContextHolder.getContext().setAuthentication(devAuthToken);
-
-      filterChain.doFilter(request, response);
-      return;
-    }
 
     // TODO ak bude cas, je potrebne prerobit security config, aby tam fungovali endpointy, ktore
     // TODO nepotrebuju autentifikaciu. Teraz je potrebne ich specifikovat tu
