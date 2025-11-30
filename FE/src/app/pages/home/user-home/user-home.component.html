@@ -28,6 +28,7 @@
         </ng-container>
       } @else {
         @if (!formData) {
+          <mat-card class="p-3">
           <div class="alert alert-primary" role="alert">
             Ešte nemáš vyplnený dotazník! Povedz nám niečo o sebe, aby sme ti
             mohli zobraziť relevantnejšie dáta.
@@ -51,6 +52,7 @@
               Vyplnit dotaznik
             </button>
           </div>
+            </mat-card>
         } @else {
           <app-user-form-results [existingAnswers]="formData" />
         }

@@ -68,7 +68,7 @@ export class SubjectsTableComponent {
       } else {
         // If no dataSourceInput, use pageData content
         const page = this.pageData();
-        if (page && page.content) {
+        if (page?.content) {
           const ds = new MatTableDataSource<SubjectDto>(page.content);
           this.internalDataSource.set(ds);
         }

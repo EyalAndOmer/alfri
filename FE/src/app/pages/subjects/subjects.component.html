@@ -1,24 +1,41 @@
 <h2>Prehľad predmetov</h2>
 
 <mat-card class="p-2">
-  <form [formGroup]="filterForm" (ngSubmit)="studyProgramChanged()">
-    <mat-form-field appearance="outline" class="col-12 col-md-4 col-lg-3 col-xl-2">
-      <mat-label>Študijný program</mat-label>
-      <mat-select
-        formControlName="subjectForm"
-        [(value)]="selectedStudyProgramId"
-        (selectionChange)="studyProgramChanged()"
-      >
-        @for (program of studyPrograms$ | async; track program) {
-          <mat-option
-            [value]="program.id"
+  <div class="row">
+    <div class="col-12 col-md-6">
+      <form [formGroup]="filterForm" (ngSubmit)="studyProgramChanged()">
+        <mat-form-field appearance="outline" class="col-12">
+          <mat-label>Študijný program</mat-label>
+          <mat-select
+            formControlName="subjectForm"
+            [(value)]="selectedStudyProgramId"
+            (selectionChange)="studyProgramChanged()"
           >
-            {{ program.name }}
-          </mat-option>
-        }
-      </mat-select>
+            @for (program of studyPrograms$ | async; track program) {
+              <mat-option
+                [value]="program.id"
+              >
+                {{ program.name }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </form>
+    </div>
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Vyhľadať predmety</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Zadajte názov predmetu..."
+      />
+      <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
-  </form>
+    </div>
+  </div>
   <mat-card-content>
     <app-subjects-table
       class="overflow-x-scroll"

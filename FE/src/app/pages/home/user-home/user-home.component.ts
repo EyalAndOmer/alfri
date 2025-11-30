@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { NgOptimizedImage } from '@angular/common';
 import { UserFormResultsComponent } from '@components/user-form-results/user-form-results.component';
@@ -8,11 +8,12 @@ import { FormService } from '@services/form.service';
 import { AnsweredForm } from '../../../types';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { FormDataService } from '@services/form-data.service';
+import {MatCard} from "@angular/material/card";
 
 @Component({
   selector: 'app-user-home',
   standalone: true,
-  imports: [MatButton, NgOptimizedImage, UserFormResultsComponent, NgxSkeletonLoaderModule],
+  imports: [MatButton, NgOptimizedImage, UserFormResultsComponent, NgxSkeletonLoaderModule, MatCard],
   templateUrl: './user-home.component.html',
   styleUrl: './user-home.component.scss',
 })
@@ -20,13 +21,9 @@ export class UserHomeComponent implements OnInit {
   loading = true;
   formData: AnsweredForm | undefined;
 
-  constructor(
-    private router: Router,
-    private formService: FormService,
-    private formDataService: FormDataService
-  ) {
-  }
-
+  private readonly router = inject(Router);
+  private readonly formService = inject(FormService);
+  private readonly formDataService = inject(FormDataService);
   ngOnInit() {
     this.formService.getExistingFormAnswers(USER_FORM_ID).subscribe({
       next: (data: AnsweredForm) => {

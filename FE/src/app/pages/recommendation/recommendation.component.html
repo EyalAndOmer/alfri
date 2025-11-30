@@ -12,10 +12,11 @@
 
 
 <app-subjects-table
-  [dataSourceInput]="undefined"
+  [dataSourceInput]="dataSource$"
   [pageData]="pageData"
   [isLoading]="isLoading"
   (subjectDetailNavigate)="navigateToSubjectDetail($event)"
+  (pageChange)="onPageChange($event)"
   [displayFullInfo]="true"
   [isPageable]="true"
 >

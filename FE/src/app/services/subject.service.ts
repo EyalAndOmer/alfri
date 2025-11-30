@@ -90,6 +90,29 @@ export class SubjectService {
     });
   }
 
+  public getSubjectsWithFocusByStudyProgramIdAndSearch(
+    pageNumber: number,
+    pageSize: number,
+    searchParam: string,
+  ): Observable<Page<SubjectExtendedDto>> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+    };
+
+    let urlParameters: HttpParams = new HttpParams();
+    urlParameters = urlParameters
+      .append('page', pageNumber)
+      .append('size', pageSize)
+      .append('search', searchParam);
+
+    return this.http.get<Page<SubjectExtendedDto>>(`${this.URL}/withFocus`, {
+      params: urlParameters,
+      headers: httpOptions.headers,
+    });
+  }
+
   public filterSubject(
     mathFocus: string,
     studyProgramId: number,
@@ -124,14 +147,20 @@ export class SubjectService {
   public getSimilarSubjects(
     subjects: SubjectExtendedDto[],
   ): Observable<SubjectDto[]> {
+    console.log(subjects)
     return this.http.post<SubjectDto[]>(
       `${this.URL}/similarSubjects`,
       subjects,
     );
   }
 
-  public getSubjectFocusPrediction(): Observable<SubjectExtendedDto[]> {
-    return this.http.get<SubjectExtendedDto[]>(`${this.URL}/focus-prediction`);
+  public getSubjectFocusPrediction(pageNumber: number, pageSize: number): Observable<Page<SubjectExtendedDto>> {
+    let urlParameters: HttpParams = new HttpParams();
+    urlParameters = urlParameters
+      .append('page', pageNumber)
+      .append('size', pageSize)
+
+    return this.http.get<Page<SubjectExtendedDto>>(`${this.URL}/focus-prediction`, {params: urlParameters});
   }
 
   getFilteredSubjects(

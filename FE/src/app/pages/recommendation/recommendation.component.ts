@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SubjectService } from '@services/subject.service';
@@ -7,11 +7,10 @@ import { StudentService } from '@services/student.service';
 import { Observable, of, Subject } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
-import { MatButton } from '@angular/material/button';
-import { AsyncPipe } from '@angular/common';
 import { Page, StudyProgramDto, SubjectDto } from '../../types';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-recommendation',
@@ -19,8 +18,6 @@ import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/
   standalone: true,
   imports: [
     SubjectsTableComponent,
-    MatButton,
-    AsyncPipe,
     MatCard,
     MatCardHeader,
     MatCardSubtitle,
@@ -30,24 +27,9 @@ import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/
 })
 export class RecommendationComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();
-  private _dataSource$ = new MatTableDataSource<SubjectDto>();
-  private _userStudyProgramId!: number;
-  public readonly columnsToDisplay: string[] = [
-    'name',
-    'code',
-    'abbreviation',
-    'obligation',
-    'recommendedYear',
-    'semester',
-  ];
 
-  get dataSource$() {
-    if (!this._dataSource$) {
-      return of([]);
-    }
+  readonly dataSource$ = new MatTableDataSource<SubjectDto>([]);
 
-    return this._dataSource$;
-  }
 
   public pageData: Page<SubjectDto> = {
     content: [],
@@ -78,17 +60,12 @@ export class RecommendationComponent implements OnInit, OnDestroy {
     empty: true,
   };
 
-  public readonly pageSizeOptions: number[] = [5, 10, 20];
-  public pageSize = 10;
-
   public isLoading = false;
 
-  constructor(
-    private subjectService: SubjectService,
-    private studentService: StudentService,
-    private errorService: NotificationService,
-    private router: Router,
-  ) {}
+  private readonly subjectService = inject(SubjectService);
+  private readonly studentService = inject(StudentService);
+  private readonly errorService = inject(NotificationService);
+  private readonly router = inject(Router);
 
   ngOnInit() {
     this.init();
@@ -99,7 +76,7 @@ export class RecommendationComponent implements OnInit, OnDestroy {
       .getStudyProgramOfCurrentUser()
       .pipe(
         switchMap((studyProgram: StudyProgramDto) => {
-          this._userStudyProgramId = studyProgram.id;
+          // this._userStudyProgramId = studyProgram.id;
           return this.getSubjects();
         }),
         catchError((error: HttpErrorResponse) => {
@@ -107,17 +84,32 @@ export class RecommendationComponent implements OnInit, OnDestroy {
           return of([]);
         }),
       )
-      .subscribe((subjects) => {
-        this._dataSource$.data = subjects;
+      .subscribe((page) => {
+        if (Array.isArray(page)) {
+          return;
+        }
+
+        this.dataSource$.data = page.content;
+        Object.assign(this.pageData, {
+          size: page.size,
+          totalElements: page.totalElements,
+          number: page.number,
+          content: page.content,
+          totalPages: page.totalPages,
+          last: page.last,
+          first: page.first,
+          numberOfElements: page.numberOfElements,
+          empty: page.empty
+        });
       });
   }
 
-  private getSubjects(): Observable<SubjectDto[]> {
+  private getSubjects(): Observable<Page<SubjectDto> | never []> {
     this.isLoading = true;
-    return this.subjectService.getSubjectFocusPrediction().pipe(
-      tap((subjects: SubjectDto[]) => {
+    return this.subjectService.getSubjectFocusPrediction(this.pageData.number, this.pageData.size).pipe(
+      tap((page: Page<SubjectDto>) => {
         this.isLoading = false;
-        return subjects;
+        return page;
       }),
       takeUntil(this._destroy$),
       catchError((error: HttpErrorResponse) => {
@@ -135,5 +127,29 @@ export class RecommendationComponent implements OnInit, OnDestroy {
 
   public navigateToSubjectDetail(code: string) {
     this.router.navigate(['/subjects/' + code]);
+  }
+
+  public onPageChange(event: PageEvent): void {
+    this.pageData.number = event.pageIndex;
+    this.pageData.size = event.pageSize;
+
+    this.getSubjects().subscribe((page) => {
+      if (Array.isArray(page)) {
+        return;
+      }
+
+      this.dataSource$.data = page.content;
+      Object.assign(this.pageData, {
+        size: page.size,
+        totalElements: page.totalElements,
+        number: page.number,
+        content: page.content,
+        totalPages: page.totalPages,
+        last: page.last,
+        first: page.first,
+        numberOfElements: page.numberOfElements,
+        empty: page.empty
+      });
+    });
   }
 }

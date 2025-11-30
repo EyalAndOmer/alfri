@@ -16,6 +16,19 @@
           @if (isLoadingRecommendetSubjects()) {
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
           }
+
+          <mat-form-field appearance="outline" class="w-100 my-2">
+            <mat-label>Vyhľadať predmety</mat-label>
+            <input
+              matInput
+              type="text"
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onSearchChange($event)"
+              placeholder="Zadajte názov predmetu..."
+            />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
           <app-subjects-table
             [dataSourceInput]="dataSource"
             [pageData]="allSubjectsPageData"

@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { SubjectService } from '@services/subject.service';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { AsyncPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { MatAnchor } from '@angular/material/button';
-import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
+import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { SubjectGradesDto } from '../../types';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-subject-reports',
@@ -18,25 +18,29 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
   standalone: true,
   styleUrls: ['./subject-reports.component.scss'],
   imports: [
+    CommonModule,
     MatTableModule,
     MatProgressBarModule,
-    AsyncPipe,
-    MatAnchor,
-    MatRadioButton,
-    MatRadioGroup,
     FormsModule,
     MatCard,
     MatCardHeader,
     MatCardTitle,
     MatCardContent,
-    NgxSkeletonLoaderModule
-],
+    MatFormFieldModule,
+    MatSelectModule,
+    MatPaginatorModule,
+  ],
 })
-export class SubjectReportsComponent implements OnInit {
-  subjects: SubjectGradesDto[] = [];
+export class SubjectReportsComponent implements OnInit, OnDestroy {
+  private readonly _destroy$: Subject<void> = new Subject();
+  private readonly subjectsService = inject(SubjectService);
+  private readonly router = inject(Router);
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  dataSource = new MatTableDataSource<SubjectGradesDto>([]);
   isLoading = false;
 
-  subjectCount = 10;
   sortCriteria = 'lowestAverage';
 
   public readonly columnsToDisplay: string[] = [
@@ -52,41 +56,43 @@ export class SubjectReportsComponent implements OnInit {
     'gradeFx',
   ];
 
-  dataSource$!: Observable<SubjectGradesDto[]>;
-
-  constructor(
-    private subjectsService: SubjectService,
-    private router: Router,
-  ) {}
-
   ngOnInit(): void {
     this.fetchFilteredSubjects();
   }
 
-  // Fetch data and apply filters based on user selections
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
   fetchFilteredSubjects(): void {
     this.isLoading = true;
 
-    // Fetch filtered subjects based on sort and limit criteria
-    this.subjectsService.getFilteredSubjects(this.sortCriteria, this.subjectCount).subscribe(
-      (data) => {
-        this.dataSource$ = of(data); // Emit the data
-        this.isLoading = false; // Set loading to false after data is received
-      },
-      (error) => {
-        console.error('Error fetching subjects:', error);
-        this.isLoading = false; // Ensure loading is false even if there's an error
-      }
-    );
+    // Fetch a large number to get all subjects for client-side pagination
+    this.subjectsService
+      .getFilteredSubjects(this.sortCriteria, 100)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (data) => {
+          this.dataSource.data = data;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error fetching subjects:', error);
+          this.isLoading = false;
+        },
+      });
   }
 
-  // Navigate to subject detail page
   public navigateToSubjectDetail(code: string): void {
-    this.router.navigate(['/subjects/' + code]);
+    this.router.navigate(['/subjects/', code]);
   }
 
-  // Called when user changes the number of subjects or sorting criteria
-  onUserSelectionChange(): void {
+  onSortChange(): void {
     this.fetchFilteredSubjects();
   }
 }
