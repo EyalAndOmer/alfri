@@ -27,7 +27,7 @@ public interface ISubjectService {
 
   List<SubjectGrade> getFilteredSubjects(String sortCriteria, Integer numberOfSubjects);
 
-  List<Subject> makeSubjectsFocusPrediction(User user);
+  Page<Subject> makeSubjectsFocusPrediction(User user, PageDefinition pageDefinition);
 
   List<Subject> findAll();
 

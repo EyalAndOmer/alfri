@@ -1,19 +1,20 @@
 package sk.uniza.fri.alfri.repository;
 
 import jakarta.persistence.Tuple;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import sk.uniza.fri.alfri.dto.focus.FocusCategorySumDTO;
 import sk.uniza.fri.alfri.entity.Focus;
 import sk.uniza.fri.alfri.entity.Subject;
 
 import java.util.List;
 
 public interface FocusRepository extends JpaRepository<Focus, Integer> {
-
   @Query("SELECT DISTINCT f.subject FROM Focus f "
-      + "WHERE (COALESCE(:mathFocus, 0) > 5 AND f.mathFocus > 5) OR "
+      + "JOIN f.subject.studyProgramSubjects sps "
+      + "WHERE ((COALESCE(:mathFocus, 0) > 5 AND f.mathFocus > 5) OR "
       + "(COALESCE(:logicFocus, 0) > 5 AND f.logicFocus > 5) OR "
       + "(COALESCE(:programmingFocus, 0) > 5 AND f.programmingFocus > 5) OR "
       + "(COALESCE(:designFocus, 0) > 5 AND f.designFocus > 5) OR "
@@ -24,14 +25,18 @@ public interface FocusRepository extends JpaRepository<Focus, Integer> {
       + "(COALESCE(:dataFocus, 0) > 5 AND f.dataFocus > 5) OR "
       + "(COALESCE(:testingFocus, 0) > 5 AND f.testingFocus > 5) OR "
       + "(COALESCE(:languageFocus, 0) > 5 AND f.languageFocus > 5) OR "
-      + "(COALESCE(:physicalFocus, 0) > 5 AND f.physicalFocus > 5)")
-  List<Subject> findSubjectByHashMapValues(@Param("mathFocus") Integer mathFocus,
+      + "(COALESCE(:physicalFocus, 0) > 5 AND f.physicalFocus > 5)) "
+      + "AND sps.id.studyProgramId = :studyProgramId "
+      + "AND sps.recommendedYear >= :year")
+  Page<Subject> findSubjectByHashMapValuesWithPaging(@Param("mathFocus") Integer mathFocus,
       @Param("logicFocus") Integer logicFocus, @Param("programmingFocus") Integer programmingFocus,
       @Param("designFocus") Integer designFocus, @Param("economicsFocus") Integer economicsFocus,
       @Param("managementFocus") Integer managementFocus,
       @Param("hardwareFocus") Integer hardwareFocus, @Param("networkFocus") Integer networkFocus,
       @Param("dataFocus") Integer dataFocus, @Param("testingFocus") Integer testingFocus,
-      @Param("languageFocus") Integer languageFocus, @Param("physicalFocus") Integer physicalFocus);
+      @Param("languageFocus") Integer languageFocus, @Param("physicalFocus") Integer physicalFocus,
+      @Param("studyProgramId") Integer studyProgramId, @Param("year") Integer year,
+      Pageable pageable);
 
 
   @Query(nativeQuery = true, value = """
@@ -85,4 +90,7 @@ public interface FocusRepository extends JpaRepository<Focus, Integer> {
     ORDER BY total_sum DESC;
     """)
   List<Tuple> findFocusCategorySums();
+
+  @Query("SELECT f FROM Focus f WHERE f.subject.id IN :subjectIds")
+  List<Focus> findBySubjectIds(@Param("subjectIds") List<Integer> subjectIds);
 }

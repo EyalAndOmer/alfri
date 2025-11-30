@@ -56,7 +56,6 @@ public interface SubjectMapper {
 
   FocusDTO toFocusDTO(Focus focus);
 
-  @Mapping(target = "id", ignore = true)
   @Mapping(target = "focus", ignore = true)
   Subject toEntity(SubjectDto subjectDto);
 

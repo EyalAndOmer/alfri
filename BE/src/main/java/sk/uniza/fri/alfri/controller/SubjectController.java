@@ -99,17 +99,25 @@ public class SubjectController {
   }
 
   @GetMapping(path = "/focus-prediction", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<List<SubjectExtendedDto>> getAllSubjectsFromFocusPrediction(
-      @RequestHeader(value = "Authorization") String token) {
+  public ResponseEntity<Page<SubjectExtendedDto>> getAllSubjectsFromFocusPrediction(
+      @RequestHeader(value = "Authorization") String token,
+      PagitationRequestQuery pagitationRequestQuery) {
+
+    log.info("Getting focus prediction subjects on page {} with page size {}",
+        pagitationRequestQuery.page, pagitationRequestQuery.size);
 
     String parsedToken = token.replace("Bearer ", "");
     String username = jwtService.extractUsername(parsedToken);
     User user = userService.getUser(username);
 
-    List<Subject> subjects = this.subjectService.makeSubjectsFocusPrediction(user);
+    SortDefinition sortDefinition = SortRequestQuery.from(pagitationRequestQuery.sort);
+    PageDefinition pageDefinition = new PageDefinition(pagitationRequestQuery.page,
+        pagitationRequestQuery.size, sortDefinition);
 
-    List<SubjectExtendedDto> similarSubjectsDto =
-        subjects.stream().map(SubjectMapper.INSTANCE::toCustomSubjectExtendedDto).toList();
+    Page<Subject> subjects = this.subjectService.makeSubjectsFocusPrediction(user, pageDefinition);
+
+    Page<SubjectExtendedDto> similarSubjectsDto =
+        subjects.map(SubjectMapper.INSTANCE::toCustomSubjectExtendedDto);
 
     return ResponseEntity.ok(similarSubjectsDto);
   }
@@ -155,11 +163,11 @@ public class SubjectController {
 
   @PostMapping("/similarSubjects")
   public ResponseEntity<List<SubjectDto>> getSimilarSubject(
-      @RequestBody @Valid List<SubjectExtendedDto> subjects) {
+      @RequestBody @Valid List<SubjectDto> subjects) {
     log.info("Getting similar subjects for {} subjects", subjects.size());
 
     List<Subject> subjectList =
-        subjects.stream().map(SubjectMapper.INSTANCE::fromSubjectExtendedDtotoEntity).toList();
+        subjects.stream().map(SubjectMapper.INSTANCE::toEntity).toList();
 
     List<StudyProgramSubject> similarSubjects;
     try {

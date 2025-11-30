@@ -116,4 +116,13 @@ databaseChangeLog:
             schemaName: public
             startValue: 1
             incrementBy: 1
+  - changeSet:
+      id: 01-seq-subject_keyword_keyword_id
+      author: liquibase
+      changes:
+        - createSequence:
+            sequenceName: subject_keyword_keyword_id_seq
+            schemaName: public
+            startValue: 1
+            incrementBy: 1
 

@@ -19,6 +19,7 @@ import sk.uniza.fri.alfri.entity.Subject;
 public final class SubjectDto implements Serializable {
   @Serial
   private static final long serialVersionUID = -463341385819758623L;
+  private Integer id;
   private @Size(max = 100) @NotBlank(
       message = "Subject's name cannot be blank or null!") String name;
   private @Size(max = 50) @NotBlank(

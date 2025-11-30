@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sk.uniza.fri.alfri.common.pagitation.PageDefinition;
+import sk.uniza.fri.alfri.common.pagitation.PageableAssembler;
 import sk.uniza.fri.alfri.common.pagitation.SearchDefinition;
 import sk.uniza.fri.alfri.constant.ModelType;
 import sk.uniza.fri.alfri.dto.KeywordDTO;
@@ -160,7 +161,8 @@ public class SubjectService implements ISubjectService {
     public List<StudyProgramSubject> getSimilarSubjects(List<Subject> originalSubjects)
             throws IOException {
 
-        List<Focus> subjectsFocuses = originalSubjects.stream().map(Subject::getFocus).toList();
+        List<Integer> subjectIds = originalSubjects.stream().map(Subject::getId).toList();
+        List<Focus> subjectsFocuses = focusRepository.findBySubjectIds(subjectIds);
         List<List<Integer>> focusesAttributes = getFocusesAttributes(subjectsFocuses);
         User currentUser = this.authService.getCurrentUser().orElseThrow(() -> new RuntimeException("Cannot find user."));
         Integer studyProgramId = currentUser.getStudent().getStudyProgramId();
@@ -168,8 +170,6 @@ public class SubjectService implements ISubjectService {
         if (pythonServiceEnabled) {
             // Prepare request for remote service
             ClusteringRequestDto req = new ClusteringRequestDto();
-            // convert List<List<Integer>> to List<List<Double>>
-            List<Integer> subjectIds = originalSubjects.stream().map(Subject::getId).toList();
             req.setSubjectIds(subjectIds);
             req.setStudyProgramId(studyProgramId);
 
@@ -230,7 +230,7 @@ public class SubjectService implements ISubjectService {
     }
 
     @Override
-    public List<Subject> makeSubjectsFocusPrediction(User user) {
+    public Page<Subject> makeSubjectsFocusPrediction(User user, PageDefinition pageDefinition) {
         List<Integer> questionIds =
                 Arrays.asList(115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126);
         List<Answer> focusUserAnswers =
@@ -276,16 +276,12 @@ public class SubjectService implements ISubjectService {
         Integer languageFocus = values.getOrDefault("language_focus", null);
         Integer physicalFocus = values.getOrDefault("physical_focus", null);
 
-        return focusRepository.findSubjectByHashMapValues(
-                        mathFocus, logicFocus, programmingFocus, designFocus, economicsFocus, managementFocus,
-                        hardwareFocus, networkFocus, dataFocus, testingFocus, languageFocus, physicalFocus)
-                .stream()
-                .filter(subject -> subject.getStudyProgramSubjects().stream()
-                        .anyMatch(studyProgramSubject ->
-                                Objects.equals(studyProgramSubject.getId().getStudyProgramId(), user.getStudent().getStudyProgramId())
-                        ))
-                .filter(subject -> subject.getStudyProgramSubjects().stream().anyMatch(studyProgramSubject -> studyProgramSubject.getRecommendedYear() >= user.getStudent().getYear()))
-                .toList();
+        Pageable pageable = PageableAssembler.from(pageDefinition);
+
+        return focusRepository.findSubjectByHashMapValuesWithPaging(
+                mathFocus, logicFocus, programmingFocus, designFocus, economicsFocus, managementFocus,
+                hardwareFocus, networkFocus, dataFocus, testingFocus, languageFocus, physicalFocus,
+                user.getStudent().getStudyProgramId(), user.getStudent().getYear(), pageable);
     }
 
     @Override

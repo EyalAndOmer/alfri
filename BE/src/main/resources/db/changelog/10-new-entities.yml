@@ -91,6 +91,10 @@ databaseChangeLog:
               - column: { name: subject_2_occurence, type: INT, constraints: { nullable: false } }
               - column: { name: subject_3, type: INT }
               - column: { name: subject_3_occurence, type: INT, constraints: { nullable: false } }
+        - addDefaultValue:
+            tableName: subject_keyword
+            columnName: keyword_id
+            defaultValueComputed: "nextval('public.subject_keyword_keyword_id_seq')"
         - addPrimaryKey: { tableName: subject_keyword, columnNames: keyword_id, constraintName: subject_keyword_pk }
   - changeSet:
       id: 10-table-teacher
