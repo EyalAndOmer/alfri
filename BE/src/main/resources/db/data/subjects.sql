@@ -86,3 +86,63 @@ INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (84, 'v
 INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (85, 'vývoj pokročilých aplikácií', '6BI0050', 'VPA');
 INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (86, 'telesná výchova 6', '6BT0006', 'TV6');
 INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (87, 'manažérska komunikácia', '6UM0005', 'MaKo');
+
+-- Management
+
+-- Year 1, Winter Semester - Mandatory
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (88, 'aplikovaná algebra a teória grafov', '6BA0016', 'ApAlg');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (89, 'informatika pre manažérov 1', '6BI0014', 'InfM1');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (90, 'manažérske prezentačné zručnosti', '6BM0007', 'MPZ');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (91, 'všeobecná ekonomická teória', '6BM0026', 'VET');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (92, 'manažment 1', '6UM0008', 'Mž1');
+
+-- Year 1, Summer Semester - Mandatory
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (93, 'etika a spoločenská zodpovednosť', '6BH0001', 'SZP');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (94, 'informatika pre manažérov 2', '6BI0015', 'InfM2');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (95, 'marketing', '6BM0011', 'Mtg');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (96, 'operačný manažment', '6BM0015', 'OM');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (97, 'podniková ekonomika', '6BM0017', 'POE');
+
+-- Year 2, Winter Semester - Mandatory
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (98, 'manažérska psychológia', '6BU0001', 'ManPsych');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (99, 'finančné účtovníctvo', '6UM0001', 'FÚ');
+
+-- Year 2, Summer Semester - Mandatory
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (100, 'pravdepodobnosť a štatistika pre manažérov', '6BM0006', 'MnŠ');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (101, 'mikroekonómia', '6BM0014', 'MiE');
+
+-- Year 3, Winter Semester - Mandatory
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (102, 'cudzí jazyk Bc. 1', '6BJ0003', 'CJB1');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (103, 'integrovaný manažérsky systém', '6BM0021', 'IMS');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (104, 'manažment ľudských zdrojov 1', '6BM0022', 'MLZ1');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (105, 'základy výskumu v manažmente', '6BM0028', 'ZVM');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (106, 'podnikové informačné systémy', '6UI0001', 'PIS');
+
+-- Year 3, Summer Semester - Mandatory
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (107, 'cudzí jazyk Bc. 2', '6BJ0004', 'CJB2');
+
+-- Povinne voliteľné predmety (Mandatory Elective)
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (108, 'právne aspekty podnikania 1', '6BL0002', 'PAP1');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (109, 'právne aspekty podnikania 2', '6BL0003', 'PaP2');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (110, 'digitálny marketing', '6BM0002', 'DM');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (111, 'marketingová komunikácia', '6BM0012', 'MKom');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (112, 'riadenie IT projektov', '6BM0018', 'RITP');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (113, 'úvod do databázových systémov', '6BI0047', 'UDS');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (114, 'finančno-ekonomické analýzy', '6BM0004', 'FEA');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (115, 'športový manažment', '6BM0025', 'ŠP');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (116, 'aplikovaná ekonómia', '6BM0001', 'AE');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (117, 'plánovanie a controlling', '6UM0003', 'PaC');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (118, 'manažment 2', '6BM0010', 'Mž2');
+
+-- Výberové predmety (Elective)
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (119, 'praktikum z informatiky pre manažérov 1', '6BI0030', 'PIM1');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (120, 'informačná a manažérska gramotnosť', '6BI0056', 'IMG');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (121, 'manažment športovej prípravy', '6BM0030', 'MŠP');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (122, 'metódy spracovania dát', '6BA0015', 'MSD');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (123, 'praktikum z informatiky pre manažérov 2', '6BI0031', 'PIM2');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (124, 'jazyk nemecký 1', '6BJ0007', 'JN1');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (125, 'využitie máp pri úspešnom podnikaní', '6BI0057', 'VMP');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (126, 'jazyk nemecký 2', '6BJ0008', 'JN2');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (127, 'softvérová podpora ekonomických predmetov', '6BM0024', 'SPEP');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (128, 'pokročilé štatistické metódy', '6BA0017', 'PŠM');
+INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (129, 'databázové systémy - access', '6BI0006', 'DS-Ac');

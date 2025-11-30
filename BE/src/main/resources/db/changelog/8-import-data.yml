@@ -1,5 +1,22 @@
 databaseChangeLog:
   - changeSet:
+      id: 08-import-subjects
+      author: liquibase
+      context: seed
+      changes:
+        - sqlFile:
+            path: ../data/subjects.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            endDelimiter: ;
+            stripComments: true
+      rollback:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            sql: |
+              DELETE FROM subject WHERE subject_id BETWEEN 1 AND 88;
+  - changeSet:
       id: 08-import-full-scratch2
       author: liquibase
       context: seed
