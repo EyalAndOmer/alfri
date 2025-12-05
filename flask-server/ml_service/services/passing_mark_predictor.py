@@ -83,7 +83,7 @@ class PassingMarkPredictor(PredictionService):
         predictions = self._predict_with_lock(model, X, subject)
         
         # Interpret predictions into distribution
-        distribution = self._interpret_predictions(predictions)
+        distribution = self._interpret_with_numpy(predictions)
         
         # Get labels and normalize
         labels = self._get_grade_labels(len(distribution), grade_labels)
@@ -157,20 +157,7 @@ class PassingMarkPredictor(PredictionService):
         if hasattr(model, "predict_proba"):
             return model.predict_proba(X)
         return model(X)
-    
-    def _interpret_predictions(self, predictions) -> List[float]:
-        """Interpret model predictions into a probability distribution.
-        
-        Args:
-            predictions: Raw model output
-            
-        Returns:
-            List of probabilities
-        """
-        if self._numpy is not None:
-            return self._interpret_with_numpy(predictions)
-        return self._interpret_without_numpy(predictions)
-    
+
     def _interpret_with_numpy(self, predictions) -> List[float]:
         """Interpret predictions using numpy.
         
@@ -184,15 +171,7 @@ class PassingMarkPredictor(PredictionService):
             ValueError: If prediction shape is unexpected
         """
         arr = self._numpy.asarray(predictions)
-        
-        if arr.ndim == 0:
-            return self._scalar_to_distribution_numpy(float(arr))
-        elif arr.ndim == 1:
-            return self._normalize_vector_numpy(arr)
-        elif arr.ndim == 2:
-            return self._normalize_vector_numpy(arr[0])
-        else:
-            raise ValueError("Unexpected prediction shape")
+        return self._scalar_to_distribution_numpy(float(arr))
     
     def _scalar_to_distribution_numpy(self, score: float) -> List[float]:
         """Convert scalar prediction to distribution using numpy.
@@ -211,86 +190,6 @@ class PassingMarkPredictor(PredictionService):
         idx = max(0, min(n - 1, idx))
         probs[idx] = 1.0
         return probs.astype(float).tolist()
-    
-    def _normalize_vector_numpy(self, vector) -> List[float]:
-        """Normalize vector to probability distribution using numpy.
-        
-        Args:
-            vector: Raw probability or logit vector
-            
-        Returns:
-            Normalized probability distribution
-        """
-        v = vector.astype(float)
-        s = float(v.sum())
-        
-        if s <= 0.0 or (v < 0).any():
-            # Apply softmax
-            ex = self._numpy.exp(v - v.max())
-            return (ex / float(ex.sum())).astype(float).tolist()
-        
-        return (v / s).astype(float).tolist()
-    
-    def _interpret_without_numpy(self, predictions) -> List[float]:
-        """Interpret predictions without numpy (pure Python).
-        
-        Args:
-            predictions: Raw model output
-            
-        Returns:
-            List of probabilities
-            
-        Raises:
-            ValueError: If prediction type is unexpected
-        """
-        if isinstance(predictions, (int, float)):
-            return self._scalar_to_distribution_python(float(predictions))
-        elif isinstance(predictions, (list, tuple)):
-            return self._normalize_vector_python(predictions)
-        else:
-            raise ValueError("Unexpected prediction type without numpy")
-    
-    def _scalar_to_distribution_python(self, score: float) -> List[float]:
-        """Convert scalar prediction to distribution using pure Python.
-        
-        Args:
-            score: Single prediction value
-            
-        Returns:
-            Probability distribution with one-hot encoding
-        """
-        score = max(0.0, min(1.0, score))
-        n = len(DEFAULT_GRADE_LABELS)
-        bin_size = 1.0 / n
-        idx = int(min(n - 1, int(score / bin_size)))
-        probs = [0.0] * n
-        probs[idx] = 1.0
-        return probs
-    
-    def _normalize_vector_python(self, predictions) -> List[float]:
-        """Normalize vector to probability distribution using pure Python.
-        
-        Args:
-            predictions: Raw probability or logit vector
-            
-        Returns:
-            Normalized probability distribution
-        """
-        # Flatten nested lists
-        if len(predictions) == 1 and isinstance(predictions[0], (list, tuple)):
-            row = [float(x) for x in predictions[0]]
-        else:
-            row = [float(x) for x in predictions]
-        
-        s = sum(row)
-        if s <= 0.0 or any(x < 0 for x in row):
-            # Apply softmax
-            m = max(row) if row else 0.0
-            ex = [math.exp(x - m) for x in row]
-            s2 = sum(ex) if sum(ex) > 0.0 else 1.0
-            return [e / s2 for e in ex]
-        
-        return [x / s for x in row]
     
     def _get_grade_labels(self, n_classes: int, custom_labels: Optional[List]) -> List[str]:
         """Get grade labels for distribution.
