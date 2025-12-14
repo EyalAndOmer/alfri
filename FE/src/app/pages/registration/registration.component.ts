@@ -15,9 +15,8 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { NgIf } from '@angular/common';
 
-import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '@services/auth.service';
 import { NotificationService } from '@services/notification.service';
 import { UserService } from '@services/user.service';
@@ -37,12 +36,7 @@ import { RegisterUserDto, Role } from '../../types';
     MatInput,
     MatError,
     MatSelectModule,
-    NgIf,
-    HttpClientModule,
   ],
-    HttpClientModule
-],
-  providers: [HttpClientModule],
   templateUrl: './registration.component.html',
   styleUrl: './registration.component.scss',
 })
@@ -50,16 +44,6 @@ export class RegistrationComponent implements OnDestroy {
   registerForm: FormGroup;
   roles: Role[] = [];
   readonly destroyed$: ReplaySubject<void> = new ReplaySubject(1);
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private authService: AuthService,
-    private errorService: NotificationService,
-    private userService: UserService,
-    private jwtService: JwtService,
-    private notificationService: NotificationService,
-  ) {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -67,6 +51,7 @@ export class RegistrationComponent implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly jwtService = inject(JwtService);
   private readonly notificationService = inject(NotificationService);
+
 
   constructor() {
     const formOptions: AbstractControlOptions = {

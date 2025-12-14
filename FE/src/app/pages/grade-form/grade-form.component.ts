@@ -11,13 +11,7 @@ import {
   MatStepper,
   StepperOrientation,
 } from '@angular/material/stepper';
-import { MatCheckbox } from '@angular/material/checkbox';
-import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { AsyncPipe, KeyValuePipe, NgClass } from '@angular/common';
-import { MatSlider, MatSliderThumb } from '@angular/material/slider';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { FormService } from '@services/form.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '@services/notification.service';
@@ -41,19 +35,6 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     MatStep,
     ReactiveFormsModule,
     MatStepper,
-    NgIf,
-    KeyValuePipe,
-    MatSlider,
-    MatSliderThumb,
-    MatRadioGroup,
-    MatRadioButton,
-    MatList,
-    MatListItem,
-    MatError,
-    MatSelect,
-    MatOption,
-    BaseChartDirective,
-    NgClass,
     AsyncPipe,
     BasicInformationStepComponent,
     MandatorySubjectsStepComponent,

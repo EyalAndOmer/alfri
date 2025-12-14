@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -6,8 +6,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { UserService } from '@services/user.service';
-import { NgIf } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
 
 import { AuthService } from '@services/auth.service';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -19,7 +17,7 @@ import { UserFormResultsComponent } from '@components/user-form-results/user-for
 import { USER_FORM_ID } from '@pages/home/home.component';
 import { FormService } from '@services/form.service';
 import { HasRoleDirective } from '@directives/auth.directive';
-import { AnsweredForm, ChangePasswordDto } from '../../types';
+import { AnsweredForm, ChangePasswordDto, UserDto } from '../../types';
 import { AuthRole } from '@enums/auth-role';
 
 @Component({
@@ -32,20 +30,6 @@ import { AuthRole } from '@enums/auth-role';
     MatFormField,
     MatInput,
     MatButton,
-    MatCard,
-    MatTable,
-    MatColumnDef,
-    MatHeaderCell,
-    MatCell,
-    MatHeaderRow,
-    MatRow,
-    MatRowDef,
-    MatCellDef,
-    MatHeaderRowDef,
-    MatHeaderCellDef,
-    BaseChartDirective,
-    MatChipSet,
-    MatChip,
     UserFormResultsComponent,
     HasRoleDirective
 ],
@@ -54,15 +38,17 @@ import { AuthRole } from '@enums/auth-role';
 export class ProfileComponent implements OnInit {
   protected readonly AuthRole = AuthRole;
   formData: AnsweredForm | undefined;
+  _userData: UserDto | undefined;
+  isLoading = true;
   profileForm: FormGroup;
 
+  private readonly formBuilder = inject(FormBuilder);
+  readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
+  private readonly formService =inject(FormService);
   constructor(
-    private readonly formBuilder: FormBuilder,
-    readonly userService: UserService,
-    private readonly authService: AuthService,
-    private readonly notificationService: NotificationService,
-    private readonly router: Router,
-    private readonly formService: FormService,
   ) {
     this.profileForm = this.formBuilder.group({
       currentPassword: ['', Validators.required],
@@ -119,5 +105,9 @@ export class ProfileComponent implements OnInit {
 
   redirectToUserForm() {
     this.router.navigate(['/grade-form']);
+  }
+
+  get userData(): UserDto {
+    return <UserDto>this._userData;
   }
 }

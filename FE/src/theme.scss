@@ -1,9 +1,12 @@
 @use '@angular/material' as mat;
 
+// Custom color variables
+$base-light: #f5f5f5;
+
 $my-theme: mat.define-theme((
   color: (
     theme-type: light,
-    primary: mat.$violet-palette,
+    primary: mat.$azure-palette,
     tertiary: mat.$magenta-palette,
   ),
   typography: (

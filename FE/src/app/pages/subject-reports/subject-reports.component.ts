@@ -1,12 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { SubjectService } from '@services/subject.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { CommonModule } from '@angular/common';
+import {CommonModule} from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -31,9 +27,6 @@ import { SubjectService } from '@services/subject.service';
     CommonModule,
     MatTableModule,
     MatProgressBarModule,
-    AsyncPipe,
-    NgIf,
-    NgForOf,
     MatRadioButton,
     MatRadioGroup,
     FormsModule,

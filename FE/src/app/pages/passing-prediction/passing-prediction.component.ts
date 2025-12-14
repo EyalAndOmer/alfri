@@ -1,13 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { SubjectPassingPredictionResultComponent } from '@components/subject-passing-prediction-result/subject-passing-prediction-result.component';
-import { NgForOf, NgIf } from '@angular/common';
 
 import { SubjectService } from '@services/subject.service';
 import { take } from 'rxjs';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { SubjectPassingPrediction } from '../../types';
 import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
-import { SubjectService } from '@services/subject.service';
 
 @Component({
   selector: 'app-passing-prediction',
@@ -25,8 +23,8 @@ import { SubjectService } from '@services/subject.service';
 export class PassingPredictionComponent implements OnInit {
   subjects: SubjectPassingPrediction[] = [];
   isLoading: boolean = true;
-
-  constructor(private subjectService: SubjectService) {}
+  private readonly subjectService = inject(SubjectService);
+  constructor() {}
 
   ngOnInit(): void {
     this.subjectService

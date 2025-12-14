@@ -12,6 +12,7 @@ import sk.uniza.fri.alfri.entity.StudyProgramSubject;
 public interface StudyProgramSubjectMapper {
     StudyProgramSubjectMapper INSTANCE = Mappers.getMapper(StudyProgramSubjectMapper.class);
 
+    @Mapping(target = "id", source = "studyProgramSubject.id.subject.id")
     @Mapping(target = "name", source = "studyProgramSubject.id.subject.name")
     @Mapping(target = "code", source = "studyProgramSubject.id.subject.code")
     @Mapping(target = "abbreviation", source = "studyProgramSubject.id.subject.abbreviation")
@@ -23,13 +24,15 @@ public interface StudyProgramSubjectMapper {
     SubjectDto studyProgramSubjectToSubjectDto(StudyProgramSubject studyProgramSubject);
 
     @Mapping(target = "id", source = "studyProgramSubject.id.subject.id")
-  @Mapping(target = "studyProgramName", source = "studyProgramSubject.id.studyProgram.name")
+    @Mapping(target = "studyProgramName", source = "studyProgramSubject.id.studyProgram.name")
     @Mapping(target = "semester", source = "studyProgramSubject.semesterWinter",
             qualifiedByName = "mapSemester")
     @Mapping(target = "name", source = "studyProgramSubject.id.subject.name")
     @Mapping(target = "focusDTO", source = "studyProgramSubject.id.subject.focus")
     @Mapping(target = "code", source = "studyProgramSubject.id.subject.code")
     @Mapping(target = "abbreviation", source = "studyProgramSubject.id.subject.abbreviation")
+    @Mapping(target = "obligation", source = "studyProgramSubject.obligation")
+    @Mapping(target = "recommendedYear", source = "studyProgramSubject.recommendedYear")
     SubjectExtendedDto studyProgramSubjectToSubjectExtendedDto(
             StudyProgramSubject studyProgramSubject);
 

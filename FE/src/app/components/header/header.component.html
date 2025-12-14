@@ -223,9 +223,6 @@
         </div>
       </mat-toolbar>
     </div>
-          <span role="button" class="curs" (click)="navigateToHome()"
-            >ALFRI</span
-            >
             <div class="d-none d-md-block">
               @if (formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])) {
                 <button mat-button [matMenuTriggerFor]="subjects_menu">
@@ -240,37 +237,6 @@
                 </button>
               }
             </div>
-          </div>
-          <div class="col-4 d-none d-md-flex justify-content-end">
-            <button
-              mat-icon-button
-              [matMenuTriggerFor]="menu"
-              aria-label="Open menu"
-              class="menu-avatar-button"
-              >
-              <div mat-icon class="avatar">M</div>
-            </button>
-            <mat-menu #menu="matMenu">
-              <button
-                mat-menu-item
-                (click)="navigateToAdminPage()"
-                *appHasRole="[AuthRole.ADMIN]"
-                >
-                <mat-icon>admin_panel_settings</mat-icon>
-                Administrácia
-              </button>
-              <button mat-menu-item (click)="navigateToProfile()">
-                <mat-icon>account_circle</mat-icon>
-                Profil
-              </button>
-              <button mat-menu-item (click)="logOut()">
-                <mat-icon>logout</mat-icon>
-                Odhlásiť sa
-              </button>
-            </mat-menu>
-          </div>
-        </mat-toolbar>
-      </div>
     } @else {
       <mat-toolbar class="row">
         <span>Alfri</span>

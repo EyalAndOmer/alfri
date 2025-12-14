@@ -1,6 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { NgIf } from '@angular/common';
-import {Component, inject, OnInit, ViewChild} from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -33,7 +31,6 @@ import { AnsweredForm } from '../../types';
     MatSidenavModule,
     MatListModule,
     MatIconModule,
-    NgIf,
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
@@ -48,15 +45,7 @@ export class HeaderComponent implements OnInit {
   @ViewChild('drawer') drawer!: MatSidenav;
   routerSubscription!: Subscription;
   formData: AnsweredForm | undefined;
-
-  constructor(
-    readonly userService: UserService,
-    protected readonly authService: AuthService,
-    private readonly router: Router,
-    private readonly notificationService: NotificationService,
-    private readonly formDataService: FormDataService,
-  ) {}
-  private readonly userService = inject(UserService);
+  readonly userService = inject(UserService);
   protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);

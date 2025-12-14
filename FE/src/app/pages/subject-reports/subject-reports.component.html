@@ -31,9 +31,9 @@
 
     <div>
       <p>Zoradiť podľa: </p>
+      <!--        (change)="onUserSelectionChange()"-->
       <mat-radio-group
         [(ngModel)]="sortCriteria"
-        (change)="onUserSelectionChange()"
       >
         <mat-radio-button value="lowestAverage"
           >Najlepšia priemerná známka</mat-radio-button

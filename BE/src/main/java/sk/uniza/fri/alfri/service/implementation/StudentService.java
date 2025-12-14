@@ -13,11 +13,8 @@ import sk.uniza.fri.alfri.entity.User;
 import sk.uniza.fri.alfri.repository.StudentRepository;
 import sk.uniza.fri.alfri.repository.StudyProgramRepository;
 import sk.uniza.fri.alfri.service.IStudentService;
-import sk.uniza.fri.alfri.util.ProcessUtils;
 import sk.uniza.fri.alfri.client.PythonMlClient;
-import sk.uniza.fri.alfri.service.PythonPredictionService;
 
-import java.io.IOException;
 
 @Service
 public class StudentService implements IStudentService {
@@ -55,14 +52,13 @@ public class StudentService implements IStudentService {
     if (pythonServiceEnabled) {
       // Use remote python service to trigger predictions
       pythonMlClient.triggerPrediction();
-      return;
     }
 
     // Fallback to original behavior: run local python script
-    ProcessBuilder processBuilder =
-        new ProcessBuilder("python3", "./python_scripts/passing_chance_prediction.py");
-    String output = ProcessUtils.getOutputFromProcess(processBuilder, false);
-    System.out.println(output);
+//    ProcessBuilder processBuilder =
+//        new ProcessBuilder("python3", "./python_scripts/passing_chance_prediction.py");
+//    String output = ProcessUtils.getOutputFromProcess(processBuilder, false);
+//    System.out.println(output);
   }
 
     @Override

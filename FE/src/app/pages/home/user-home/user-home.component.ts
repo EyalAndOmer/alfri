@@ -8,35 +8,28 @@ import { FormService } from '@services/form.service';
 import { AnsweredForm } from '../../../types';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { FormDataService } from '@services/form-data.service';
-import {MatCard} from "@angular/material/card";
+import { MatCard } from '@angular/material/card';
 
 @Component({
   selector: 'app-user-home',
   standalone: true,
   imports: [
     MatButton,
-    NgIf,
     NgOptimizedImage,
     UserFormResultsComponent,
     NgxSkeletonLoaderModule,
+    MatCard,
   ],
-  imports: [MatButton, NgOptimizedImage, UserFormResultsComponent, NgxSkeletonLoaderModule, MatCard],
   templateUrl: './user-home.component.html',
   styleUrl: './user-home.component.scss',
 })
 export class UserHomeComponent implements OnInit {
   loading = true;
   formData: AnsweredForm | undefined;
-
-  constructor(
-    private router: Router,
-    private formService: FormService,
-    private formDataService: FormDataService,
-  ) {}
-
   private readonly router = inject(Router);
   private readonly formService = inject(FormService);
   private readonly formDataService = inject(FormDataService);
+
   ngOnInit() {
     this.formService.getExistingFormAnswers(USER_FORM_ID).subscribe({
       next: (data: AnsweredForm) => {

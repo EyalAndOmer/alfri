@@ -1,16 +1,7 @@
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
-import { Observable, Subject, takeUntil } from 'rxjs';
+
+import { Observable } from 'rxjs';
 import { Page, SubjectDto } from '../../types';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator, PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import {
   MatCell,
   MatCellDef,
@@ -23,29 +14,18 @@ import {
   MatRowDef,
   MatTable,
   MatTableDataSource,
+  MatTableModule
 } from '@angular/material/table';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { NgIf } from '@angular/common';
-import { MatCheckbox } from '@angular/material/checkbox';
-import { SelectionModel } from '@angular/cdk/collections';
 import {Component, computed, effect, input, output, signal} from '@angular/core';
-import {Observable} from 'rxjs';
-import {Page, SubjectDto} from '../../types';
-import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
-import {MatTableDataSource, MatTableModule} from '@angular/material/table';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import {CommonModule} from '@angular/common';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-subjects-table',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
-    MatProgressBarModule,
     MatPaginatorModule,
-    MatCheckboxModule,
     MatTable,
     MatColumnDef,
     MatHeaderCell,
@@ -58,7 +38,6 @@ import {CommonModule} from '@angular/common';
     MatCellDef,
     MatHeaderRowDef,
     MatRowDef,
-    NgIf,
     MatCheckbox,
   ],
   templateUrl: './subjects-table.component.html',
@@ -67,7 +46,9 @@ import {CommonModule} from '@angular/common';
 export class SubjectsTableComponent {
   // Inputs (signal-based)
   dataSourceInput = input<MatTableDataSource<SubjectDto>>();
-  legacyDataSource$ = input<SubjectDto[] | MatTableDataSource<SubjectDto> | Observable<SubjectDto[]>>(); // legacy binding support
+  legacyDataSource$ = input<
+    SubjectDto[] | MatTableDataSource<SubjectDto> | Observable<SubjectDto[]>
+  >(); // legacy binding support
   pageData = input.required<Page<SubjectDto>>();
   isLoading = input<boolean>(true);
   displayFullInfo = input<boolean>(true);
@@ -80,23 +61,13 @@ export class SubjectsTableComponent {
   pageChange = output<PageEvent>();
   subjectDetailNavigate = output<string>();
   selectedSubjects = output<SubjectDto[]>();
-export class SubjectsTableComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
-  @Input() dataSource$!:
-    | Observable<SubjectDto[]>
-    | MatTableDataSource<SubjectDto>;
-  @Input() pageData!: Page<SubjectDto>;
-  @Input() isLoading = false;
-  @Input() displayFullInfo = true;
-  @Input() isSelectable = false;
-  @Input() maxSelectableSubjects = Infinity;
-  @Input() isPageable = true;
-  @Input() isScrollable = false;
-
   // Internal signals
-  readonly internalDataSource = signal<MatTableDataSource<SubjectDto>>(new MatTableDataSource<SubjectDto>([]));
-  private readonly selectedSubjectsMap = signal<Map<string, SubjectDto>>(new Map());
+  readonly internalDataSource = signal<MatTableDataSource<SubjectDto>>(
+    new MatTableDataSource<SubjectDto>([]),
+  );
+  private readonly selectedSubjectsMap = signal<Map<string, SubjectDto>>(
+    new Map(),
+  );
   readonly showLoader = signal<boolean>(false);
   private loadingTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -106,14 +77,23 @@ export class SubjectsTableComponent
     const selectable = this.isSelectable();
 
     const baseColumns = full
-      ? ['name', 'code', 'abbreviation', 'obligation', 'recommendedYear', 'semester']
+      ? [
+          'name',
+          'code',
+          'abbreviation',
+          'obligation',
+          'recommendedYear',
+          'semester',
+        ]
       : ['name', 'abbreviation', 'obligation'];
 
     return selectable ? ['select', ...baseColumns] : baseColumns;
   });
 
   // Computed: selected subjects array & count
-  selectedSubjectsList = computed(() => Array.from(this.selectedSubjectsMap().values()));
+  selectedSubjectsList = computed(() =>
+    Array.from(this.selectedSubjectsMap().values()),
+  );
   selectedSubjectsCount = computed(() => this.selectedSubjectsMap().size);
 
   constructor() {
@@ -158,7 +138,6 @@ export class SubjectsTableComponent
       this.selectedSubjects.emit(this.selectedSubjectsList());
     });
   }
-
 
   onPageChange(event: PageEvent) {
     if (!this.isPageable()) {

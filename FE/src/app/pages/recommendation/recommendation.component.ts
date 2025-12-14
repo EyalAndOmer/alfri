@@ -15,7 +15,6 @@ import {
   MatCardTitle,
 } from '@angular/material/card';
 import { SubjectService } from '@services/subject.service';
-import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { PageEvent } from '@angular/material/paginator';
 
 @Component({

@@ -1,4 +1,11 @@
-import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, ViewChild,
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
@@ -26,31 +33,19 @@ import {
   Tooltip,
 } from 'chart.js';
 import { SubjectExtendedDto } from '../../types';
-import {
-  MatCard,
-  MatCardContent,
-  MatCardHeader,
-  MatCardTitle,
-} from '@angular/material/card';
 import { SubjectService } from '@services/subject.service';
 import { MatCard } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-subject-detail',
   standalone: true,
-  imports: [
-    NgIf,
-    MatCard,
-    MatCardHeader,
-    MatCardContent,
-    MatCardTitle,
-  ],
-  imports: [ MatCard, MatButtonModule],
+  imports: [MatCard],
   templateUrl: './subject-detail.component.html',
   styleUrl: './subject-detail.component.scss',
 })
-export class SubjectDetailComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SubjectDetailComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
   @ViewChild('chart') public focusChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('barChart') public barChartRef!: ElementRef<HTMLCanvasElement>;
   public subjectData!: SubjectExtendedDto;

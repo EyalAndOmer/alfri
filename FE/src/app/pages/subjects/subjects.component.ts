@@ -28,7 +28,6 @@ import { SubjectsTableComponent } from '@components/subjects-table/subjects-tabl
 import { Page, StudyProgramDto, SubjectDto } from '../../types';
 import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
 import { SubjectService } from '@services/subject.service';
-import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatInput } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';

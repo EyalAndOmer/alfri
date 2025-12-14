@@ -12,9 +12,7 @@ import {
 import { SubjectGradeCorrelationService } from '@services/subject-grade-correlation.service';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { MatCheckbox } from '@angular/material/checkbox';
 import {
   MatTab,
   MatTabChangeEvent,
@@ -33,9 +31,7 @@ import { ApexChartOptions, SubjectGradeCorrelation } from '../../types';
   imports: [
     NgApexchartsModule,
     MatProgressSpinner,
-    MatInput,
     FormsModule,
-    MatCheckbox,
     MatTabGroup,
     MatTab,
     AsyncPipe,
