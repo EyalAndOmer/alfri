@@ -18,25 +18,27 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import sk.uniza.fri.alfri.service.implementation.JwtService;
 
+import java.util.Arrays;
+
 @Component
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-  public static final int BEGIN_INDEX_OF_JWT = 7;
-  private final JwtService jwtService;
+    public static final int BEGIN_INDEX_OF_JWT = 7;
+    private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
 
-  public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
     this.jwtService = jwtService;
     this.userDetailsService = userDetailsService;
   }
 
-  @Override
-  protected void doFilterInternal(@NonNull HttpServletRequest request,
-      @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
-      throws IOException, java.io.IOException, ServletException {
-    final String authHeader = request.getHeader("Authorization");
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+            throws IOException, java.io.IOException, ServletException {
+        final String authHeader = request.getHeader("Authorization");
 
-    // TODO ak bude cas, je potrebne prerobit security config, aby tam fungovali endpointy, ktore
+        // TODO ak bude cas, je potrebne prerobit security config, aby tam fungovali endpointy, ktore
     // TODO nepotrebuju autentifikaciu. Teraz je potrebne ich specifikovat tu
     if (request.getServletPath().startsWith("/api/auth")
         || request.getServletPath().startsWith("/api/user/roles")) {
@@ -44,29 +46,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-      response.setStatus(HttpStatus.FORBIDDEN.value());
-      filterChain.doFilter(request, response);
-      return;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String jwt = authHeader.substring(BEGIN_INDEX_OF_JWT);
+        final String userName = jwtService.extractUsername(jwt);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (userName != null && authentication == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+
+        filterChain.doFilter(request, response);
     }
-
-    final String jwt = authHeader.substring(BEGIN_INDEX_OF_JWT);
-    final String userName = jwtService.extractUsername(jwt);
-
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-    if (userName != null && authentication == null) {
-      UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
-
-      if (jwtService.isTokenValid(jwt, userDetails)) {
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-            userDetails, null, userDetails.getAuthorities());
-
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-      }
-    }
-
-    filterChain.doFilter(request, response);
-  }
 }

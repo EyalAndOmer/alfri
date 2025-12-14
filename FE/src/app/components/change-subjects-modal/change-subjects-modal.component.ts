@@ -5,7 +5,7 @@ import {
   MatDialogActions,
   MatDialogContent,
   MatDialogRef,
-  MatDialogTitle
+  MatDialogTitle,
 } from '@angular/material/dialog';
 import { DepartmentService } from '@services/department.service';
 import { TeacherService } from '@services/teacher.service';
@@ -17,12 +17,15 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
 import {
   MatCell,
-  MatCellDef, MatColumnDef,
+  MatCellDef,
+  MatColumnDef,
   MatHeaderCell,
   MatHeaderCellDef,
-  MatHeaderRow, MatHeaderRowDef,
-  MatRow, MatRowDef,
-  MatTable
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
+  MatTable,
 } from '@angular/material/table';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { forkJoin } from 'rxjs';
@@ -51,10 +54,10 @@ import { switchMap } from 'rxjs/operators';
     MatHeaderCellDef,
     MatColumnDef,
     MatRowDef,
-    MatHeaderRowDef
+    MatHeaderRowDef,
 ],
   templateUrl: './change-subjects-modal.component.html',
-  styleUrl: './change-subjects-modal.component.scss'
+  styleUrl: './change-subjects-modal.component.scss',
 })
 export class ChangeSubjectsModalComponent implements OnInit {
   selectedUser: UserDto | undefined;
@@ -71,7 +74,7 @@ export class ChangeSubjectsModalComponent implements OnInit {
     private ds: DepartmentService,
     private adminService: AdminService,
     private dialogRef: MatDialogRef<ChangeSubjectsModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { userId: number; user: UserDto }
+    @Inject(MAT_DIALOG_DATA) public data: { userId: number; user: UserDto },
   ) {}
 
   ngOnInit(): void {
@@ -87,7 +90,7 @@ export class ChangeSubjectsModalComponent implements OnInit {
     forkJoin([
       this.ts.getTeacherById(userId),
       this.ds.getAllDepartments(),
-      this.adminService.getAllSubjects()
+      this.adminService.getAllSubjects(),
     ]).subscribe({
       next: ([teacher, departments, availableSubjects]) => {
         this.selectedTeacher = teacher;
@@ -102,7 +105,7 @@ export class ChangeSubjectsModalComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
-      }
+      },
     });
   }
 
@@ -110,7 +113,7 @@ export class ChangeSubjectsModalComponent implements OnInit {
     const checked = event.checked;
     if (!checked) {
       this.selectedTeacherSubjects = this.selectedTeacherSubjects.filter(
-        (s) => s.code !== subject.code
+        (s) => s.code !== subject.code,
       );
       this.availableSubjects.push(subject);
       return;
@@ -124,21 +127,27 @@ export class ChangeSubjectsModalComponent implements OnInit {
     }
     const subjectCodes = this.selectedTeacherSubjects.map((s) => s.code);
 
-    this.ts.updateTeacherSubjects(this.selectedTeacher.userId, subjectCodes).pipe(
-      switchMap(() => {
-        if (!(this.selectedTeacher && this.selectedDepartmentId)) {
-          return [];  // Return an empty observable to exit if conditions are not met
-        }
-        return this.ts.updateTeacherDepartment(this.selectedTeacher.userId, this.selectedDepartmentId);
-      })
-    ).subscribe({
+    this.ts
+      .updateTeacherSubjects(this.selectedTeacher.userId, subjectCodes)
+      .pipe(
+        switchMap(() => {
+          if (!(this.selectedTeacher && this.selectedDepartmentId)) {
+            return []; // Return an empty observable to exit if conditions are not met
+          }
+          return this.ts.updateTeacherDepartment(
+            this.selectedTeacher.userId,
+            this.selectedDepartmentId,
+          );
+        }),
+      )
+      .subscribe({
         next: () => {
           this.dialogRef.close();
         },
         error: (error) => {
           console.error(error);
-        }
-    });
+        },
+      });
   }
 
   closeSubjectModal(): void {

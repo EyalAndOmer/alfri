@@ -1,16 +1,26 @@
+import { Component, OnInit } from '@angular/core';
+import { MatTableModule } from '@angular/material/table';
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { SubjectService } from '@services/subject.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { SubjectGradesDto } from '../../types';
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import {
+  MatCard,
+  MatCardContent,
+  MatCardHeader,
+  MatCardTitle,
+} from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { SubjectService } from '@services/subject.service';
 
 @Component({
   selector: 'app-subject-reports',
@@ -21,6 +31,11 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
     CommonModule,
     MatTableModule,
     MatProgressBarModule,
+    AsyncPipe,
+    NgIf,
+    NgForOf,
+    MatRadioButton,
+    MatRadioGroup,
     FormsModule,
     MatCard,
     MatCardHeader,

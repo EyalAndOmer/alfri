@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients(basePackages = "sk.uniza.fri.alfri.client")
 public class AlfriApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(AlfriApplication.class, args);
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(AlfriApplication.class, args);
+    }
 }

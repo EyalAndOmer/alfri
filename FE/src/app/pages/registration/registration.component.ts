@@ -15,6 +15,7 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { NgIf } from '@angular/common';
 
 import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '@services/auth.service';
@@ -36,6 +37,9 @@ import { RegisterUserDto, Role } from '../../types';
     MatInput,
     MatError,
     MatSelectModule,
+    NgIf,
+    HttpClientModule,
+  ],
     HttpClientModule
 ],
   providers: [HttpClientModule],
@@ -47,6 +51,15 @@ export class RegistrationComponent implements OnDestroy {
   roles: Role[] = [];
   readonly destroyed$: ReplaySubject<void> = new ReplaySubject(1);
 
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private authService: AuthService,
+    private errorService: NotificationService,
+    private userService: UserService,
+    private jwtService: JwtService,
+    private notificationService: NotificationService,
+  ) {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -151,7 +164,9 @@ export class RegistrationComponent implements OnDestroy {
             this.notificationService.showError(error.error);
             break;
           default:
-            this.notificationService.showError('Neznáma chyba. Kontaktujte prosím administrátora.');
+            this.notificationService.showError(
+              'Neznáma chyba. Kontaktujte prosím administrátora.',
+            );
             break;
         }
       },

@@ -3,6 +3,7 @@ package sk.uniza.fri.alfri.service.implementation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.io.IOException;
@@ -11,22 +12,26 @@ import java.util.stream.Collectors;
 
 import jakarta.persistence.Tuple;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sk.uniza.fri.alfri.common.pagitation.PageDefinition;
 import sk.uniza.fri.alfri.common.pagitation.PageableAssembler;
 import sk.uniza.fri.alfri.common.pagitation.SearchDefinition;
 import sk.uniza.fri.alfri.constant.ModelType;
 import sk.uniza.fri.alfri.dto.KeywordDTO;
+import sk.uniza.fri.alfri.dto.StudentAverageGradeDTO;
 import sk.uniza.fri.alfri.dto.StudentYearCountDTO;
 import sk.uniza.fri.alfri.dto.focus.FocusCategorySumDTO;
 import sk.uniza.fri.alfri.entity.Answer;
 import sk.uniza.fri.alfri.entity.AnswerText;
 import sk.uniza.fri.alfri.entity.Focus;
 import sk.uniza.fri.alfri.entity.Student;
+import sk.uniza.fri.alfri.entity.StudentAvgMark;
 import sk.uniza.fri.alfri.entity.StudyProgramSubject;
 import sk.uniza.fri.alfri.entity.Subject;
 import sk.uniza.fri.alfri.entity.SubjectGrade;
@@ -34,6 +39,7 @@ import sk.uniza.fri.alfri.entity.User;
 import sk.uniza.fri.alfri.exception.PythonOutputParsingException;
 import sk.uniza.fri.alfri.repository.AnswerRepository;
 import sk.uniza.fri.alfri.repository.FocusRepository;
+import sk.uniza.fri.alfri.repository.StudentAvgMarkRepository;
 import sk.uniza.fri.alfri.repository.StudentSubjectRepository;
 import sk.uniza.fri.alfri.repository.StudyProgramSubjectRepository;
 import sk.uniza.fri.alfri.repository.SubjectGradeRepository;
@@ -45,6 +51,15 @@ import sk.uniza.fri.alfri.util.ProcessUtils;
 import sk.uniza.fri.alfri.client.PythonMlClient;
 import sk.uniza.fri.alfri.client.dto.*;
 import sk.uniza.fri.alfri.service.PythonPredictionService;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -80,6 +95,18 @@ public class SubjectService implements ISubjectService {
     private final SubjectKeywordRepository subjectKeywordRepository;
     private final AuthService authService;
     private final StudentSubjectRepository studentSubjectRepository;
+    private final StudentAvgMarkRepository studentAvgMarkRepository;
+    private final EntityManager entityManager;
+    private final StudyProgramSubjectRepository studyProgramSubjectRepository;
+    private final SubjectRepository subjectRepository;
+    private final AnswerRepository answerRepository;
+    private final FocusRepository focusRepository;
+    private final SubjectGradeRepository subjectGradeRepository;
+    private final StudentService studentService;
+    private final FormService formService;
+    private final SubjectKeywordRepository subjectKeywordRepository;
+    private final AuthService authService;
+    private final StudentSubjectRepository studentSubjectRepository;
     private final PythonMlClient pythonMlClient;
     private final PythonPredictionService pythonPredictionService;
 
@@ -102,6 +129,24 @@ public class SubjectService implements ISubjectService {
     @Value("${python.passing_mark_prediction_script_path}")
     private String passingMarkPredictionScriptPath;
 
+    public SubjectService(StudyProgramSubjectRepository studyProgramSubjectRepository,
+                          SubjectRepository subjectRepository, AnswerRepository answerRepository,
+                          FocusRepository focusRepository, SubjectGradeRepository subjectGradeRepository,
+                          StudentService studentService, FormService formService,
+                          SubjectKeywordRepository subjectKeywordRepository, AuthService authService, StudentSubjectRepository studentSubjectRepository, StudentAvgMarkRepository studentAvgMarkRepository, EntityManager entityManager) {
+        this.studyProgramSubjectRepository = studyProgramSubjectRepository;
+        this.subjectRepository = subjectRepository;
+        this.subjectGradeRepository = subjectGradeRepository;
+        this.answerRepository = answerRepository;
+        this.focusRepository = focusRepository;
+        this.studentService = studentService;
+        this.formService = formService;
+        this.subjectKeywordRepository = subjectKeywordRepository;
+        this.authService = authService;
+        this.studentSubjectRepository = studentSubjectRepository;
+        this.studentAvgMarkRepository = studentAvgMarkRepository;
+        this.entityManager = entityManager;
+    }
     @Value("${python.service.enabled:false}")
     private boolean pythonServiceEnabled;
 
@@ -195,7 +240,7 @@ public class SubjectService implements ISubjectService {
         ProcessBuilder processBuilder =
                 new ProcessBuilder(pythonExcecutablePath, clusteringPredictionScriptPath,
                         Arrays.toString(focusesAttributes.toArray()), studyProgramId == 3 ? this.clusteringPredictionINFModelPath : this.clusteringPredictionMANModelPath);
-        String output = ProcessUtils.getOutputFromProces(processBuilder, false);
+        String output = ProcessUtils.getOutputFromProcess(processBuilder, false);
         log.info("Output of clustering: {}", output);
 
         String cleaned = output.replace("[", "").replace("]", "").replace("\"", "");
@@ -311,6 +356,33 @@ public class SubjectService implements ISubjectService {
         }
         req.setSubjects(doubleData);
 
+        ProcessBuilder processBuilder = new ProcessBuilder(pythonExcecutablePath,
+        passingChangePredictionScriptPath, inputJson, modelPathsJson);
+
+        String output;
+        try {
+            output = ProcessUtils.getOutputFromProcess(processBuilder, false);
+        } catch (IOException e) {
+            throw new PythonOutputParsingException(
+                    "Error running Python passing chance script: " + e.getMessage());
+        }
+
+        log.info("Output of makePassingChancePrediction: {}", output);
+
+        Map<String, String> predictions;
+        try {
+            predictions = mapper.readValue(output, new TypeReference<>() {
+            });
+        } catch (IOException e) {
+            throw new PythonOutputParsingException(
+                    String.format("There was an error parsing passing chance. Output: %s", output.trim()));
+        }
+
+        log.info("Returning predictions: {}", predictions);
+
+        return predictions.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue())
+                .toList();
+    }
         PassingChanceResponseDto resp = pythonPredictionService.passingChance(req);
         Map<String, ProbabilityResultDto> results = resp.getResults();
         return results.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue().getProbability() * 100).toList();
@@ -328,6 +400,48 @@ public class SubjectService implements ISubjectService {
 
         log.info("Subjects inputs: {}", subjectInputs);
 
+        Map<String, String> modelPaths =
+                subjectNames.stream().collect(Collectors.toMap(subjectName -> subjectName,
+                        subjectName -> getModelPath(subjectName, ModelType.MARK)));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String inputJson;
+        String modelPathsJson;
+
+        try {
+            inputJson = mapper.writeValueAsString(Map.of("data", subjectInputs));
+            modelPathsJson = mapper.writeValueAsString(modelPaths);
+        } catch (JsonProcessingException e) {
+            throw new PythonOutputParsingException("Failed to create JSON input for the python script");
+        }
+
+        ProcessBuilder processBuilder = new ProcessBuilder(pythonExcecutablePath,
+                passingMarkPredictionScriptPath, inputJson, modelPathsJson);
+
+        String output;
+        try {
+            output = ProcessUtils.getOutputFromProcess(processBuilder, true);
+        } catch (IOException e) {
+            throw new PythonOutputParsingException(
+                    "Error running Python prediction script: " + e.getMessage());
+        }
+
+        log.info("Output of makePassingMarkPrediction: {}", output);
+
+        Map<String, String> predictions;
+        try {
+            predictions = mapper.readValue(output, new TypeReference<>() {
+            });
+        } catch (IOException e) {
+            throw new PythonOutputParsingException(
+                    String.format("There was error parsing passing mark with output: %s ", output.trim()));
+        }
+
+        log.info("Returning predictions: {}", predictions);
+
+        return predictions.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue())
+                .toList();
+    }
         // call remote python service per subject and aggregate results
         List<String> results = new ArrayList<>();
         for (String subjectName : subjectNames) {
@@ -425,20 +539,20 @@ public class SubjectService implements ISubjectService {
         return MARK_MAPPING.getOrDefault(markOfSubjectFromQuesionnaire, 6);
     }
 
-  private List<String> getSubjectNamesToPredictByStudentsYear(int studentYear) {
-    switch (studentYear) {
-      case 2 -> {
-        return List.of("Matematicka analyza 1", "Algoritmy a udajove struktury 1",
-            "Diskretna pravdepodobnost");
-      }
-      case 4 -> {
-        return List.of("Algoritmy a udajove struktury 2", "Optimalizacia sieti",
-            "Diskretna simulacia");
-      }
-      default -> throw new IllegalArgumentException(
-          String.format("Student year %d cannot be predicted!", studentYear));
+    private List<String> getSubjectNamesToPredictByStudentsYear(int studentYear) {
+        switch (studentYear) {
+            case 2 -> {
+                return List.of("Matematicka analyza 1", "Algoritmy a udajove struktury 1",
+                        "Diskretna pravdepodobnost");
+            }
+            case 4 -> {
+                return List.of("Algoritmy a udajove struktury 2", "Optimalizacia sieti",
+                        "Diskretna simulacia");
+            }
+            default -> throw new IllegalArgumentException(
+                    String.format("Student year %d cannot be predicted!", studentYear));
+        }
     }
-  }
 
     private String getModelPath(String subjectName, ModelType type) {
         return switch (type) {

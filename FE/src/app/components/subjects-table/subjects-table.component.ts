@@ -1,3 +1,33 @@
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import { Page, SubjectDto } from '../../types';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef,
+  MatHeaderCell,
+  MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
+  MatTable,
+  MatTableDataSource,
+} from '@angular/material/table';
+import { MatProgressBar } from '@angular/material/progress-bar';
+import { NgIf } from '@angular/common';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { SelectionModel } from '@angular/cdk/collections';
 import {Component, computed, effect, input, output, signal} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Page, SubjectDto} from '../../types';
@@ -16,6 +46,20 @@ import {CommonModule} from '@angular/common';
     MatProgressBarModule,
     MatPaginatorModule,
     MatCheckboxModule,
+    MatTable,
+    MatColumnDef,
+    MatHeaderCell,
+    MatCell,
+    MatHeaderRow,
+    MatRow,
+    MatProgressBar,
+    MatPaginator,
+    MatHeaderCellDef,
+    MatCellDef,
+    MatHeaderRowDef,
+    MatRowDef,
+    NgIf,
+    MatCheckbox,
   ],
   templateUrl: './subjects-table.component.html',
   styleUrls: ['./subjects-table.component.scss'],
@@ -36,6 +80,19 @@ export class SubjectsTableComponent {
   pageChange = output<PageEvent>();
   subjectDetailNavigate = output<string>();
   selectedSubjects = output<SubjectDto[]>();
+export class SubjectsTableComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
+  @Input() dataSource$!:
+    | Observable<SubjectDto[]>
+    | MatTableDataSource<SubjectDto>;
+  @Input() pageData!: Page<SubjectDto>;
+  @Input() isLoading = false;
+  @Input() displayFullInfo = true;
+  @Input() isSelectable = false;
+  @Input() maxSelectableSubjects = Infinity;
+  @Input() isPageable = true;
+  @Input() isScrollable = false;
 
   // Internal signals
   readonly internalDataSource = signal<MatTableDataSource<SubjectDto>>(new MatTableDataSource<SubjectDto>([]));

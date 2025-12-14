@@ -1,32 +1,43 @@
 import { Component, OnInit } from '@angular/core';
-import { SubjectService } from '@services/subject.service';
 import { Chart, registerables } from 'chart.js';
 import 'echarts-wordcloud';
 import * as echarts from 'echarts';
+import { EChartsType } from 'echarts';
 import { StudentYearCountDTO } from '../../../types';
+import { StudentMarksReportComponent } from '@components/student-marks-report/student-marks-report.component';
+import { SubjectService } from '@services/subject.service';
+import { LeadService } from '@services/lead.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-vedenie-home',
   standalone: true,
-  imports: [],
+  imports: [StudentMarksReportComponent],
   templateUrl: './vedenie-home.component.html',
-  styleUrl: './vedenie-home.component.scss'
+  styleUrl: './vedenie-home.component.scss',
 })
 export class VedenieHomeComponent implements OnInit {
+  barChart: Chart | undefined;
+  wordCloudChart: EChartsType | undefined;
+  pieChart: Chart<'pie', number[], string> | undefined;
 
   constructor(
-    private subjectService: SubjectService
+    private readonly subjectService: SubjectService,
+    private readonly leadService: LeadService,
+    private readonly router: Router,
   ) {
     Chart.register(...registerables);
   }
 
   ngOnInit() {
-    this.subjectService.getAllKeywords().subscribe({
+    this.leadService.getAllKeywords().subscribe({
       next: (data) => {
-        const chart = echarts.init(document.getElementById('wordcloud-chart') as HTMLDivElement);
+        this.wordCloudChart = echarts.init(
+          document.getElementById('wordcloud-chart') as HTMLDivElement,
+        );
 
         // Transform your data into the format expected by ECharts
-        const wordCloudData = data.map(item => ({
+        const wordCloudData = data.map((item) => ({
           name: item.keyword,
           value: item.count,
         }));
@@ -67,13 +78,16 @@ export class VedenieHomeComponent implements OnInit {
           ],
         };
 
-        // Set options and render the chart
-        console.log(options)
-        chart.setOption(options);
-      }
+        this.wordCloudChart.setOption(options);
+        this.wordCloudChart.on('click', (params) => {
+          const clickedWord = params.name;
+          this.redirectToKeywordsPage(clickedWord);
+
+        });
+      },
     });
 
-    this.subjectService.getCategorySums().subscribe({
+    this.leadService.getCategorySums().subscribe({
       next: (data) => {
         const totalSum = data.reduce((sum, item) => sum + item.totalSum, 0);
 
@@ -93,12 +107,13 @@ export class VedenieHomeComponent implements OnInit {
         };
         // Calculate percentages
         const labels = data.map((item) => item.focusCategory);
-
-        const percentages = data.map((item) => ((item.totalSum / totalSum) * 100).toFixed(2));
+        const percentages = data.map((item) =>
+          Number(((item.totalSum / totalSum) * 100).toFixed(2)),
+        );
 
         // Chart.js configuration
         const ctx = document.getElementById('pieChart') as HTMLCanvasElement;
-        new Chart(ctx, {
+        this.pieChart = new Chart(ctx, {
           type: 'pie',
           data: {
             labels: labels.map((key) => {
@@ -108,9 +123,18 @@ export class VedenieHomeComponent implements OnInit {
               {
                 data: percentages,
                 backgroundColor: [
-                  '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                  '#FF9F40', '#E7E9ED', '#8C9EFF', '#00CC99', '#FF6666',
-                  '#CC99FF', '#66FF66',
+                  '#FF6384',
+                  '#36A2EB',
+                  '#FFCE56',
+                  '#4BC0C0',
+                  '#9966FF',
+                  '#FF9F40',
+                  '#E7E9ED',
+                  '#8C9EFF',
+                  '#00CC99',
+                  '#FF6666',
+                  '#CC99FF',
+                  '#66FF66',
                 ],
               },
             ],
@@ -123,7 +147,8 @@ export class VedenieHomeComponent implements OnInit {
                   label: (context) => {
                     const label = context.label || '';
                     const value = context.raw || '';
-                    return `${label}: ${value}%`;
+                    const formattedValue = typeof value === 'number' ? value.toFixed(2) : String(value);
+                    return `${label}: ${formattedValue}%`;
                   },
                 },
               },
@@ -131,13 +156,13 @@ export class VedenieHomeComponent implements OnInit {
                 position: 'bottom',
               },
             },
-          },
+          }
         });
-      }
+      },
     });
 
     // Call the new service for student counts by year
-    this.subjectService.getStudentCountsByYear().subscribe({
+    this.leadService.getStudentCountsByYear().subscribe({
       next: (data: StudentYearCountDTO[]) => {
         // Extract years and counts from the data
         const years = data.map((item) => item.year.toString());
@@ -145,7 +170,7 @@ export class VedenieHomeComponent implements OnInit {
 
         // Render the bar chart
         const ctx = document.getElementById('barChart') as HTMLCanvasElement;
-        new Chart(ctx, {
+        this.barChart = new Chart(ctx, {
           type: 'bar',
           data: {
             labels: years,
@@ -169,9 +194,10 @@ export class VedenieHomeComponent implements OnInit {
               tooltip: {
                 callbacks: {
                   label: (context) => {
-                    const label = context.dataset.label || '';
+                    const label = context.dataset.label ?? '';
                     const value = context.raw || '';
-                    return `${label}: ${value}`;
+                    const formattedValue = typeof value === 'number' ? value.toFixed(2) : String(value);
+                    return `${label}: ${formattedValue}`;
                   },
                 },
               },
@@ -198,5 +224,11 @@ export class VedenieHomeComponent implements OnInit {
         console.error('Error fetching student counts by year:', error);
       },
     });
+  }
+
+
+  redirectToKeywordsPage(word: string): void {
+    // Navigate to /keywords and pass the word in the state
+    this.router.navigate(['/keywords'], { state: { word } });
   }
 }

@@ -34,7 +34,8 @@ import {
   MatHeaderRowDef,
   MatRow,
   MatRowDef,
-  MatTable, MatTableDataSource,
+  MatTable,
+  MatTableDataSource,
 } from '@angular/material/table';
 
 import { MatChip, MatChipSet } from '@angular/material/chips';
@@ -75,9 +76,9 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
   protected readonly StudyPrograms = StudyPrograms;
   protected readonly Number = Number;
 
-
   // Data source for the table
-  dataSource: MatTableDataSource<{ subjectName: string; grade: string }> = new MatTableDataSource();
+  dataSource: MatTableDataSource<{ subjectName: string; grade: string }> =
+    new MatTableDataSource();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   displayedColumns: string[] = ['nazovPredmetu', 'znamka'];
@@ -226,5 +227,4 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
       this.radarChart.update();
     }
   }
-
 }

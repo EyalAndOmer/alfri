@@ -3,11 +3,7 @@ import { AdminService } from '@services/admin.service';
 import { UserService } from '@services/user.service';
 
 import { FormsModule } from '@angular/forms';
-import {
-  ChangePasswordDto, PasswordPair,
-  Role,
-  UserDto,
-} from '../../types';
+import { ChangePasswordDto, PasswordPair, Role, UserDto } from '../../types';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -15,7 +11,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { PasswordChangeModalComponent } from '@components/password-change-modal/password-change-modal.component';
 import { ChangeSubjectsModalComponent } from '@components/change-subjects-modal/change-subjects-modal.component';
 import { AuthRole } from '@enums/auth-role';
-import { HasRoleDirective } from '@directives/auth.directive';
 import { NotificationService } from '@services/notification.service';
 import { AuthService } from '@services/auth.service';
 import {
@@ -24,7 +19,11 @@ import {
   MatColumnDef,
   MatHeaderCell,
   MatHeaderCellDef,
-  MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
+  MatTable,
 } from '@angular/material/table';
 import { CreateUserModalComponent } from '@components/create-user-modal/create-user-modal.component';
 
@@ -32,13 +31,31 @@ import { CreateUserModalComponent } from '@components/create-user-modal/create-u
   selector: 'app-admin',
   templateUrl: './admin-page.component.html',
   styleUrls: ['./admin-page.component.scss'],
-  imports: [FormsModule, MatMenu, MatMenuItem, MatIconButton, MatMenuTrigger, MatIcon, HasRoleDirective, MatColumnDef, MatHeaderCell, MatCell, MatCellDef, MatHeaderCellDef, MatHeaderRow, MatRow, MatRowDef, MatHeaderRowDef, MatTable, MatButton],
+  imports: [
+    FormsModule, MatMenu, MatMenuItem, MatIconButton, MatMenuTrigger, MatIcon,  MatColumnDef,
+    MatHeaderCell,
+    MatCell,
+    MatCellDef,
+    MatHeaderCellDef,
+    MatHeaderRow,
+    MatRow,
+    MatRowDef,
+    MatHeaderRowDef,
+    MatTable,
+    MatButton,
+  ],
   standalone: true,
 })
 export class AdminPageComponent implements OnInit {
   users: UserDto[] = [];
   availableRoles: Role[] = [];
-  displayedColumns: string[] = ['firstName', 'lastName', 'email', 'roles', 'options'];
+  displayedColumns: string[] = [
+    'firstName',
+    'lastName',
+    'email',
+    'roles',
+    'options',
+  ];
   protected readonly AuthRole = AuthRole;
 
   constructor(
@@ -46,7 +63,7 @@ export class AdminPageComponent implements OnInit {
     private us: UserService,
     private dialog: MatDialog,
     private notificationService: NotificationService,
-    private authService: AuthService
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -81,7 +98,7 @@ export class AdminPageComponent implements OnInit {
       },
       error: () => {
         this.notificationService.showError('Neočakávaná chyba systému.');
-      }
+      },
     });
   }
 
@@ -91,9 +108,10 @@ export class AdminPageComponent implements OnInit {
         next: () => {
           this.users = this.users.filter((user) => user.userId !== userId);
           this.notificationService.showSuccess('Údaje úspešne zmenené.');
-        }, error: () => {
+        },
+        error: () => {
           this.notificationService.showError('Neočakávaná chyba systému.');
-        }
+        },
       });
     }
   }
@@ -102,7 +120,7 @@ export class AdminPageComponent implements OnInit {
     const selectedUser = this.users.find(
       (user) =>
         user.userId === userId &&
-        this.userHasRole(user, { id: 2, name: 'teacher' })
+        this.userHasRole(user, { id: 2, name: 'teacher' }),
     );
 
     if (!selectedUser) {
@@ -114,7 +132,7 @@ export class AdminPageComponent implements OnInit {
       width: '600px',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.notificationService.showSuccess('Údaje úspešne zmenené.');
       }
@@ -125,7 +143,7 @@ export class AdminPageComponent implements OnInit {
     const dialogRef = this.dialog.open(PasswordChangeModalComponent, {
       width: '400px',
       disableClose: false,
-      data: {user: user}
+      data: { user: user },
     });
 
     dialogRef.afterClosed().subscribe((result: PasswordPair) => {
@@ -133,8 +151,8 @@ export class AdminPageComponent implements OnInit {
         const passwordChange: ChangePasswordDto = {
           email: user.email,
           oldPassword: result.oldPassword,
-          newPassword: result.newPassword
-        }
+          newPassword: result.newPassword,
+        };
 
         this.authService.changePassword(passwordChange).subscribe({
           next: () => {
@@ -142,8 +160,8 @@ export class AdminPageComponent implements OnInit {
           },
           error: () => {
             this.notificationService.showError('Neočakávaná chyba systému.');
-          }
-        })
+          },
+        });
       }
     });
   }
@@ -154,22 +172,24 @@ export class AdminPageComponent implements OnInit {
       disableClose: false,
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.authService.postUser(result).subscribe({
           next: () => {
-            this.notificationService.showSuccess('Používateľ bol úspešne vytvorený');
+            this.notificationService.showSuccess(
+              'Používateľ bol úspešne vytvorený',
+            );
           },
           error: () => {
             this.notificationService.showError('Neočakávaná chyba systému.');
-          }
-        })
+          },
+        });
       }
     });
   }
 
   isUserTeacher(user: UserDto): boolean {
     // TODO BE is returning wrong format of roles, change it
-    return user.roles.some(userRole => userRole.name === 'teacher')
+    return user.roles.some((userRole) => userRole.name === 'teacher');
   }
 }

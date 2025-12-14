@@ -13,7 +13,6 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { SubjectService } from '@services//subject.service';
 import { Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -28,8 +27,11 @@ import {
   SubjectDto,
   SubjectExtendedDto,
 } from '../../types';
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import { MatCard, MatCardContent, MatCardHeader,
+  MatCardTitle,
+} from '@angular/material/card';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { SubjectService } from '@services/subject.service';
 import {MatTableDataSource} from "@angular/material/table";
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';

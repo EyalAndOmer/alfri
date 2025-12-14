@@ -1,3 +1,5 @@
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { NgIf } from '@angular/common';
 import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,6 +33,7 @@ import { AnsweredForm } from '../../types';
     MatSidenavModule,
     MatListModule,
     MatIconModule,
+    NgIf,
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
@@ -46,6 +49,13 @@ export class HeaderComponent implements OnInit {
   routerSubscription!: Subscription;
   formData: AnsweredForm | undefined;
 
+  constructor(
+    readonly userService: UserService,
+    protected readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly notificationService: NotificationService,
+    private readonly formDataService: FormDataService,
+  ) {}
   private readonly userService = inject(UserService);
   protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -57,7 +67,7 @@ export class HeaderComponent implements OnInit {
     this.routerSubscription = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd)) // Listen only for NavigationEnd events
       .subscribe(() => {
-        if (this.drawer.opened) {
+        if (this.drawer?.opened) {
           this.drawer.close(); // Close the drawer if it's open
         }
       });

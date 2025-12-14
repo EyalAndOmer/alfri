@@ -10,7 +10,6 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { SubjectService } from '@services/subject.service';
 import { StudyProgramService } from '@services/study-program.service';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
@@ -27,6 +26,8 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
 import { Page, StudyProgramDto, SubjectDto } from '../../types';
+import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
+import { SubjectService } from '@services/subject.service';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatInput } from '@angular/material/input';

@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { UserService } from '@services/user.service';
+import { NgIf } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 
 import { AuthService } from '@services/auth.service';
@@ -9,26 +15,11 @@ import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { NotificationService } from '@services/notification.service';
 import { Router } from '@angular/router';
-import { MatCard } from '@angular/material/card';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatHeaderRowDef,
-  MatRow,
-  MatRowDef,
-  MatTable,
-} from '@angular/material/table';
-import { BaseChartDirective } from 'ng2-charts';
-import { MatChip, MatChipSet } from '@angular/material/chips';
 import { UserFormResultsComponent } from '@components/user-form-results/user-form-results.component';
 import { USER_FORM_ID } from '@pages/home/home.component';
 import { FormService } from '@services/form.service';
 import { HasRoleDirective } from '@directives/auth.directive';
-import { AnsweredForm, ChangePasswordDto, UserDto } from '../../types';
+import { AnsweredForm, ChangePasswordDto } from '../../types';
 import { AuthRole } from '@enums/auth-role';
 
 @Component({
@@ -61,39 +52,23 @@ import { AuthRole } from '@enums/auth-role';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
-  private readonly destroy: Subject<void> = new Subject<void>();
   protected readonly AuthRole = AuthRole;
-
-  _userData: UserDto | undefined;
   formData: AnsweredForm | undefined;
-  isLoading = true;
   profileForm: FormGroup;
 
   constructor(
-    private formBuilder: FormBuilder,
-    private userService: UserService,
-    private authService: AuthService,
-    private notificationService: NotificationService,
-    private router: Router,
-    private formService: FormService
+    private readonly formBuilder: FormBuilder,
+    readonly userService: UserService,
+    private readonly authService: AuthService,
+    private readonly notificationService: NotificationService,
+    private readonly router: Router,
+    private readonly formService: FormService,
   ) {
-    this.profileForm = this.formBuilder.group(
-      {
-        currentPassword: ['', Validators.required],
-        newPassword: ['', Validators.required],
-        confirmNewPassword: ['', Validators.required],
-      },
-      {
-        validator: this.mustMatch('newPassword', 'confirmNewPassword'),
-      },
-    );
-    this.userService
-      .loadUserInfo()
-      .pipe(takeUntil(this.destroy))
-      .subscribe((value) => {
-        this._userData = value;
-        this.isLoading = false;
-      });
+    this.profileForm = this.formBuilder.group({
+      currentPassword: ['', Validators.required],
+      newPassword: ['', Validators.required],
+      confirmNewPassword: ['', Validators.required],
+    });
   }
 
   ngOnInit() {
@@ -127,7 +102,7 @@ export class ProfileComponent implements OnInit {
   changePassword() {
     if (this.profileForm.valid) {
       const passwordData: ChangePasswordDto = {
-        email: this.userData.email,
+        email: this.userService.userData.email,
         oldPassword: this.profileForm.value.currentPassword,
         newPassword: this.profileForm.value.newPassword,
       };
@@ -140,10 +115,6 @@ export class ProfileComponent implements OnInit {
       );
       this.router.navigate(['/home']);
     }
-  }
-
-  get userData(): UserDto {
-    return <UserDto>this._userData;
   }
 
   redirectToUserForm() {

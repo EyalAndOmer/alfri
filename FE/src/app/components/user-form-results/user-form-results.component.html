@@ -16,9 +16,11 @@
             <div class="col-12 col-md-6">
               <p class="m-0 question-label">{{ information.questionTitle }}</p>
               @if (information.questionTitle === 'Odbor') {
-                <p class="fw-bolder answer-text">
-                  {{ StudyPrograms[Number(information.answers[0].texts[0].textOfAnswer)] }}
-                </p>
+                <p class="fw-bolder answer-text"
+        >
+          {{
+                   StudyPrograms[Number(information.answers[0].texts[0].textOfAnswer)]
+                }}</p>
               } @else {
                 <p class="fw-bolder answer-text">
                   {{ information.answers[0].texts[0].textOfAnswer }}

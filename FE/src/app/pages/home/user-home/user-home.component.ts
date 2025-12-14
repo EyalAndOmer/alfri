@@ -13,6 +13,13 @@ import {MatCard} from "@angular/material/card";
 @Component({
   selector: 'app-user-home',
   standalone: true,
+  imports: [
+    MatButton,
+    NgIf,
+    NgOptimizedImage,
+    UserFormResultsComponent,
+    NgxSkeletonLoaderModule,
+  ],
   imports: [MatButton, NgOptimizedImage, UserFormResultsComponent, NgxSkeletonLoaderModule, MatCard],
   templateUrl: './user-home.component.html',
   styleUrl: './user-home.component.scss',
@@ -20,6 +27,12 @@ import {MatCard} from "@angular/material/card";
 export class UserHomeComponent implements OnInit {
   loading = true;
   formData: AnsweredForm | undefined;
+
+  constructor(
+    private router: Router,
+    private formService: FormService,
+    private formDataService: FormDataService,
+  ) {}
 
   private readonly router = inject(Router);
   private readonly formService = inject(FormService);
