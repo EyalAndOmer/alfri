@@ -13,7 +13,7 @@ import {
   MatTableDataSource,
 } from '@angular/material/table';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
-import { NgForOf, NgIf } from '@angular/common';
+
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import {
@@ -47,7 +47,6 @@ import { debounceTime, Subject } from 'rxjs';
     MatCellDef,
     MatCell,
     MatMenuItem,
-    NgForOf,
     MatMenu,
     MatButton,
     MatHeaderCell,
@@ -58,11 +57,10 @@ import { debounceTime, Subject } from 'rxjs';
     MatIcon,
     MatChipRemove,
     MatChip,
-    NgIf,
     MatChipListbox,
     MatProgressBar,
-    MatPaginator,
-  ],
+    MatPaginator
+],
   animations: [
     trigger('fadeInOut', [
       state(

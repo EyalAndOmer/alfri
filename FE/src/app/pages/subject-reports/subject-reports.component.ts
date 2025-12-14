@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import {CommonModule} from '@angular/common';
+
 import { Router } from '@angular/router';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { Subject, takeUntil } from 'rxjs';
@@ -24,7 +24,6 @@ import { SubjectService } from '@services/subject.service';
   standalone: true,
   styleUrls: ['./subject-reports.component.scss'],
   imports: [
-    CommonModule,
     MatTableModule,
     MatProgressBarModule,
     MatRadioButton,
@@ -36,8 +35,8 @@ import { SubjectService } from '@services/subject.service';
     MatCardContent,
     MatFormFieldModule,
     MatSelectModule,
-    MatPaginatorModule,
-  ],
+    MatPaginatorModule
+],
 })
 export class SubjectReportsComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();
