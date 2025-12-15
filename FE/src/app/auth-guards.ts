@@ -26,7 +26,9 @@ export const tokenAppGuard: CanActivateFn = (): boolean => {
 /**
  * Guard that redirects logged in users away from auth pages (e.g. login/register)
  */
-export const loggedOutOnlyGuard: CanActivateFn = (..._args: [ActivatedRouteSnapshot, RouterStateSnapshot]) => {
+export const loggedOutOnlyGuard: CanActivateFn = (
+  ..._args: [ActivatedRouteSnapshot, RouterStateSnapshot]
+) => {
   const router = inject(Router);
   const userService = inject(UserService);
 
@@ -43,9 +45,7 @@ export const loggedOutOnlyGuard: CanActivateFn = (..._args: [ActivatedRouteSnaps
 /**
  * Role based auth guard
  */
-export const roleAppGuard: CanActivateFn = (
-  route: ActivatedRouteSnapshot,
-) => {
+export const roleAppGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 

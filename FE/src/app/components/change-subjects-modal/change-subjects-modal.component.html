@@ -8,7 +8,7 @@
     <mat-label>Katedra</mat-label>
     <mat-select [(ngModel)]="selectedDepartmentId">
       @for (department of availableDepartments; track department) {
-        <mat-option [value]="department.id" >
+        <mat-option [value]="department.id">
           {{ department.name }}
         </mat-option>
       }

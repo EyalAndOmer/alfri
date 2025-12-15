@@ -35,8 +35,8 @@ import { SubjectService } from '@services/subject.service';
     MatCardContent,
     MatFormFieldModule,
     MatSelectModule,
-    MatPaginatorModule
-],
+    MatPaginatorModule,
+  ],
 })
 export class SubjectReportsComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();

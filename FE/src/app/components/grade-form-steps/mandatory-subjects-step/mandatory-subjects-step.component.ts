@@ -1,4 +1,11 @@
-import { Component, effect, Input, signal, Signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  Input,
+  signal,
+  Signal,
+} from '@angular/core';
 import { AnsweredForm, Form, Question, Section } from '../../../types';
 import {
   FormControl,
@@ -29,8 +36,8 @@ import { FormService } from '@services/form.service';
     MatStepLabel,
     FormsModule,
     ReactiveFormsModule,
-    MatProgressSpinner
-],
+    MatProgressSpinner,
+  ],
   templateUrl: './mandatory-subjects-step.component.html',
   styleUrl: './mandatory-subjects-step.component.scss',
 })
@@ -46,8 +53,9 @@ export class MandatorySubjectsStepComponent {
   selectedStudyProgram: string | undefined;
   @Input() form!: Form;
   @Input() formAnswers: AnsweredForm | null = null;
+  private readonly formService = inject(FormService);
 
-  constructor(private formService: FormService) {
+  constructor() {
     effect(
       () => {
         if (this.activeStep() === 1) {

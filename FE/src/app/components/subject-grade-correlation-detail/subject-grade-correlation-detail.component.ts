@@ -12,13 +12,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-subject-grade-correlation-detail',
   standalone: true,
-  imports: [
-    MatCard,
-    MatCardContent,
-    MatCardHeader,
-    MatCardTitle,
-    DecimalPipe
-],
+  imports: [MatCard, MatCardContent, MatCardHeader, MatCardTitle, DecimalPipe],
   templateUrl: './subject-grade-correlation-detail.component.html',
   styleUrl: './subject-grade-correlation-detail.component.scss',
 })

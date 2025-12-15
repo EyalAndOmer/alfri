@@ -1,5 +1,6 @@
 import {
-  Directive, inject,
+  Directive,
+  inject,
   Input,
   OnInit,
   TemplateRef,

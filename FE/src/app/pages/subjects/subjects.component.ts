@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   catchError,
   debounceTime,
@@ -137,8 +137,12 @@ export class SubjectsComponent implements OnInit, OnDestroy {
         distinctUntilChanged(),
         tap(() => (this.isLoading = true)),
         switchMap((searchTerm: string) => {
-          const searchParam = `id.studyProgramId:${this._selectedStudyProgramId},subject.name~${searchTerm}`
-          return this.getSubjectsWithSearch(0, this.pageData.size || 10, searchParam);
+          const searchParam = `id.studyProgramId:${this._selectedStudyProgramId},subject.name~${searchTerm}`;
+          return this.getSubjectsWithSearch(
+            0,
+            this.pageData.size || 10,
+            searchParam,
+          );
         }),
         catchError(() => {
           this.isLoading = false;
@@ -163,7 +167,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
             empty: true,
           });
         }),
-        takeUntil(this._destroy$)
+        takeUntil(this._destroy$),
       )
       .subscribe((page) => {
         this.dataSource.data = page.content;
@@ -176,7 +180,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
           last: page.last,
           first: page.first,
           numberOfElements: page.numberOfElements,
-          empty: page.empty
+          empty: page.empty,
         });
         this.isLoading = false;
       });
@@ -209,7 +213,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
             last: page.last,
             first: page.first,
             numberOfElements: page.numberOfElements,
-            empty: page.empty
+            empty: page.empty,
           });
           this.isLoading = false;
         }),
@@ -244,11 +248,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
   studyProgramChanged() {
     this.isLoading = true;
     this.searchTerm = '';
-    this.getSubjects(
-      0,
-      this.pageData.size,
-      this._selectedStudyProgramId,
-    );
+    this.getSubjects(0, this.pageData.size, this._selectedStudyProgramId);
   }
 
   onPageChange(event: PageEvent) {
@@ -269,7 +269,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
               last: page.last,
               first: page.first,
               numberOfElements: page.numberOfElements,
-              empty: page.empty
+              empty: page.empty,
             });
             this.isLoading = false;
           }),

@@ -4,10 +4,7 @@
   <div class="row">
     <div class="col-12 col-md-6">
       <form [formGroup]="filterForm" (ngSubmit)="studyProgramChanged()">
-        <mat-form-field
-          appearance="outline"
-          class="col-12"
-        >
+        <mat-form-field appearance="outline" class="col-12">
           <mat-label>Študijný program</mat-label>
           <mat-select
             formControlName="subjectForm"
@@ -15,9 +12,7 @@
             (selectionChange)="studyProgramChanged()"
           >
             @for (program of studyPrograms$ | async; track program) {
-              <mat-option
-                [value]="program.id"
-              >
+              <mat-option [value]="program.id">
                 {{ program.name }}
               </mat-option>
             }
@@ -27,16 +22,16 @@
     </div>
     <div class="col-12 col-md-6">
       <mat-form-field appearance="outline" class="w-100 mb-3">
-      <mat-label>Vyhľadať predmety</mat-label>
-      <input
-        matInput
-        type="text"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="onSearchChange($event)"
-        placeholder="Zadajte názov predmetu..."
-      />
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
+        <mat-label>Vyhľadať predmety</mat-label>
+        <input
+          matInput
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Zadajte názov predmetu..."
+        />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
     </div>
   </div>
   <mat-card-content>
@@ -47,7 +42,7 @@
       [isLoading]="isLoading"
       (pageChange)="onPageChange($event)"
       (subjectDetailNavigate)="navigateToSubjectDetail($event)"
-      >
+    >
     </app-subjects-table>
   </mat-card-content>
 </mat-card>

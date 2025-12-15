@@ -12,7 +12,6 @@
         </mat-card-header>
 
         <mat-card-content>
-
           @if (isLoadingRecommendetSubjects()) {
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
           }
@@ -68,7 +67,7 @@
       <div class="row m-0 p-0 mt-3">
         <!-- Left side: Selected Subjects -->
         <div class="col-12 col-md-6 mb-3 mb-md-0">
-          <mat-card style="min-height: 400px;">
+          <mat-card style="min-height: 400px">
             <mat-card-header>
               <mat-card-title>
                 Vybrané predmety ({{ selectedSubjects().length }})
@@ -96,15 +95,20 @@
 
         <!-- Right side: Similar Subjects -->
         <div class="col-12 col-md-6">
-          <mat-card style="min-height: 400px;">
+          <mat-card style="min-height: 400px">
             <mat-card-header>
               <mat-card-title>
-                Podobné predmety ({{ recommendedSubjectsPageDataComputed().content.length }})
+                Podobné predmety ({{
+                  recommendedSubjectsPageDataComputed().content.length
+                }})
               </mat-card-title>
             </mat-card-header>
 
             <mat-card-content>
-              @if (recommendedSubjectsPageDataComputed().content.length > 0 && !isLoadingRecommendetSubjects()) {
+              @if (
+                recommendedSubjectsPageDataComputed().content.length > 0 &&
+                !isLoadingRecommendetSubjects()
+              ) {
                 <app-subjects-table
                   [pageData]="recommendedSubjectsPageDataComputed()"
                   [isLoading]="false"
@@ -113,14 +117,15 @@
                   [isScrollable]="true"
                   (subjectDetailNavigate)="navigateToSubjectDetail($event)"
                 ></app-subjects-table>
-              } @else if (recommendedSubjectsPageDataComputed().content.length === 0 && !isLoadingRecommendetSubjects()) {
+              } @else if (
+                recommendedSubjectsPageDataComputed().content.length === 0 &&
+                !isLoadingRecommendetSubjects()
+              ) {
                 <div class="text-center text-muted p-3">
                   Nenašli sa žiadne podobné predmety
                 </div>
               } @else if (isLoadingRecommendetSubjects()) {
-                <div class="text-center text-muted p-3">
-                  Načítavam...
-                </div>
+                <div class="text-center text-muted p-3">Načítavam...</div>
               }
             </mat-card-content>
           </mat-card>

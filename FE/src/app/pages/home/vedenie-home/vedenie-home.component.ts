@@ -1,10 +1,23 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, NgZone } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+  NgZone,
+} from '@angular/core';
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import 'echarts-wordcloud';
 import * as echarts from 'echarts';
 import { EChartsType } from 'echarts';
-import { FocusCategorySumDTO, KeywordDTO, StudentYearCountDTO } from '../../../types';
+import {
+  FocusCategorySumDTO,
+  KeywordDTO,
+  StudentYearCountDTO,
+} from '../../../types';
 import { StudentMarksReportComponent } from '@components/student-marks-report/student-marks-report.component';
 import { LeadService } from '@services/lead.service';
 import { Router } from '@angular/router';
@@ -31,7 +44,9 @@ type ChartPayload = {
   studentCounts: StudentYearCountDTO[];
 };
 
-const buildWordCloudOptions = (keywords: KeywordDTO[]): echarts.EChartsOption => ({
+const buildWordCloudOptions = (
+  keywords: KeywordDTO[],
+): echarts.EChartsOption => ({
   series: [
     {
       type: 'wordCloud',
@@ -58,8 +73,12 @@ const buildFocusPieConfig = (
   categories: FocusCategorySumDTO[],
 ): ChartConfiguration<'pie', number[], string> => {
   const total = categories.reduce((sum, item) => sum + item.totalSum, 0) || 1;
-  const labels = categories.map((item) => FOCUS_LABEL_MAPPING[item.focusCategory] ?? item.focusCategory);
-  const percentages = categories.map((item) => Number(((item.totalSum / total) * 100).toFixed(2)));
+  const labels = categories.map(
+    (item) => FOCUS_LABEL_MAPPING[item.focusCategory] ?? item.focusCategory,
+  );
+  const percentages = categories.map((item) =>
+    Number(((item.totalSum / total) * 100).toFixed(2)),
+  );
 
   return {
     type: 'pie',
@@ -92,7 +111,10 @@ const buildFocusPieConfig = (
           callbacks: {
             label: (context) => {
               const label = context.label ?? '';
-              const value = typeof context.raw === 'number' ? context.raw.toFixed(2) : String(context.raw ?? '');
+              const value =
+                typeof context.raw === 'number'
+                  ? context.raw.toFixed(2)
+                  : String(context.raw ?? '');
               return `${label}: ${value}%`;
             },
           },
@@ -131,7 +153,10 @@ const buildYearBarConfig = (
           callbacks: {
             label: (context) => {
               const label = context.dataset.label ?? '';
-              const value = typeof context.raw === 'number' ? context.raw.toFixed(2) : String(context.raw ?? '');
+              const value =
+                typeof context.raw === 'number'
+                  ? context.raw.toFixed(2)
+                  : String(context.raw ?? '');
               return `${label}: ${value}`;
             },
           },

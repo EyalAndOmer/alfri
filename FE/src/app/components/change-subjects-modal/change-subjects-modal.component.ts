@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { DepartmentDto, SubjectDto, TeacherDto, UserDto } from '../../types';
 import {
   MAT_DIALOG_DATA,
@@ -55,7 +55,7 @@ import { switchMap } from 'rxjs/operators';
     MatColumnDef,
     MatRowDef,
     MatHeaderRowDef,
-],
+  ],
   templateUrl: './change-subjects-modal.component.html',
   styleUrl: './change-subjects-modal.component.scss',
 })
@@ -69,13 +69,11 @@ export class ChangeSubjectsModalComponent implements OnInit {
   displayedColumns: string[] = ['name', 'assigned'];
   selectedDepartmentId = -1;
 
-  constructor(
-    private ts: TeacherService,
-    private ds: DepartmentService,
-    private adminService: AdminService,
-    private dialogRef: MatDialogRef<ChangeSubjectsModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { userId: number; user: UserDto },
-  ) {}
+  private readonly ts = inject(TeacherService);
+  private readonly ds = inject(DepartmentService);
+  private readonly adminService = inject(AdminService);
+  private readonly dialogRef = inject(MatDialogRef<ChangeSubjectsModalComponent>);
+  public readonly data = inject(MAT_DIALOG_DATA);
 
   ngOnInit(): void {
     this.selectedUser = this.data.user;

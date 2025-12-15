@@ -1,4 +1,12 @@
-import {Component, inject, OnDestroy, OnInit, ViewChild, signal, computed} from '@angular/core';
+import {
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  signal,
+  computed,
+} from '@angular/core';
 import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
 import {
   catchError,
@@ -27,14 +35,21 @@ import {
   SubjectDto,
   SubjectExtendedDto,
 } from '../../types';
-import { MatCard, MatCardContent, MatCardHeader,
+import {
+  MatCard,
+  MatCardContent,
+  MatCardHeader,
   MatCardTitle,
 } from '@angular/material/card';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { SubjectService } from '@services/subject.service';
-import {MatTableDataSource} from "@angular/material/table";
+import { MatTableDataSource } from '@angular/material/table';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
-import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';
+import {
+  MatFormField,
+  MatLabel,
+  MatSuffix,
+} from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 
@@ -121,40 +136,42 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         pageNumber: 0,
         pageSize: subjects.length,
         paged: false,
-        unpaged: true
+        unpaged: true,
       },
       last: true,
       totalPages: 1,
       sort: { sorted: false, unsorted: true, empty: true },
       first: true,
       numberOfElements: subjects.length,
-      empty: subjects.length === 0
+      empty: subjects.length === 0,
     };
   });
 
-  readonly recommendedSubjectsPageDataComputed = computed<Page<SubjectDto>>(() => {
-    const subjects = this._recommendedSubjects();
-    return {
-      content: subjects,
-      totalElements: subjects.length,
-      size: subjects.length,
-      number: 0,
-      pageable: {
+  readonly recommendedSubjectsPageDataComputed = computed<Page<SubjectDto>>(
+    () => {
+      const subjects = this._recommendedSubjects();
+      return {
+        content: subjects,
+        totalElements: subjects.length,
+        size: subjects.length,
+        number: 0,
+        pageable: {
+          sort: { sorted: false, unsorted: true, empty: true },
+          offset: 0,
+          pageNumber: 0,
+          pageSize: subjects.length,
+          paged: false,
+          unpaged: true,
+        },
+        last: true,
+        totalPages: 1,
         sort: { sorted: false, unsorted: true, empty: true },
-        offset: 0,
-        pageNumber: 0,
-        pageSize: subjects.length,
-        paged: false,
-        unpaged: true
-      },
-      last: true,
-      totalPages: 1,
-      sort: { sorted: false, unsorted: true, empty: true },
-      first: true,
-      numberOfElements: subjects.length,
-      empty: subjects.length === 0
-    };
-  });
+        first: true,
+        numberOfElements: subjects.length,
+        empty: subjects.length === 0,
+      };
+    },
+  );
 
   private readonly subjectService = inject(SubjectService);
   private readonly studentService = inject(StudentService);
@@ -206,7 +223,7 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
             empty: true,
           });
         }),
-        takeUntil(this._destroy$)
+        takeUntil(this._destroy$),
       )
       .subscribe((page) => {
         this.dataSource.data = page.content;
@@ -219,7 +236,7 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
           last: page.last,
           first: page.first,
           numberOfElements: page.numberOfElements,
-          empty: page.empty
+          empty: page.empty,
         });
         this.isLoadingAllSubjects.set(false);
       });
@@ -280,7 +297,7 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
           last: page.last,
           first: page.first,
           numberOfElements: page.numberOfElements,
-          empty: page.empty
+          empty: page.empty,
         });
         this.isLoadingAllSubjects.set(false);
       });
@@ -378,7 +395,7 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
           last: page.last,
           first: page.first,
           numberOfElements: page.numberOfElements,
-          empty: page.empty
+          empty: page.empty,
         });
         this.isLoadingAllSubjects.set(false);
       });
@@ -412,7 +429,7 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
             }
           }, 100);
         }),
-        takeUntil(this._destroy$)
+        takeUntil(this._destroy$),
       )
       .subscribe();
   }

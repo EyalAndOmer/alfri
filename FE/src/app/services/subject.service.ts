@@ -148,20 +148,26 @@ export class SubjectService {
   public getSimilarSubjects(
     subjects: SubjectExtendedDto[],
   ): Observable<SubjectDto[]> {
-    console.log(subjects)
+    console.log(subjects);
     return this.http.post<SubjectDto[]>(
       `${this.URL}/similarSubjects`,
       subjects,
     );
   }
 
-  public getSubjectFocusPrediction(pageNumber: number, pageSize: number): Observable<Page<SubjectExtendedDto>> {
+  public getSubjectFocusPrediction(
+    pageNumber: number,
+    pageSize: number,
+  ): Observable<Page<SubjectExtendedDto>> {
     let urlParameters: HttpParams = new HttpParams();
     urlParameters = urlParameters
       .append('page', pageNumber)
-      .append('size', pageSize)
+      .append('size', pageSize);
 
-    return this.http.get<Page<SubjectExtendedDto>>(`${this.URL}/focus-prediction`, {params: urlParameters});
+    return this.http.get<Page<SubjectExtendedDto>>(
+      `${this.URL}/focus-prediction`,
+      { params: urlParameters },
+    );
   }
 
   getFilteredSubjects(

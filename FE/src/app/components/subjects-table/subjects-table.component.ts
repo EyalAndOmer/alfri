@@ -1,7 +1,10 @@
-
 import { Observable } from 'rxjs';
 import { Page, SubjectDto } from '../../types';
-import { MatPaginator, PageEvent, MatPaginatorModule } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  PageEvent,
+  MatPaginatorModule,
+} from '@angular/material/paginator';
 import {
   MatCell,
   MatCellDef,
@@ -14,10 +17,17 @@ import {
   MatRowDef,
   MatTable,
   MatTableDataSource,
-  MatTableModule
+  MatTableModule,
 } from '@angular/material/table';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import {Component, computed, effect, input, output, signal} from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({

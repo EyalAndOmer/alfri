@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy} from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import {
   AbstractControl,
   AbstractControlOptions,
@@ -51,7 +51,6 @@ export class RegistrationComponent implements OnDestroy {
   private readonly userStore = inject(UserStore);
   private readonly jwtService = inject(JwtService);
   private readonly notificationService = inject(NotificationService);
-
 
   constructor() {
     const formOptions: AbstractControlOptions = {

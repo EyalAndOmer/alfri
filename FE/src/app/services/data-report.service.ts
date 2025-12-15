@@ -34,4 +34,3 @@ export class DataReportService {
     // return this.http.get<DataReportDto>(this.URL);
   }
 }
-

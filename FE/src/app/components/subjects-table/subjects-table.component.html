@@ -1,17 +1,21 @@
 @if (showLoader()) {
-  <div style="height: 4px;">
+  <div style="height: 4px">
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   </div>
 } @else {
-  <div style="height: 4px;"></div>
+  <div style="height: 4px"></div>
 }
 <div class="table-wrapper">
-  <table mat-table [dataSource]="internalDataSource()" [trackBy]="trackByCode" aria-description="subject table">
+  <table
+    mat-table
+    [dataSource]="internalDataSource()"
+    [trackBy]="trackByCode"
+    aria-description="subject table"
+  >
     @if (isSelectable()) {
-    <ng-container matColumnDef="select">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let subject">
-
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let subject">
           <mat-checkbox
             (click)="$event.stopPropagation()"
             (change)="toggleSelection(subject)"
@@ -19,8 +23,8 @@
             [checked]="isSelected(subject)"
             [disabled]="isDisabled(subject)"
           ></mat-checkbox>
-      </td>
-    </ng-container>
+        </td>
+      </ng-container>
     }
 
     <ng-container matColumnDef="name">

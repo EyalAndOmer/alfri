@@ -6,7 +6,7 @@
     fixedInViewport
     mode="over"
     [opened]="false"
-    >
+  >
     <mat-toolbar>ALFRI</mat-toolbar>
     <mat-nav-list>
       <!-- Subjects Menu Group -->
@@ -26,7 +26,7 @@
               mat-list-item
               href="javascript:void(0)"
               (click)="handleMenuItemClick(item)"
-              >
+            >
               <div class="d-flex align-items-center gap-1">
                 <mat-icon>{{ item.icon }}</mat-icon>
                 {{ item.label }}
@@ -53,7 +53,7 @@
               mat-list-item
               href="javascript:void(0)"
               (click)="handleMenuItemClick(item)"
-              >
+            >
               <div class="d-flex align-items-center gap-1">
                 <mat-icon>{{ item.icon }}</mat-icon>
                 {{ item.label }}
@@ -69,7 +69,7 @@
         mat-list-item
         href="javascript:void(0)"
         (click)="navigateToAdminPage()"
-        >
+      >
         <div class="d-flex align-items-center gap-1">
           <mat-icon>admin_panel_settings</mat-icon>
           Administrácia
@@ -82,7 +82,7 @@
           mat-list-item
           href="javascript:void(0)"
           (click)="handleMenuItemClick(item)"
-          >
+        >
           <div class="d-flex align-items-center gap-1">
             <mat-icon>{{ item.icon }}</mat-icon>
             {{ item.label }}
@@ -104,7 +104,7 @@
               aria-label="Toggle sidenav"
               mat-icon-button
               (click)="openDrawer()"
-              >
+            >
               <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
             </button>
 
@@ -112,24 +112,20 @@
               type="button"
               class="brand-button curs"
               (click)="navigateToHome()"
-              >ALFRI</button>
+            >
+              ALFRI
+            </button>
 
             <div class="d-none d-md-block">
               @if (canAccessSubjects()) {
-                <button
-                  mat-button
-                  [matMenuTriggerFor]="subjects_menu"
-                  >
+                <button mat-button [matMenuTriggerFor]="subjects_menu">
                   <mat-icon>book</mat-icon>
                   Predmety
                 </button>
               }
 
               @if (canAccessReports()) {
-                <button
-                  mat-button
-                  [matMenuTriggerFor]="reports_menu"
-                  >
+                <button mat-button [matMenuTriggerFor]="reports_menu">
                   <mat-icon>bar_chart</mat-icon>
                   Analýzy a Reporty
                 </button>
@@ -143,7 +139,7 @@
               [matMenuTriggerFor]="menu"
               aria-label="Open menu"
               class="menu-avatar-button"
-              >
+            >
               <div class="avatar">{{ userInitial() }}</div>
             </button>
             <mat-menu #menu="matMenu">
@@ -151,7 +147,7 @@
                 mat-menu-item
                 (click)="navigateToAdminPage()"
                 *appHasRole="[AuthRole.ADMIN]"
-                >
+              >
                 <mat-icon>admin_panel_settings</mat-icon>
                 Administrácia
               </button>

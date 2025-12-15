@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NotificationService } from '@services/notification.service';
@@ -34,7 +34,6 @@ export class RecommendationComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();
 
   readonly dataSource$ = new MatTableDataSource<SubjectDto>([]);
-
 
   public pageData: Page<SubjectDto> = {
     content: [],
@@ -104,25 +103,27 @@ export class RecommendationComponent implements OnInit, OnDestroy {
           last: page.last,
           first: page.first,
           numberOfElements: page.numberOfElements,
-          empty: page.empty
+          empty: page.empty,
         });
       });
   }
 
-  private getSubjects(): Observable<Page<SubjectDto> | never []> {
+  private getSubjects(): Observable<Page<SubjectDto> | never[]> {
     this.isLoading = true;
-    return this.subjectService.getSubjectFocusPrediction(this.pageData.number, this.pageData.size).pipe(
-      tap((page: Page<SubjectDto>) => {
-        this.isLoading = false;
-        return page;
-      }),
-      takeUntil(this._destroy$),
-      catchError((error: HttpErrorResponse) => {
-        this.isLoading = false;
-        this.errorService.showError(error.error.detail);
-        return of([]);
-      }),
-    );
+    return this.subjectService
+      .getSubjectFocusPrediction(this.pageData.number, this.pageData.size)
+      .pipe(
+        tap((page: Page<SubjectDto>) => {
+          this.isLoading = false;
+          return page;
+        }),
+        takeUntil(this._destroy$),
+        catchError((error: HttpErrorResponse) => {
+          this.isLoading = false;
+          this.errorService.showError(error.error.detail);
+          return of([]);
+        }),
+      );
   }
 
   ngOnDestroy() {
@@ -153,7 +154,7 @@ export class RecommendationComponent implements OnInit, OnDestroy {
         last: page.last,
         first: page.first,
         numberOfElements: page.numberOfElements,
-        empty: page.empty
+        empty: page.empty,
       });
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -42,8 +42,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     FocusStepComponent,
     HobbyStepComponent,
     NgxSkeletonLoaderModule,
-
-],
+  ],
   templateUrl: './grade-form.component.html',
   styleUrl: './grade-form.component.scss',
 })
@@ -55,12 +54,12 @@ export class GradeFormComponent implements OnInit {
   stepperOrientation: Observable<StepperOrientation>;
   activeStep = signal(0);
 
+  private readonly fb = inject(FormBuilder);
+  private readonly formService = inject(FormService);
+  private readonly router = inject(Router);
+  private readonly errorService = inject(NotificationService);
+  private readonly breakpointObserver = inject(BreakpointObserver);
   constructor(
-    private readonly fb: FormBuilder,
-    private readonly formService: FormService,
-    private readonly router: Router,
-    private readonly errorService: NotificationService,
-    private readonly breakpointObserver: BreakpointObserver,
   ) {
     this.stepperOrientation = this.breakpointObserver
       .observe('(min-width: 768px)')

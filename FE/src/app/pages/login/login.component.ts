@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
@@ -27,8 +27,8 @@ import { NotificationService } from '@services/notification.service';
     MatInput,
     MatLabel,
     ReactiveFormsModule,
-    NgOptimizedImage
-],
+    NgOptimizedImage,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

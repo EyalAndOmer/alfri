@@ -1,5 +1,11 @@
 import { computed, inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -40,12 +46,14 @@ export const UserStore = signalStore(
           switchMap(() =>
             http.get<UserDto>(`${BE_URL}/profile`).pipe(
               tap({
-                next: (userData: UserDto) => patchState(store, { userData, isLoading: false }),
-                error: () => patchState(store, { userData: undefined, isLoading: false }),
-              })
-            )
-          )
-        )
+                next: (userData: UserDto) =>
+                  patchState(store, { userData, isLoading: false }),
+                error: () =>
+                  patchState(store, { userData: undefined, isLoading: false }),
+              }),
+            ),
+          ),
+        ),
       ),
       loadUserInfo: () => {
         return http.get<UserDto>(`${BE_URL}/profile`);
@@ -63,6 +71,5 @@ export const UserStore = signalStore(
         patchState(store, { userData: undefined, userId: undefined });
       },
     };
-  })
+  }),
 );
-

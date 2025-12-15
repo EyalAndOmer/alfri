@@ -15,8 +15,8 @@ import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
     MatProgressSpinner,
     MatCard,
     MatCardHeader,
-    MatCardContent
-],
+    MatCardContent,
+  ],
   templateUrl: './passing-prediction.component.html',
   styleUrls: ['./passing-prediction.component.scss'],
 })

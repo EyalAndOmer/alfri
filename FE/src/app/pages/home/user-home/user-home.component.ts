@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { NgOptimizedImage } from '@angular/common';
 import { UserFormResultsComponent } from '@components/user-form-results/user-form-results.component';

@@ -43,8 +43,8 @@ import { Question } from '../../types';
     MatSelect,
     MatSlider,
     MatSliderThumb,
-    ReactiveFormsModule
-],
+    ReactiveFormsModule,
+  ],
   templateUrl: './form-question.component.html',
   styleUrl: './form-question.component.scss',
 })

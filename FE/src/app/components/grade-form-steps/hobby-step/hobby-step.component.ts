@@ -5,7 +5,6 @@ import { FormQuestionComponent } from '@components/form-question/form-question.c
 import { MatButton } from '@angular/material/button';
 import { MatStepLabel, MatStepperPrevious } from '@angular/material/stepper';
 
-
 @Component({
   selector: 'app-hobby-step',
   standalone: true,
@@ -14,8 +13,8 @@ import { MatStepLabel, MatStepperPrevious } from '@angular/material/stepper';
     MatButton,
     MatStepperPrevious,
     ReactiveFormsModule,
-    MatStepLabel
-],
+    MatStepLabel,
+  ],
   templateUrl: './hobby-step.component.html',
   styleUrl: './hobby-step.component.scss',
 })

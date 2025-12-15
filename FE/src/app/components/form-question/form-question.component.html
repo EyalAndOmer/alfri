@@ -8,14 +8,13 @@
             matInput
             [formControl]="control()"
             [required]="!questionComputed().optional"
-            />
+          />
           @if (
-            control().hasError('required') &&
+            control().hasError("required") &&
             control().invalid &&
             control().touched
-            ) {
-            <mat-error
-              >
+          ) {
+            <mat-error>
               {{ questionComputed().questionTitle }} is required
             </mat-error>
           }
@@ -33,15 +32,14 @@
             matSliderThumb
             [formControl]="control()"
             [required]="!questionComputed().optional"
-            />
+          />
         </mat-slider>
         @if (
-          control().hasError('required') &&
+          control().hasError("required") &&
           control().invalid &&
           control().touched
-          ) {
-          <mat-error
-            >
+        ) {
+          <mat-error>
             {{ questionComputed().questionTitle }} is required
           </mat-error>
         }
@@ -53,22 +51,19 @@
         <mat-radio-group
           [formControl]="control()"
           [required]="!questionComputed().optional"
-          >
+        >
           @for (option of questionComputed().options; track option) {
-            <mat-radio-button
-              [value]="option.questionOption"
-              >
+            <mat-radio-button [value]="option.questionOption">
               {{ option.questionOption }}
             </mat-radio-button>
           }
         </mat-radio-group>
         @if (
-          control().hasError('required') &&
+          control().hasError("required") &&
           control().invalid &&
           control().touched
-          ) {
-          <mat-error
-            >
+        ) {
+          <mat-error>
             {{ questionComputed().questionTitle }} is required
           </mat-error>
         }
@@ -79,23 +74,21 @@
         <h3>{{ questionComputed().questionTitle }}</h3>
         <mat-list>
           @for (
-            option of questionComputed().options; track
-            option; let optionIndex = $index) {
-            <mat-list-item
-              >
+            option of questionComputed().options;
+            track option;
+            let optionIndex = $index
+          ) {
+            <mat-list-item>
               <mat-checkbox [formControl]="checkboxControls()[optionIndex]">
                 {{ option.questionOption }}
               </mat-checkbox>
               <!-- Error message for each checkbox -->
               @if (
-                checkboxControls()[optionIndex].hasError('required') &&
+                checkboxControls()[optionIndex].hasError("required") &&
                 checkboxControls()[optionIndex]?.invalid &&
                 checkboxControls()[optionIndex]?.touched
-                ) {
-                <mat-error
-                  >
-                  {{ option.questionOption }} is required
-                </mat-error>
+              ) {
+                <mat-error> {{ option.questionOption }} is required </mat-error>
               }
             </mat-list-item>
           }
@@ -109,22 +102,19 @@
           <mat-select
             [formControl]="control()"
             [required]="!questionComputed().optional"
-            >
+          >
             @for (option of questionComputed().options; track option) {
-              <mat-option
-                [value]="option.questionValue"
-                >
+              <mat-option [value]="option.questionValue">
                 {{ option.questionOption }}
               </mat-option>
             }
           </mat-select>
           @if (
-            control().hasError('required') &&
+            control().hasError("required") &&
             control().invalid &&
             control().touched
-            ) {
-            <mat-error
-              >
+          ) {
+            <mat-error>
               {{ questionComputed().questionTitle }} is required
             </mat-error>
           }
@@ -138,22 +128,19 @@
           <mat-select
             [formControl]="control()"
             [required]="!questionComputed().optional"
-            >
+          >
             @for (option of GradeFormUtil.GRADES; track option) {
-              <mat-option
-                [value]="option"
-                >
+              <mat-option [value]="option">
                 {{ option }}
               </mat-option>
             }
           </mat-select>
           @if (
-            control().hasError('required') &&
+            control().hasError("required") &&
             control().invalid &&
             control().touched
-            ) {
-            <mat-error
-              >
+          ) {
+            <mat-error>
               {{ questionComputed().questionTitle }} is required
             </mat-error>
           }

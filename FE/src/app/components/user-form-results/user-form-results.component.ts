@@ -41,7 +41,12 @@ import {
 import { MatChip, MatChipSet } from '@angular/material/chips';
 import { AnsweredForm, StudyPrograms } from '../../types';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import {
+  MatCard,
+  MatCardContent,
+  MatCardHeader,
+  MatCardTitle,
+} from '@angular/material/card';
 
 @Component({
   selector: 'app-user-form-results',
@@ -64,7 +69,7 @@ import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/m
     MatCardHeader,
     MatCardTitle,
     MatCardContent,
-],
+  ],
   templateUrl: './user-form-results.component.html',
   styleUrl: './user-form-results.component.scss',
 })

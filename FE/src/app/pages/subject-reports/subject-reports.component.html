@@ -6,7 +6,11 @@
   <mat-card-content>
     <div class="row my-3">
       <div class="col-12 col-md-6">
-        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-form-field
+          appearance="outline"
+          class="w-100"
+          subscriptSizing="dynamic"
+        >
           <mat-label>Zoradiť podľa</mat-label>
           <mat-select
             [(ngModel)]="sortCriteria"
@@ -18,23 +22,17 @@
             <mat-option value="highestAverage">
               Najhoršia priemerná známka
             </mat-option>
-            <mat-option value="mostAGrades">
-              Najviac A
-            </mat-option>
-            <mat-option value="mostFXGrades">
-              Najviac FX
-            </mat-option>
+            <mat-option value="mostAGrades"> Najviac A </mat-option>
+            <mat-option value="mostFXGrades"> Najviac FX </mat-option>
           </mat-select>
         </mat-form-field>
       </div>
     </div>
 
     <div>
-      <p>Zoradiť podľa: </p>
+      <p>Zoradiť podľa:</p>
       <!--        (change)="onUserSelectionChange()"-->
-      <mat-radio-group
-        [(ngModel)]="sortCriteria"
-      >
+      <mat-radio-group [(ngModel)]="sortCriteria">
         <mat-radio-button value="lowestAverage"
           >Najlepšia priemerná známka</mat-radio-button
         >
@@ -46,15 +44,14 @@
       </mat-radio-group>
     </div>
     @if (isLoading) {
-      <div style="height: 4px;">
+      <div style="height: 4px">
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       </div>
     } @else {
-      <div style="height: 4px;"></div>
+      <div style="height: 4px"></div>
     }
 
-    <div
-      class="table-wrapper overflow-x-scroll">
+    <div class="table-wrapper overflow-x-scroll">
       <table mat-table [dataSource]="dataSource">
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef>Názov</th>
@@ -120,7 +117,10 @@
           <td mat-cell *matCellDef="let subject">{{ subject.gradeFx }} %</td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
+        <tr
+          mat-header-row
+          *matHeaderRowDef="columnsToDisplay; sticky: true"
+        ></tr>
         <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
       </table>
     </div>

@@ -23,8 +23,8 @@ import { SubjectPassingPrediction } from '../../types';
     MatListItemIcon,
     MatLine,
     AsyncPipe,
-    NgClass
-],
+    NgClass,
+  ],
   templateUrl: './subject-passing-prediction-result.component.html',
   styleUrl: './subject-passing-prediction-result.component.scss',
 })

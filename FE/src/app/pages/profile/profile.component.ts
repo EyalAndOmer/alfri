@@ -32,8 +32,8 @@ import { filter, Subject, takeUntil } from 'rxjs';
     MatInput,
     MatButton,
     UserFormResultsComponent,
-    HasRoleDirective
-],
+    HasRoleDirective,
+  ],
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
@@ -49,9 +49,8 @@ export class ProfileComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
-  private readonly formService =inject(FormService);
-  constructor(
-  ) {
+  private readonly formService = inject(FormService);
+  constructor() {
     this.profileForm = this.formBuilder.group(
       {
         currentPassword: ['', Validators.required],
@@ -71,7 +70,8 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.formService.getExistingFormAnswers(USER_FORM_ID)
+    this.formService
+      .getExistingFormAnswers(USER_FORM_ID)
       .pipe(filter(() => this.authService.hasRole([AuthRole.STUDENT])))
       .subscribe({
         next: (data: AnsweredForm) => {

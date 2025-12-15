@@ -318,4 +318,3 @@ export interface StudentTrendDataPoint {
   informatika: number;
   manazment: number;
 }
-

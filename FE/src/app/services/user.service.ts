@@ -41,7 +41,7 @@ export class UserService {
   loggedIn = () => {
     const expired = this.jwtHelper.isTokenExpired();
     return !expired;
-  }
+  };
 
   loadUserInfo(): Observable<UserDto> {
     return this.http.get<UserDto>(`${this.BE_URL}/profile`);

@@ -41,8 +41,8 @@ import { MatIcon } from '@angular/material/icon';
     MatOption,
     MatAutocompleteTrigger,
     MatAutocomplete,
-    MatIcon
-],
+    MatIcon,
+  ],
 })
 export class KeywordsComponent implements OnInit {
   filteredKeywords: string[] = [];
@@ -138,6 +138,5 @@ export class KeywordsComponent implements OnInit {
     this.keywordService.showSubjects(keyword).subscribe((subjects) => {
       this.keywordSubjects[keyword] = subjects;
     });
-
   }
 }

@@ -60,10 +60,11 @@ export class SubjectGradeCorrelationComponent implements OnInit, OnDestroy {
 
   private readonly _chartOptions: ApexChartOptions;
   private readonly _destroy$: ReplaySubject<void> = new ReplaySubject(1);
-  private readonly subjectGradeCorrelationService = inject(SubjectGradeCorrelationService)
+  private readonly subjectGradeCorrelationService = inject(
+    SubjectGradeCorrelationService,
+  );
 
-  constructor(
-  ) {
+  constructor() {
     this._chartOptions = {
       series: [],
       chart: {

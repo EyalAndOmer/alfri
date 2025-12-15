@@ -50,8 +50,8 @@ interface MenuGroup {
     MatExpansionPanel,
     MatExpansionPanelTitle,
     MatExpansionPanelHeader,
-    HasRoleDirective
-],
+    HasRoleDirective,
+  ],
 })
 export class HeaderComponent {
   readonly AuthRole = AuthRole;
@@ -68,12 +68,20 @@ export class HeaderComponent {
   readonly loggedIn = this.userService.loggedIn;
 
   // Computed signals
-  readonly canAccessSubjects = computed(() =>
-    !!this.formData() || this.authService.hasRole([AuthRole.ADMIN, AuthRole.TEACHER])
+  readonly canAccessSubjects = computed(
+    () =>
+      !!this.formData() ||
+      this.authService.hasRole([AuthRole.ADMIN, AuthRole.TEACHER]),
   );
 
-  readonly canAccessReports = computed(() =>
-    !!this.formData() || this.authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])
+  readonly canAccessReports = computed(
+    () =>
+      !!this.formData() ||
+      this.authService.hasRole([
+        AuthRole.VEDENIE,
+        AuthRole.ADMIN,
+        AuthRole.TEACHER,
+      ]),
   );
 
   readonly userInitial = computed(() => {
@@ -86,14 +94,26 @@ export class HeaderComponent {
     { label: 'Prehľad predmetov', icon: 'list_view', route: 'subjects' },
     { label: 'Zaujímavé predmety', icon: 'interests', route: 'recommendation' },
     { label: 'Podobné predmety', icon: 'bubble_chart', route: 'clustering' },
-    { label: 'Predikcia absolvovania', icon: 'check_circle', route: 'passing-prediction' }
+    {
+      label: 'Predikcia absolvovania',
+      icon: 'check_circle',
+      route: 'passing-prediction',
+    },
   ];
 
   readonly reportMenuItems: MenuItem[] = [
-    { label: 'Predmety podľa známok', icon: 'summarize', route: 'subject-reports' },
-    { label: 'Korelačná analýza známok', icon: 'query_stats', route: 'subjects-grades-correlation' },
+    {
+      label: 'Predmety podľa známok',
+      icon: 'summarize',
+      route: 'subject-reports',
+    },
+    {
+      label: 'Korelačná analýza známok',
+      icon: 'query_stats',
+      route: 'subjects-grades-correlation',
+    },
     { label: 'Reporty údajov', icon: 'analytics', route: 'data-report' },
-    { label: 'Kľúčové slová', icon: 'vpn_key', route: 'keywords' }
+    { label: 'Kľúčové slová', icon: 'vpn_key', route: 'keywords' },
   ];
 
   readonly userMenuItems: MenuItem[] = [
@@ -102,21 +122,21 @@ export class HeaderComponent {
       label: 'Odhlásiť sa',
       icon: 'logout',
       route: '',
-      action: () => this.logOut()
-    }
+      action: () => this.logOut(),
+    },
   ];
 
   readonly menuGroups: MenuGroup[] = [
     {
       label: 'Predmety',
       icon: 'book',
-      items: this.subjectMenuItems
+      items: this.subjectMenuItems,
     },
     {
       label: 'Analýzy a Reporty',
       icon: 'bar_chart',
-      items: this.reportMenuItems
-    }
+      items: this.reportMenuItems,
+    },
   ];
 
   constructor() {
@@ -124,15 +144,18 @@ export class HeaderComponent {
     this.formDataService.fetchFormData();
 
     // Auto-close drawer on navigation
-    effect(() => {
-      this.router.events
-        .pipe(filter((event) => event instanceof NavigationEnd))
-        .subscribe(() => {
-          if (this.drawer?.opened) {
-            this.drawer.close();
-          }
-        });
-    }, { allowSignalWrites: false });
+    effect(
+      () => {
+        this.router.events
+          .pipe(filter((event) => event instanceof NavigationEnd))
+          .subscribe(() => {
+            if (this.drawer?.opened) {
+              this.drawer.close();
+            }
+          });
+      },
+      { allowSignalWrites: false },
+    );
   }
 
   logOut() {

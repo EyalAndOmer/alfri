@@ -45,8 +45,8 @@ import {
     MatButton,
     MatStepperNext,
     MatStepperPrevious,
-    FormQuestionComponent
-],
+    FormQuestionComponent,
+  ],
   templateUrl: './focus-step.component.html',
   styleUrl: './focus-step.component.scss',
 })
@@ -56,7 +56,7 @@ export class FocusStepComponent {
   @Input() activeStep!: Signal<number>;
   @ViewChild('radarChart') chart!: ElementRef<HTMLCanvasElement>;
   radarChart: Chart | undefined;
-  private colors = [
+  private readonly colors = [
     'rgba(255, 99, 132, 0.8)',
     'rgba(54, 162, 235, 0.8)',
     'rgba(255, 206, 86, 0.8)',
