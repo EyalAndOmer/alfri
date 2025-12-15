@@ -11,8 +11,8 @@ $my-theme: mat.define-theme(
       tertiary: mat.$magenta-palette,
     ),
     typography: (
-      brand-family: "Roboto, sans-serif",
-      plain-family: "Roboto, sans-serif",
+      plain-family: 'Plus Jakarta Sans',
+      brand-family: 'Plus Jakarta Sans',
     ),
     density: (
       scale: 0,
@@ -21,9 +21,12 @@ $my-theme: mat.define-theme(
 );
 
 // Apply the theme globally
-:root {
+html {
   @include mat.all-component-themes($my-theme);
+  @include mat.typography-hierarchy($my-theme);
+}
 
+:root {
   --mdc-filled-button-container-shape: 10px;
   --mdc-outlined-button-container-shape: 10px;
   --mdc-text-button-container-shape: 10px;
