@@ -47,6 +47,8 @@ import {
   MatCardHeader,
   MatCardTitle,
 } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-user-form-results',
@@ -69,6 +71,8 @@ import {
     MatCardHeader,
     MatCardTitle,
     MatCardContent,
+    MatIcon,
+    NgClass,
   ],
   templateUrl: './user-form-results.component.html',
   styleUrl: './user-form-results.component.scss',
@@ -231,5 +235,56 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
 
       this.radarChart.update();
     }
+  }
+
+  getStudentName(): string {
+    if (!this.existingAnswers) return '';
+
+    const questions = this.existingAnswers.sections[0].questions;
+    const firstName = questions.find(q => q.questionTitle === 'Meno')?.answers[0]?.texts[0]?.textOfAnswer || '';
+    const lastName = questions.find(q => q.questionTitle === 'Priezvisko')?.answers[0]?.texts[0]?.textOfAnswer || '';
+
+    return `${firstName} ${lastName}`.trim();
+  }
+
+  getFilteredQuestions() {
+    if (!this.existingAnswers) return [];
+
+    return this.existingAnswers.sections[0].questions.filter(
+      q => q.questionTitle !== 'Meno' && q.questionTitle !== 'Priezvisko'
+    );
+  }
+
+  getIcon(questionTitle: string): string {
+    const iconMap: Record<string, string> = {
+      'Meno': 'badge',
+      'Priezvisko': 'badge',
+      'Ročník v škole': 'school',
+      'Fakulta': 'domain',
+      'Odbor': 'workspace_premium',
+    };
+    return iconMap[questionTitle] || 'info';
+  }
+
+  getDisplayLabel(questionTitle: string): string {
+    const labelMap: Record<string, string> = {
+      'Meno': 'Meno',
+      'Priezvisko': 'Priezvisko',
+      'Ročník v škole': 'Ročník',
+      'Fakulta': 'Fakulta',
+      'Odbor': 'Odbor',
+    };
+    return labelMap[questionTitle] || questionTitle;
+  }
+
+  getIconClass(questionTitle: string): string {
+    const classMap: Record<string, string> = {
+      'Meno': 'icon-cyan',
+      'Priezvisko': 'icon-cyan',
+      'Ročník v škole': 'icon-blue',
+      'Fakulta': 'icon-emerald',
+      'Odbor': 'icon-orange',
+    };
+    return classMap[questionTitle] || 'icon-default';
   }
 }

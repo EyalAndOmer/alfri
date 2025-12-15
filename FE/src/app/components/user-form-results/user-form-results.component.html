@@ -2,47 +2,73 @@
   <section class="user-form-results">
     <header class="page-header">
       <h2 class="page-title">Výsledky dotazníka</h2>
+      <p>Detailný prehľad tvojich študijných výsledkov a záujmov</p>
     </header>
 
     <div class="cards-container">
       <!-- Základné informácie -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-card-title>Základné informácie</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="row">
-            @for (
-              information of existingAnswers.sections[0].questions;
-              track information
-            ) {
-              <div class="col-12 col-md-6">
-                <p class="m-0 question-label">
-                  {{ information.questionTitle }}
-                </p>
-                @if (information.questionTitle === "Odbor") {
-                  <p class="fw-bolder answer-text">
-                    {{
-                      StudyPrograms[
-                        Number(information.answers[0].texts[0].textOfAnswer)
-                      ]
-                    }}
-                  </p>
-                } @else {
-                  <p class="fw-bolder answer-text">
-                    {{ information.answers[0].texts[0].textOfAnswer }}
-                  </p>
-                }
-              </div>
-            }
+      <section class="row g-3 mb-4">
+        <!-- Študent Card (Combined Meno + Priezvisko) -->
+        @if (getStudentName()) {
+          <div class="col-12 col-sm-6 col-lg-3">
+            <mat-card class="info-card">
+              <mat-card-content class="d-flex align-items-center gap-3 p-3">
+                <div class="icon-wrapper icon-cyan">
+                  <mat-icon>badge</mat-icon>
+                </div>
+                <div class="flex-grow-1">
+                  <p class="info-label mb-1">Študent</p>
+                  <p class="info-value mb-0">{{ getStudentName() }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
           </div>
-        </mat-card-content>
-      </mat-card>
+        }
+
+        <!-- Other Information Cards -->
+        @for (
+          information of getFilteredQuestions();
+          track information
+        ) {
+          <div class="col-12 col-sm-6 col-lg-3">
+            <mat-card class="info-card">
+              <mat-card-content class="d-flex align-items-center gap-3 p-3">
+                <div class="icon-wrapper" [ngClass]="getIconClass(information.questionTitle)">
+                  <mat-icon>{{ getIcon(information.questionTitle) }}</mat-icon>
+                </div>
+                <div class="flex-grow-1">
+                  <p class="info-label mb-1">{{ getDisplayLabel(information.questionTitle) }}</p>
+                  @if (information.questionTitle === "Odbor") {
+                    <p class="info-value mb-0">
+                      {{
+                        StudyPrograms[
+                          Number(information.answers[0].texts[0].textOfAnswer)
+                        ]
+                      }}
+                    </p>
+                  } @else if (information.questionTitle === "Ročník v škole") {
+                    <p class="info-value mb-0">
+                      {{ information.answers[0].texts[0].textOfAnswer }}. Ročník
+                    </p>
+                  } @else {
+                    <p class="info-value mb-0">
+                      {{ information.answers[0].texts[0].textOfAnswer }}
+                    </p>
+                  }
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        }
+      </section>
 
       <!-- Známky z povinných predmetov -->
       <mat-card class="section-card">
         <mat-card-header>
-          <mat-card-title>Známky z povinných predmetov</mat-card-title>
+          <mat-card-title class="d-flex align-items-center gap-2">
+            <mat-icon class="section-icon icon-grades">table_chart</mat-icon>
+            <span>Známky z povinných predmetov</span>
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="row">
@@ -83,7 +109,10 @@
           <!-- Oblasti záujmov -->
           <mat-card class="section-card">
             <mat-card-header>
-              <mat-card-title>Oblasti záujmov</mat-card-title>
+              <mat-card-title class="d-flex align-items-center gap-2">
+                <mat-icon class="section-icon icon-radar">radar</mat-icon>
+                <span>Oblasti záujmov</span>
+              </mat-card-title>
             </mat-card-header>
             <mat-card-content>
               <div class="row">
@@ -98,7 +127,10 @@
           <!-- Voľnočasové aktivity -->
           <mat-card class="section-card">
             <mat-card-header>
-              <mat-card-title>Voľnočasové aktivity</mat-card-title>
+              <mat-card-title class="d-flex align-items-center gap-2">
+                <mat-icon class="section-icon icon-interests">interests</mat-icon>
+                <span>Voľnočasové aktivity</span>
+              </mat-card-title>
             </mat-card-header>
             <mat-card-content>
               <div class="row">

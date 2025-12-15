@@ -1,4 +1,10 @@
-import { Component, computed, effect, inject, ViewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -19,6 +25,8 @@ import { NotificationService } from '@services/notification.service';
 import { filter } from 'rxjs';
 import { FormDataService } from '@services/form-data.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { NgOptimizedImage } from '@angular/common';
+import { MatCard } from '@angular/material/card';
 
 interface MenuItem {
   label: string;
@@ -27,11 +35,6 @@ interface MenuItem {
   action?: () => void;
 }
 
-interface MenuGroup {
-  label: string;
-  icon: string;
-  items: MenuItem[];
-}
 
 @Component({
   selector: 'app-header',
@@ -51,6 +54,8 @@ interface MenuGroup {
     MatExpansionPanelTitle,
     MatExpansionPanelHeader,
     HasRoleDirective,
+    NgOptimizedImage,
+    MatCard,
   ],
 })
 export class HeaderComponent {
@@ -66,6 +71,7 @@ export class HeaderComponent {
   // Signals
   readonly formData = toSignal(this.formDataService.formData$);
   readonly loggedIn = this.userService.loggedIn;
+  readonly currentRoute = signal<string>('');
 
   // Computed signals
   readonly canAccessSubjects = computed(
@@ -84,9 +90,32 @@ export class HeaderComponent {
       ]),
   );
 
-  readonly userInitial = computed(() => {
+  readonly userInitials = computed(() => {
     const userData = this.userService.userData();
-    return userData?.firstName.at(0)?.toUpperCase() ?? '';
+    if (!userData) return '';
+    const firstInitial = userData.firstName.at(0)?.toUpperCase() ?? '';
+    const lastInitial = userData.lastName.at(0)?.toUpperCase() ?? '';
+    return firstInitial + lastInitial;
+  });
+
+  readonly userFullName = computed(() => {
+    const userData = this.userService.userData();
+    if (!userData) return '';
+    return `${userData.firstName} ${userData.lastName}`;
+  });
+
+  readonly userRole = computed(() => {
+    const userData = this.userService.userData();
+    if (!userData?.roles?.length) return '';
+    // Get the first role name or map to a display name
+    const role = userData.roles[0].name;
+    const roleMap: Record<string, string> = {
+      ADMIN: 'Administrátor',
+      TEACHER: 'Učiteľ',
+      VEDENIE: 'Vedenie',
+      STUDENT: 'Študent',
+    };
+    return roleMap[role] || role;
   });
 
   // Menu configuration
@@ -126,36 +155,24 @@ export class HeaderComponent {
     },
   ];
 
-  readonly menuGroups: MenuGroup[] = [
-    {
-      label: 'Predmety',
-      icon: 'book',
-      items: this.subjectMenuItems,
-    },
-    {
-      label: 'Analýzy a Reporty',
-      icon: 'bar_chart',
-      items: this.reportMenuItems,
-    },
-  ];
-
   constructor() {
     // Fetch form data on init
     this.formDataService.fetchFormData();
 
-    // Auto-close drawer on navigation
-    effect(
-      () => {
-        this.router.events
-          .pipe(filter((event) => event instanceof NavigationEnd))
-          .subscribe(() => {
-            if (this.drawer?.opened) {
-              this.drawer.close();
-            }
-          });
-      },
-      { allowSignalWrites: false },
-    );
+    // Track current route
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        const route = event.urlAfterRedirects.split('/')[1] || '';
+        this.currentRoute.set(route);
+        if (this.drawer?.opened) {
+          this.drawer.close();
+        }
+      });
+
+    // Set initial route
+    const initialRoute = this.router.url.split('/')[1] || '';
+    this.currentRoute.set(initialRoute);
   }
 
   logOut() {
@@ -187,5 +204,9 @@ export class HeaderComponent {
     } else {
       this.navigate(item.route);
     }
+  }
+
+  isMenuItemSelected(route: string): boolean {
+    return this.currentRoute() === route;
   }
 }

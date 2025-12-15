@@ -53,6 +53,7 @@
               mat-list-item
               href="javascript:void(0)"
               (click)="handleMenuItemClick(item)"
+              [class.selected]="isMenuItemSelected(item.route)"
             >
               <div class="d-flex align-items-center gap-1">
                 <mat-icon>{{ item.icon }}</mat-icon>
@@ -95,7 +96,7 @@
   <!--   top toolbar - PC   -->
   <mat-sidenav-content>
     @if (loggedIn()) {
-      <div>
+      <mat-card class="position-fixed w-100 z-3 toolbar-container">
         <mat-toolbar color="secondary" class="row">
           <div class="col-12 col-md-8 d-flex align-items-center gap-3 p-0">
             <button
@@ -110,10 +111,21 @@
 
             <button
               type="button"
-              class="brand-button curs"
+              class="brand-button curs fw-bolder"
               (click)="navigateToHome()"
             >
-              ALFRI
+              <div class="d-flex align-items-center gap-1">
+                <div class="d-block p-1">
+                  <img
+                    src="assets/images/logo.svg"
+                    width="30"
+                    height="30"
+                    alt="Alfri logo"
+                    class="sidenav-logo"
+                  />
+                </div>
+                <span>ALFRI</span>
+              </div>
             </button>
 
             <div class="d-none d-md-block">
@@ -133,14 +145,23 @@
             </div>
           </div>
 
-          <div class="col-4 d-none d-md-flex justify-content-end">
+          <div
+            class="col-4 d-none d-md-flex justify-content-end align-items-center"
+          >
             <button
-              mat-icon-button
+              mat-button
               [matMenuTriggerFor]="menu"
               aria-label="Open menu"
-              class="menu-avatar-button"
+              class="user-profile-button"
+              disableRipple
             >
-              <div class="avatar">{{ userInitial() }}</div>
+              <div class="user-profile-content">
+                <div class="user-info">
+                  <div class="user-name">{{ userFullName() }}</div>
+                  <div class="user-role">{{ userRole() }}</div>
+                </div>
+                <div class="avatar">{{ userInitials() }}</div>
+              </div>
             </button>
             <mat-menu #menu="matMenu">
               <button
@@ -161,9 +182,9 @@
             </mat-menu>
           </div>
         </mat-toolbar>
-      </div>
+      </mat-card>
     } @else {
-      <mat-toolbar class="row">
+      <mat-toolbar class="mat-elevation-z4 row">
         <span>Alfri</span>
       </mat-toolbar>
     }
@@ -171,7 +192,11 @@
     <!-- Subject Menu -->
     <mat-menu #subjects_menu="matMenu">
       @for (item of subjectMenuItems; track item.route) {
-        <button mat-menu-item (click)="handleMenuItemClick(item)">
+        <button
+          mat-menu-item
+          (click)="handleMenuItemClick(item)"
+          [class.selected]="isMenuItemSelected(item.route)"
+        >
           <mat-icon>{{ item.icon }}</mat-icon>
           <span>{{ item.label }}</span>
         </button>
@@ -181,7 +206,11 @@
     <!-- Reports Menu -->
     <mat-menu #reports_menu="matMenu">
       @for (item of reportMenuItems; track item.route) {
-        <button mat-menu-item (click)="handleMenuItemClick(item)">
+        <button
+          mat-menu-item
+          (click)="handleMenuItemClick(item)"
+          [class.selected]="isMenuItemSelected(item.route)"
+        >
           <mat-icon>{{ item.icon }}</mat-icon>
           {{ item.label }}
         </button>
