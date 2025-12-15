@@ -12,6 +12,8 @@ insert into public.answer_type (answer_type_id, name) values (6, 'GRADE');
 INSERT INTO public.role (role_id, name) VALUES (2, 'teacher');
 INSERT INTO public.role (role_id, name) VALUES (1, 'student');
 INSERT INTO public.role (role_id, name) VALUES (3, 'visitor');
+INSERT INTO public.role (role_id, name) VALUES (4, 'vedenie');
+INSERT INTO public.role (role_id, name) VALUES (5, 'admin');
 
 INSERT INTO public.study_program (study_program_id, name) VALUES (3, 'informatika');
 

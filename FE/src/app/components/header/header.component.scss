@@ -20,3 +20,19 @@
 .hidden {
   display: none;
 }
+
+.brand-button {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+

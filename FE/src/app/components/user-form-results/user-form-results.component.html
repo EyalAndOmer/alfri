@@ -97,10 +97,10 @@
             <div class="row">
               <div class="col-12">
                 <mat-chip-set aria-label="Voľnočasové aktivity">
-                  @for (activity of existingAnswers.sections[3].questions; track activity) {
-                    <mat-chip>
-                      {{ activity.answers[0].texts[0].textOfAnswer }}
-                    </mat-chip>
+                  @for (activity of existingAnswers.sections[3].questions[0].answers; track activity) {
+                    @for (activityOption of activity.texts; track activityOption) {
+                      <mat-chip>{{ activityOption.textOfAnswer }}</mat-chip>
+                    }
                   }
                 </mat-chip-set>
               </div>

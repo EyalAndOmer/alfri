@@ -17,6 +17,7 @@ import { SubjectGradeCorrelationComponent } from '@pages/subject-grade-correlati
 import { AdminPageComponent } from '@pages/admin-page/admin-page.component';
 import { PassingPredictionComponent } from '@pages/passing-prediction/passing-prediction.component';
 import { KeywordsComponent } from '@pages/keywords/keywords.component';
+import { DataReportComponent } from '@pages/data-report/data-report.component';
 import { AuthRole } from '@enums/auth-role';
 
 export const routes: Routes = [
@@ -79,6 +80,11 @@ export const routes: Routes = [
   {
     path: 'subjects-grades-correlation',
     component: SubjectGradeCorrelationComponent,
+    canActivate: [() => inject(AuthGuards).canActivate()],
+  },
+  {
+    path: 'data-report',
+    component: DataReportComponent,
     canActivate: [() => inject(AuthGuards).canActivate()],
   },
   {

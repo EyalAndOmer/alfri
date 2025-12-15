@@ -9,14 +9,9 @@
     >
     <mat-toolbar>ALFRI</mat-toolbar>
     <mat-nav-list>
-      <mat-expansion-panel [class.mat-elevation-z0]="true">
-        @if (
-          formData ||
-          authService.hasRole([
-          AuthRole.VEDENIE,
-          AuthRole.ADMIN,
-          AuthRole.TEACHER
-          ])) {
+      <!-- Subjects Menu Group -->
+      @if (canAccessSubjects()) {
+        <mat-expansion-panel [class.mat-elevation-z0]="true">
           <mat-expansion-panel-header style="padding: 0 16px">
             <mat-panel-title>
               <div class="d-flex align-items-center gap-1">
@@ -25,61 +20,24 @@
               </div>
             </mat-panel-title>
           </mat-expansion-panel-header>
-        }
 
-        <a
-          mat-list-item
-          href="javascript:void(0)"
-          (click)="navigateToSubjects()"
-          >
-          <div class="d-flex align-items-center gap-1">
-            <mat-icon>list_view</mat-icon>
-            Prehľad predmetov
-          </div>
-        </a>
+          @for (item of subjectMenuItems; track item.route) {
+            <a
+              mat-list-item
+              href="javascript:void(0)"
+              (click)="handleMenuItemClick(item)"
+              >
+              <div class="d-flex align-items-center gap-1">
+                <mat-icon>{{ item.icon }}</mat-icon>
+                {{ item.label }}
+              </div>
+            </a>
+          }
+        </mat-expansion-panel>
+      }
 
-        <a
-          mat-list-item
-          href="javascript:void(0)"
-          (click)="navigateToPrediction()"
-          >
-          <div class="d-flex align-items-center gap-1">
-            <mat-icon>interests</mat-icon>
-            Záujmy
-          </div>
-        </a>
-
-        <a
-          mat-list-item
-          href="javascript:void(0)"
-          (click)="navigateToSubjectsClustering()"
-          >
-          <div class="d-flex align-items-center gap-1">
-            <mat-icon>bubble_chart</mat-icon>
-            Podobné predmety
-          </div>
-        </a>
-
-        <a
-          mat-list-item
-          href="javascript:void(0)"
-          (click)="navigateToPassingPrediction()"
-          >
-          <div class="d-flex align-items-center gap-1">
-            <mat-icon>check_circle</mat-icon>
-            Predikcia absolvovania
-          </div>
-        </a>
-
-      </mat-expansion-panel>
-
-      @if (
-        formData ||
-        authService.hasRole([
-        AuthRole.VEDENIE,
-        AuthRole.ADMIN,
-        AuthRole.TEACHER
-        ])) {
+      <!-- Reports Menu Group -->
+      @if (canAccessReports()) {
         <mat-expansion-panel [class.mat-elevation-z0]="true">
           <mat-expansion-panel-header style="padding: 0 16px">
             <mat-panel-title>
@@ -89,29 +47,23 @@
               </div>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          <a
-            mat-list-item
-            href="javascript:void(0)"
-            (click)="navigateToSubjectsReports()"
-            >
-            <div class="d-flex align-items-center gap-1">
-              <mat-icon>summarize</mat-icon>
-              Predmety podľa známok
-            </div>
-          </a>
-          <a
-            mat-list-item
-            href="javascript:void(0)"
-            (click)="navigateToSubjectGradeCorrelation()"
-            >
-            <div class="d-flex align-items-center gap-1">
-              <mat-icon>query_stats</mat-icon>
-              Korelačná analýza známok
-            </div>
-          </a>
+
+          @for (item of reportMenuItems; track item.route) {
+            <a
+              mat-list-item
+              href="javascript:void(0)"
+              (click)="handleMenuItemClick(item)"
+              >
+              <div class="d-flex align-items-center gap-1">
+                <mat-icon>{{ item.icon }}</mat-icon>
+                {{ item.label }}
+              </div>
+            </a>
+          }
         </mat-expansion-panel>
       }
 
+      <!-- Admin Link -->
       <a
         *appHasRole="[AuthRole.ADMIN]"
         mat-list-item
@@ -124,19 +76,19 @@
         </div>
       </a>
 
-      <a mat-list-item href="javascript:void(0)" (click)="navigateToProfile()">
-        <div class="d-flex align-items-center gap-1">
-          <mat-icon>account_circle</mat-icon>
-          Profil
-        </div>
-      </a>
-
-      <a mat-list-item href="javascript:void(0)" (click)="logOut()">
-        <div class="d-flex align-items-center gap-1">
-          <mat-icon>logout</mat-icon>
-          Odhlásiť sa
-        </div>
-      </a>
+      <!-- User Menu Items -->
+      @for (item of userMenuItems; track item.label) {
+        <a
+          mat-list-item
+          href="javascript:void(0)"
+          (click)="handleMenuItemClick(item)"
+          >
+          <div class="d-flex align-items-center gap-1">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            {{ item.label }}
+          </div>
+        </a>
+      }
     </mat-nav-list>
   </mat-sidenav>
 
@@ -156,17 +108,14 @@
               <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
             </button>
 
-            <span role="button" class="curs" (click)="navigateToHome()" onKeyDown="navigateToHome()">ALFRI</span>
+            <button
+              type="button"
+              class="brand-button curs"
+              (click)="navigateToHome()"
+              >ALFRI</button>
 
             <div class="d-none d-md-block">
-              @if (
-                formData ||
-                authService.hasRole([
-                AuthRole.VEDENIE,
-                AuthRole.ADMIN,
-                AuthRole.TEACHER
-                ])
-                ) {
+              @if (canAccessSubjects()) {
                 <button
                   mat-button
                   [matMenuTriggerFor]="subjects_menu"
@@ -176,14 +125,7 @@
                 </button>
               }
 
-              @if (
-                formData ||
-                authService.hasRole([
-                AuthRole.VEDENIE,
-                AuthRole.ADMIN,
-                AuthRole.TEACHER
-                ])
-                ) {
+              @if (canAccessReports()) {
                 <button
                   mat-button
                   [matMenuTriggerFor]="reports_menu"
@@ -202,7 +144,7 @@
               aria-label="Open menu"
               class="menu-avatar-button"
               >
-              <div mat-icon class="avatar">{{ userService.userData.firstName.at(0)?.toUpperCase() }}</div>
+              <div class="avatar">{{ userInitial() }}</div>
             </button>
             <mat-menu #menu="matMenu">
               <button
@@ -213,31 +155,16 @@
                 <mat-icon>admin_panel_settings</mat-icon>
                 Administrácia
               </button>
-              <button mat-menu-item (click)="navigateToProfile()">
-                <mat-icon>account_circle</mat-icon>
-                Profil
-              </button>
-              <button mat-menu-item (click)="logOut()">
-                <mat-icon>logout</mat-icon>
-                Odhlásiť sa
-              </button>
+
+              @for (item of userMenuItems; track item.label) {
+                <button mat-menu-item (click)="handleMenuItemClick(item)">
+                  <mat-icon>{{ item.icon }}</mat-icon>
+                  {{ item.label }}
+                </button>
+              }
             </mat-menu>
           </div>
         </mat-toolbar>
-      </div>
-      <div class="d-none d-md-block">
-        @if (formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])) {
-          <button mat-button [matMenuTriggerFor]="subjects_menu">
-            <mat-icon>book</mat-icon>
-            Predmety
-          </button>
-        }
-        @if (formData || authService.hasRole([AuthRole.VEDENIE, AuthRole.ADMIN, AuthRole.TEACHER])) {
-          <button mat-button [matMenuTriggerFor]="reports_menu">
-            <mat-icon>bar_chart</mat-icon>
-            Analýzy a Reporty
-          </button>
-        }
       </div>
     } @else {
       <mat-toolbar class="row">
@@ -245,43 +172,24 @@
       </mat-toolbar>
     }
 
+    <!-- Subject Menu -->
     <mat-menu #subjects_menu="matMenu">
-      <button mat-menu-item (click)="navigateToSubjects()">
-        <mat-icon>list_view</mat-icon>
-        <span>Prehľad predmetov</span>
-      </button>
-
-      <button mat-menu-item (click)="navigateToPrediction()">
-        <mat-icon>interests</mat-icon>
-        <span>Zaujímavé predmety</span>
-      </button>
-
-      <button mat-menu-item (click)="navigateToSubjectsClustering()">
-        <mat-icon>bubble_chart</mat-icon>
-        <span>Podobné predmety</span>
-      </button>
-
-      <button mat-menu-item (click)="navigateToPassingPrediction()">
-        <mat-icon>check_circle</mat-icon>
-        <span>Predikcia absolvovania</span>
-      </button>
+      @for (item of subjectMenuItems; track item.route) {
+        <button mat-menu-item (click)="handleMenuItemClick(item)">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </button>
+      }
     </mat-menu>
 
+    <!-- Reports Menu -->
     <mat-menu #reports_menu="matMenu">
-      <button mat-menu-item (click)="navigateToSubjectsReports()">
-        <mat-icon>summarize</mat-icon>
-        Predmety podľa známok
-      </button>
-
-      <button mat-menu-item (click)="navigateToSubjectGradeCorrelation()">
-        <mat-icon>query_stats</mat-icon>
-        Korelačná analýza známok
-      </button>
-
-      <button mat-menu-item (click)="navigateToKeywords()">
-        <mat-icon>vpn_key</mat-icon>
-        Kľúčové slová
-      </button>
+      @for (item of reportMenuItems; track item.route) {
+        <button mat-menu-item (click)="handleMenuItemClick(item)">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          {{ item.label }}
+        </button>
+      }
     </mat-menu>
 
     <ng-content></ng-content>

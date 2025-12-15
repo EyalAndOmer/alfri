@@ -18,7 +18,6 @@ import { SubjectPassingPrediction } from '../../types';
     MatCardTitle,
     MatCardSubtitle,
     MatList,
-    MatListItem,
     MatIcon,
     MatTooltip,
     MatListItemIcon,

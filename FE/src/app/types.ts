@@ -305,3 +305,17 @@ export interface PageResponseDTO<T> {
 
 export type StudentAverageGradePageResponse =
   PageResponseDTO<StudentAverageGradeDTO>;
+
+export interface DataReportDto {
+  studentCount: number;
+  subjectCount: number;
+  studyProgramCount: number;
+  studentTrend: StudentTrendDataPoint[];
+}
+
+export interface StudentTrendDataPoint {
+  year: number;
+  informatika: number;
+  manazment: number;
+}
+

@@ -1,5 +1,5 @@
 import {
-  Directive,
+  Directive, inject,
   Input,
   OnInit,
   TemplateRef,
@@ -18,11 +18,9 @@ import { AuthRole } from '@enums/auth-role';
 export class HasRoleDirective implements OnInit {
   @Input('appHasRole') roles: AuthRole[] | undefined;
 
-  constructor(
-    private authService: AuthService,
-    private templateRef: TemplateRef<never>,
-    private viewContainer: ViewContainerRef,
-  ) {}
+  private readonly authService = inject(AuthService);
+  private readonly templateRef = inject(TemplateRef);
+  private readonly viewContainer = inject(ViewContainerRef);
 
   ngOnInit(): void {
     this.checkAndRenderView();
@@ -30,10 +28,8 @@ export class HasRoleDirective implements OnInit {
 
   private checkAndRenderView(): void {
     if (this.authService.hasRole(this.roles)) {
-      console.log('Permission granted');
       this.viewContainer.createEmbeddedView(this.templateRef);
     } else {
-      console.log('No permission');
       this.viewContainer.clear();
     }
   }

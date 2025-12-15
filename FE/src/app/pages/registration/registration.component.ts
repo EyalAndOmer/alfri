@@ -19,7 +19,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '@services/auth.service';
 import { NotificationService } from '@services/notification.service';
-import { UserService } from '@services/user.service';
+import { UserStore } from '../../stores/user.store';
 import { JwtService } from '@services/jwt.service';
 import { ReplaySubject } from 'rxjs';
 import { RegisterUserDto, Role } from '../../types';
@@ -48,7 +48,7 @@ export class RegistrationComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly errorService = inject(NotificationService);
-  private readonly userService = inject(UserService);
+  private readonly userStore = inject(UserStore);
   private readonly jwtService = inject(JwtService);
   private readonly notificationService = inject(NotificationService);
 
@@ -119,7 +119,7 @@ export class RegistrationComponent implements OnDestroy {
 
     this.authService.postUser(userData).subscribe({
       next: (response) => {
-        this.userService.saveUserId(response.userId);
+        this.userStore.saveUserId(response.userId);
 
         const authBody = {
           email: this.registerForm.value.email,

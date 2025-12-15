@@ -11,6 +11,8 @@ import java.util.List;
 @Service
 public class SubjectGradeCorrelationServiceImpl implements SubjectGradeCorrelationService {
     public static final String CORRELATION = "correlation";
+    public static final String FIRST_SUBJECT = "firstSubject";
+    public static final String SECOND_SUBJECT = "secondSubject";
     private final SubjectGradeCorrelationRepository subjectGradeCorrelationRepository;
 
     public SubjectGradeCorrelationServiceImpl(
@@ -20,7 +22,10 @@ public class SubjectGradeCorrelationServiceImpl implements SubjectGradeCorrelati
 
     @Override
     public List<SubjectGradeCorrelation> findAll() {
-        return subjectGradeCorrelationRepository.findAll();
+        Specification<SubjectGradeCorrelation> specification = (root, query, criteriaBuilder) ->
+                criteriaBuilder.notEqual(root.get(FIRST_SUBJECT), root.get(SECOND_SUBJECT));
+
+        return subjectGradeCorrelationRepository.findAll(specification);
     }
 
     @Override
@@ -29,18 +34,30 @@ public class SubjectGradeCorrelationServiceImpl implements SubjectGradeCorrelati
         Specification<SubjectGradeCorrelation> specification;
 
         switch (operator) {
-            case ">" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder
-                    .gt(root.get(CORRELATION), correlationTreshold);
-            case ">=" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder
-                    .greaterThanOrEqualTo(root.get(CORRELATION), correlationTreshold);
-            case "<" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder
-                    .lt(root.get(CORRELATION), correlationTreshold);
-            case "<=" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder
-                    .lessThanOrEqualTo(root.get(CORRELATION), correlationTreshold);
-            case "=" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder
-                    .equal(root.get(CORRELATION), correlationTreshold);
-            case "<>" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder
-                    .notEqual(root.get(CORRELATION), correlationTreshold);
+            case ">" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                    criteriaBuilder.gt(root.get(CORRELATION), correlationTreshold),
+                    criteriaBuilder.notEqual(root.get(FIRST_SUBJECT), root.get(SECOND_SUBJECT))
+            );
+            case ">=" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                    criteriaBuilder.greaterThanOrEqualTo(root.get(CORRELATION), correlationTreshold),
+                    criteriaBuilder.notEqual(root.get(FIRST_SUBJECT), root.get(SECOND_SUBJECT))
+            );
+            case "<" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                    criteriaBuilder.lt(root.get(CORRELATION), correlationTreshold),
+                    criteriaBuilder.notEqual(root.get(FIRST_SUBJECT), root.get(SECOND_SUBJECT))
+            );
+            case "<=" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                    criteriaBuilder.lessThanOrEqualTo(root.get(CORRELATION), correlationTreshold),
+                    criteriaBuilder.notEqual(root.get(FIRST_SUBJECT), root.get(SECOND_SUBJECT))
+            );
+            case "=" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                    criteriaBuilder.equal(root.get(CORRELATION), correlationTreshold),
+                    criteriaBuilder.notEqual(root.get(FIRST_SUBJECT), root.get(SECOND_SUBJECT))
+            );
+            case "<>" -> specification = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                    criteriaBuilder.notEqual(root.get(CORRELATION), correlationTreshold),
+                    criteriaBuilder.notEqual(root.get(FIRST_SUBJECT), root.get(SECOND_SUBJECT))
+            );
 
             default -> throw new IllegalArgumentException("Invalid operator: " + operator);
         }

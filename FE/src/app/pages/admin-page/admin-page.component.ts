@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AdminService } from '@services/admin.service';
-import { UserService } from '@services/user.service';
+import { UserStore } from '../../stores/user.store';
 
 import { FormsModule } from '@angular/forms';
 import { ChangePasswordDto, PasswordPair, Role, UserDto } from '../../types';
@@ -57,14 +57,11 @@ export class AdminPageComponent implements OnInit {
     'options',
   ];
   protected readonly AuthRole = AuthRole;
-
-  constructor(
-    private as: AdminService,
-    private us: UserService,
-    private dialog: MatDialog,
-    private notificationService: NotificationService,
-    private authService: AuthService,
-  ) {}
+  private readonly as = inject(AdminService);
+  private readonly userStore = inject(UserStore);
+  private readonly dialog = inject(MatDialog);
+  private readonly notificationService = inject(NotificationService);
+  private readonly authService = inject(AuthService);
 
   ngOnInit(): void {
     this.fetchData();
@@ -74,7 +71,7 @@ export class AdminPageComponent implements OnInit {
     this.as.getAllUsers().subscribe((data) => {
       this.users = data;
     });
-    this.us.getRoles().subscribe((roles) => {
+    this.userStore.getRoles().subscribe((roles) => {
       this.availableRoles = roles;
     });
   }

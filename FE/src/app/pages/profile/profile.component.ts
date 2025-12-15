@@ -5,7 +5,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { UserService } from '@services/user.service';
+import { UserStore } from '../../stores/user.store';
 
 import { AuthService } from '@services/auth.service';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -19,6 +19,7 @@ import { FormService } from '@services/form.service';
 import { HasRoleDirective } from '@directives/auth.directive';
 import { AnsweredForm, ChangePasswordDto, UserDto } from '../../types';
 import { AuthRole } from '@enums/auth-role';
+import { filter, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -36,6 +37,7 @@ import { AuthRole } from '@enums/auth-role';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
+  private readonly destroy: Subject<void> = new Subject<void>();
   protected readonly AuthRole = AuthRole;
   formData: AnsweredForm | undefined;
   _userData: UserDto | undefined;
@@ -43,29 +45,43 @@ export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
 
   private readonly formBuilder = inject(FormBuilder);
-  readonly userService = inject(UserService);
+  readonly userStore = inject(UserStore);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
   private readonly formService =inject(FormService);
   constructor(
   ) {
-    this.profileForm = this.formBuilder.group({
-      currentPassword: ['', Validators.required],
-      newPassword: ['', Validators.required],
-      confirmNewPassword: ['', Validators.required],
-    });
+    this.profileForm = this.formBuilder.group(
+      {
+        currentPassword: ['', Validators.required],
+        newPassword: ['', Validators.required],
+        confirmNewPassword: ['', Validators.required],
+      },
+      {
+        validator: this.mustMatch('newPassword', 'confirmNewPassword'),
+      },
+    );
+    this.userStore
+      .loadUserInfo()
+      .pipe(takeUntil(this.destroy))
+      .subscribe((value) => {
+        this._userData = value;
+      });
   }
 
   ngOnInit() {
-    if (this.authService.hasRole([AuthRole.STUDENT])) {
-      this.formService.getExistingFormAnswers(USER_FORM_ID).subscribe({
+    this.formService.getExistingFormAnswers(USER_FORM_ID)
+      .pipe(filter(() => this.authService.hasRole([AuthRole.STUDENT])))
+      .subscribe({
         next: (data: AnsweredForm) => {
           this.formData = data;
+          this.isLoading = false;
         },
-        error: () => {},
+        error: () => {
+          this.isLoading = false;
+        },
       });
-    }
   }
 
   mustMatch(controlName: string, matchingControlName: string) {
@@ -87,8 +103,13 @@ export class ProfileComponent implements OnInit {
 
   changePassword() {
     if (this.profileForm.valid) {
+      const userData = this.userStore.userData();
+      if (!userData) {
+        throw new Error('No user data available.');
+      }
+
       const passwordData: ChangePasswordDto = {
-        email: this.userService.userData.email,
+        email: userData.email,
         oldPassword: this.profileForm.value.currentPassword,
         newPassword: this.profileForm.value.newPassword,
       };

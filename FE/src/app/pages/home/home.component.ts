@@ -4,8 +4,8 @@ import { AuthRole } from '@enums/auth-role';
 import { UserHomeComponent } from './user-home/user-home.component';
 import { TeacherHomeComponent } from './teacher-home/teacher-home.component';
 import { HasRoleDirective } from '@directives/auth.directive';
-import { NotificationService } from '@services/notification.service';
 import { VedenieHomeComponent } from '@pages/home/vedenie-home/vedenie-home.component';
+import { AdminPageComponent } from '@pages/admin-page/admin-page.component';
 export const USER_FORM_ID = 69;
 
 @Component({
@@ -15,8 +15,9 @@ export const USER_FORM_ID = 69;
     UserHomeComponent,
     TeacherHomeComponent,
     HasRoleDirective,
-    VedenieHomeComponent
-],
+    VedenieHomeComponent,
+    AdminPageComponent,
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
