@@ -67,8 +67,98 @@
         [trackBy]="trackByRow"
         class="generic-table"
       >
-        <!-- Table content when sorting is enabled -->
-        <ng-container *ngTemplateOutlet="tableContent"></ng-container>
+        <!-- Selection Column -->
+        @if (config().enableSelection) {
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef class="select-column">
+              @if (config().selectionMode === "multiple") {
+                <mat-checkbox
+                  [checked]="isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"
+                  (change)="masterToggle()"
+                ></mat-checkbox>
+              }
+            </th>
+            <td mat-cell *matCellDef="let row" class="select-column">
+              <mat-checkbox
+                [checked]="isSelected(row)"
+                (change)="toggleRow(row)"
+                (click)="$event.stopPropagation()"
+              ></mat-checkbox>
+            </td>
+          </ng-container>
+        }
+
+        <!-- Dynamic Data Columns -->
+        @for (column of config().columns; track trackByColumnId($index, column)) {
+          <ng-container [matColumnDef]="column.id">
+            <!-- Header Cell -->
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [mat-sort-header]="column.sortable ? column.id : ''"
+              [disabled]="!column.sortable"
+              [ngClass]="[
+                getHeaderClass(column),
+                getColumnAlignClass(column, true),
+              ]"
+              [ngStyle]="getColumnWidthStyle(column)"
+              [matTooltip]="column.headerTooltip || ''"
+            >
+              @if (column.headerTemplate) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    column.headerTemplate;
+                    context: getHeaderContext(column)
+                  "
+                ></ng-container>
+              } @else {
+                {{ column.header }}
+              }
+            </th>
+            <!-- Data Cell -->
+            <td
+              mat-cell
+              *matCellDef="let row; let i = index"
+              [ngClass]="[getCellClass(row, column), getColumnAlignClass(column)]"
+              [ngStyle]="getColumnWidthStyle(column)"
+              [matTooltip]="
+                column.cellTooltip
+                  ? column.cellTooltip(row, getValue(row, column))
+                  : ''
+              "
+            >
+              @if (column.cellTemplate) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    column.cellTemplate;
+                    context: getCellContext(row, column, i)
+                  "
+                ></ng-container>
+              } @else {
+                <ng-container
+                  appDynamicCellRenderer
+                  [column]="column"
+                  [rowData]="row"
+                  [rowIndex]="i"
+                ></ng-container>
+              }
+            </td>
+          </ng-container>
+        }
+
+        <!-- Row Definitions -->
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumns(); sticky: config().stickyHeader"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns()"
+          [class.clickable]="config().enableRowClick"
+          [class.selected]="config().highlightSelection && isSelected(row)"
+          (click)="onRowClick(row, $event)"
+        ></tr>
       </table>
     } @else {
       <table
@@ -77,113 +167,98 @@
         [trackBy]="trackByRow"
         class="generic-table"
       >
-        <!-- Table content when sorting is disabled -->
-        <ng-container *ngTemplateOutlet="tableContent"></ng-container>
+        <!-- Selection Column -->
+        @if (config().enableSelection) {
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef class="select-column">
+              @if (config().selectionMode === "multiple") {
+                <mat-checkbox
+                  [checked]="isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"
+                  (change)="masterToggle()"
+                ></mat-checkbox>
+              }
+            </th>
+            <td mat-cell *matCellDef="let row" class="select-column">
+              <mat-checkbox
+                [checked]="isSelected(row)"
+                (change)="toggleRow(row)"
+                (click)="$event.stopPropagation()"
+              ></mat-checkbox>
+            </td>
+          </ng-container>
+        }
+
+        <!-- Dynamic Data Columns -->
+        @for (column of config().columns; track trackByColumnId($index, column)) {
+          <ng-container [matColumnDef]="column.id">
+            <!-- Header Cell -->
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [ngClass]="[
+                getHeaderClass(column),
+                getColumnAlignClass(column, true),
+              ]"
+              [ngStyle]="getColumnWidthStyle(column)"
+              [matTooltip]="column.headerTooltip || ''"
+            >
+              @if (column.headerTemplate) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    column.headerTemplate;
+                    context: getHeaderContext(column)
+                  "
+                ></ng-container>
+              } @else {
+                {{ column.header }}
+              }
+            </th>
+            <!-- Data Cell -->
+            <td
+              mat-cell
+              *matCellDef="let row; let i = index"
+              [ngClass]="[getCellClass(row, column), getColumnAlignClass(column)]"
+              [ngStyle]="getColumnWidthStyle(column)"
+              [matTooltip]="
+                column.cellTooltip
+                  ? column.cellTooltip(row, getValue(row, column))
+                  : ''
+              "
+            >
+              @if (column.cellTemplate) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    column.cellTemplate;
+                    context: getCellContext(row, column, i)
+                  "
+                ></ng-container>
+              } @else {
+                <ng-container
+                  appDynamicCellRenderer
+                  [column]="column"
+                  [rowData]="row"
+                  [rowIndex]="i"
+                ></ng-container>
+              }
+            </td>
+          </ng-container>
+        }
+
+        <!-- Row Definitions -->
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumns(); sticky: config().stickyHeader"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns()"
+          [class.clickable]="config().enableRowClick"
+          [class.selected]="config().highlightSelection && isSelected(row)"
+          (click)="onRowClick(row, $event)"
+        ></tr>
       </table>
     }
-
-    <!-- Table Content Template (shared between both tables) -->
-    <ng-template #tableContent>
-      <!-- Selection Column -->
-      @if (config().enableSelection) {
-        <ng-container matColumnDef="select">
-          <th mat-header-cell *matHeaderCellDef class="select-column">
-            @if (config().selectionMode === "multiple") {
-              <mat-checkbox
-                [checked]="isAllSelected()"
-                [indeterminate]="selection.hasValue() && !isAllSelected()"
-                (change)="masterToggle()"
-              ></mat-checkbox>
-            }
-          </th>
-          <td mat-cell *matCellDef="let row" class="select-column">
-            <mat-checkbox
-              [checked]="isSelected(row)"
-              (change)="toggleRow(row)"
-              (click)="$event.stopPropagation()"
-            ></mat-checkbox>
-          </td>
-        </ng-container>
-      }
-
-      <!-- Dynamic Data Columns -->
-      @for (column of config().columns; track trackByColumnId($index, column)) {
-        <ng-container [matColumnDef]="column.id">
-          <!-- Header Cell -->
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            [mat-sort-header]="column.sortable ? column.id : ''"
-            [disabled]="!column.sortable"
-            [ngClass]="[
-              getHeaderClass(column),
-              getColumnAlignClass(column, true),
-            ]"
-            [ngStyle]="getColumnWidthStyle(column)"
-            [matTooltip]="column.headerTooltip || ''"
-          >
-            <!-- Custom header template -->
-            @if (column.headerTemplate) {
-              <ng-container
-                *ngTemplateOutlet="
-                  column.headerTemplate;
-                  context: getHeaderContext(column)
-                "
-              ></ng-container>
-            } @else {
-              {{ column.header }}
-            }
-            <!-- Default header cell -->
-          </th>
-          <!-- Data Cell -->
-          <td
-            mat-cell
-            *matCellDef="let row; let i = index"
-            [ngClass]="[getCellClass(row, column), getColumnAlignClass(column)]"
-            [ngStyle]="getColumnWidthStyle(column)"
-            [matTooltip]="
-              column.cellTooltip
-                ? column.cellTooltip(row, getValue(row, column))
-                : ''
-            "
-          >
-            <!-- Custom cell template takes priority -->
-            @if (column.cellTemplate) {
-              <ng-container
-                *ngTemplateOutlet="
-                  column.cellTemplate;
-                  context: getCellContext(row, column, i)
-                "
-              ></ng-container>
-            } @else {
-              <!-- Component-based renderer -->
-              <ng-container
-                appDynamicCellRenderer
-                [column]="column"
-                [rowData]="row"
-                [rowIndex]="i"
-              ></ng-container>
-            }
-          </td>
-        </ng-container>
-      }
-
-      <!-- Row Definitions -->
-      <tr
-        mat-header-row
-        *matHeaderRowDef="displayedColumns(); sticky: config().stickyHeader"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns()"
-        [class.clickable]="config().enableRowClick"
-        [class.selected]="
-          config().highlightSelection && isSelected(row)
-        "
-        (click)="onRowClick(row, $event)"
-      ></tr>
-    </ng-template>
-    <!-- End of tableContent template -->
 
     <!-- Empty State -->
     @if (!isLoading() && !hasData() && config().showEmptyState) {

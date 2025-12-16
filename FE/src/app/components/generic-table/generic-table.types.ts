@@ -90,7 +90,7 @@ export interface TableColumnDef<T extends TableRow> {
    * }
    * ```
    */
-  cellRenderer?: Type<TableCellRenderer<T>>;
+  cellRenderer: Type<TableCellRenderer<T>>;
 
   /**
    * Custom template for cell content (alternative to cellRenderer)

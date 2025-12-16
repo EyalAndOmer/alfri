@@ -35,7 +35,20 @@ import {
 } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { NgClass } from '@angular/common';
-import { SubjectGradesTable, SubjectGrade } from '../subject-grades-table/subject-grades-table';
+import {
+  GenericTableComponent,
+  TableConfig,
+  TableRow,
+  TextCellRendererComponent,
+} from '../generic-table';
+import { GradeCellRendererComponent } from './grade-cell-renderer.component';
+
+// Updated SubjectGrade to extend TableRow (requires id)
+export interface SubjectGrade extends TableRow {
+  subjectName: string;
+  grade: string;
+  credits?: number;
+}
 
 @Component({
   selector: 'app-user-form-results',
@@ -49,7 +62,7 @@ import { SubjectGradesTable, SubjectGrade } from '../subject-grades-table/subjec
     MatCardContent,
     MatIcon,
     NgClass,
-    SubjectGradesTable,
+    GenericTableComponent,
   ],
   templateUrl: './user-form-results.component.html',
   styleUrl: './user-form-results.component.scss',
@@ -70,11 +83,42 @@ export class UserFormResultsComponent implements AfterViewInit {
       return [];
     }
 
-    return answers.sections[1].questions.map((question) => ({
+    return answers.sections[1].questions.map((question, index) => ({
+      id: index, // Add id for TableRow requirement
       subjectName: question.questionTitle,
       grade: question.answers[0].texts[0].textOfAnswer,
     }));
   });
+
+  // Table configuration using component-based approach
+  gradesTableConfig: TableConfig<SubjectGrade> = {
+    columns: [
+      {
+        id: 'subjectName',
+        header: 'Názov predmetu',
+        field: 'subjectName',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+      },
+      {
+        id: 'grade',
+        header: 'Známka',
+        field: 'grade',
+        cellRenderer: GradeCellRendererComponent,
+        sortable: true,
+        align: 'center',
+      }
+    ],
+    enableSorting: true,
+    enablePagination: true,
+    pageSize: 5,
+    pageSizeOptions: [5, 10, 20],
+    header: {
+      show: true,
+      title: 'Známky z povinných predmetov',
+      icon: 'table_chart'
+    }
+  };
 
   chartDatasets: ChartDataset[] = [
     {

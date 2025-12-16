@@ -235,28 +235,25 @@ export class GenericTableComponent<
       this.selection = new SelectionModel<T>(mode === 'multiple', []);
     });
 
-    // Setup filter predicate
+    // Setup data source with custom filter predicate if provided
     effect(() => {
-      const customFn = this.customFilterFn();
       const configFn = this.config().filterPredicate;
-
-      if (customFn) {
-        this.dataSource.filterPredicate = customFn;
-      } else if (configFn) {
+      if (configFn) {
         this.dataSource.filterPredicate = configFn;
       } else {
-        this.dataSource.filterPredicate =
-          this.defaultFilterPredicate.bind(this);
+        this.dataSource.filterPredicate = this.defaultFilterPredicate.bind(this);
       }
     });
 
     // Setup filter debounce
-    const debounce = this.config().filterDebounce ?? 300;
-    this.filterSubject
-      .pipe(debounceTime(debounce), distinctUntilChanged())
-      .subscribe((value) => {
-        this.applyFilter(value);
-      });
+    effect(() => {
+      const debounce = this.config().filterDebounce ?? 300;
+      this.filterSubject
+        .pipe(debounceTime(debounce), distinctUntilChanged())
+        .subscribe((value) => {
+          this.applyFilter(value);
+        });
+    });
   }
 
   ngAfterViewInit(): void {
@@ -270,13 +267,23 @@ export class GenericTableComponent<
     const sortInstance = this.sort();
     if (sortInstance && this.config().enableSorting) {
       this.dataSource.sort = sortInstance;
+    }
 
-      // Set initial sort
-      if (this.config().initialSort) {
-        const { active, direction } = this.config().initialSort!;
-        sortInstance.active = active;
-        sortInstance.direction = direction;
-      }
+    // Apply initial sort if configured
+    this.applyInitialSort();
+  }
+
+  /**
+   * Apply initial sort configuration
+   */
+  private applyInitialSort(): void {
+    const sortInstance = this.sort();
+    const initialSort = this.config().initialSort;
+
+    if (sortInstance && initialSort) {
+      const { active, direction } = initialSort;
+      sortInstance.active = active;
+      sortInstance.direction = direction;
     }
   }
 

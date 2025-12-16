@@ -63,11 +63,10 @@
       </section>
 
       <!-- Známky z povinných predmetov -->
-      <app-subject-grades-table
+      <app-generic-table
         [data]="subjectGradesData()"
-        [pageSize]="5"
-        [pageSizeOptions]="[5, 10, 20]"
-      ></app-subject-grades-table>
+        [config]="gradesTableConfig"
+      ></app-generic-table>
 
       <div class="row">
         <div class="col-6">
