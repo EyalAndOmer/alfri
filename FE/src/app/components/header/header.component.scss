@@ -25,12 +25,11 @@
   border-radius: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
+  height: 64px; // Fixed height for the toolbar
+  top: 0;
+  left: 0;
 }
 
-// Add padding to projected content to account for fixed toolbar
-::ng-deep #main-container {
-  padding-top: 64px;
-}
 
 // Logo styling
 .logo-container {

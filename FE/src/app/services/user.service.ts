@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class UserService {
+export class UserService  {
   readonly userData = signal<UserDto | undefined>(undefined);
 
   userId: number | undefined;
@@ -17,11 +17,13 @@ export class UserService {
 
   private readonly http = inject(HttpClient);
   public readonly jwtHelper = inject(JwtHelperService);
-  constructor() {
-    this.loadUserData();
-  }
 
   public loadUserData() {
+    // Check if data already exists
+    if (this.userData()) {
+      return;
+    }
+
     this.loadUserInfo()
       .pipe(take(1))
       .subscribe({

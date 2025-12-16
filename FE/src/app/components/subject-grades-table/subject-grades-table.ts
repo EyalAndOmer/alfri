@@ -13,8 +13,6 @@ import {
   MatRowDef,
 } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatFormField } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
 import { NgClass } from '@angular/common';
 import { GradeClassPipe } from './grade-class.pipe';
@@ -41,8 +39,6 @@ export interface SubjectGrade {
     MatRow,
     MatRowDef,
     MatPaginator,
-    MatFormField,
-    MatInput,
     MatIcon,
     GradeClassPipe,
   ],

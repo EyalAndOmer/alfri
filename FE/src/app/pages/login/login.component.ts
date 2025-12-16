@@ -1,9 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { MatButton } from '@angular/material/button';
-import { MatCard } from '@angular/material/card';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { NgOptimizedImage } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -15,36 +10,35 @@ import { JwtService } from '@services/jwt.service';
 import { Router } from '@angular/router';
 import { LoginUserDto } from '../../types';
 import { NotificationService } from '@services/notification.service';
+import { MatButton } from '@angular/material/button';
+import { UserService } from '@services/user.service';
 
 @Component({
   selector: 'app-login-form',
   standalone: true,
-  imports: [
-    MatButton,
-    MatCard,
-    MatError,
-    MatFormField,
-    MatInput,
-    MatLabel,
-    ReactiveFormsModule,
-    NgOptimizedImage,
-  ],
+  imports: [ReactiveFormsModule, MatButton],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  showPassword = false;
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly jwtService = inject(JwtService);
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
+  private readonly userService = inject(UserService);
 
   constructor() {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
     });
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit() {
@@ -61,6 +55,8 @@ export class LoginComponent {
       next: (authResponse) => {
         const token = authResponse.jwtToken;
         this.jwtService.saveToken(token);
+
+        this.userService.loadUserData();
 
         this.router.navigate(['/home']);
       },

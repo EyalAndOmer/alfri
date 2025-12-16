@@ -1,11 +1,9 @@
 <app-header>
-  <div id="main-container">
+  <div id="main-container" [class.has-fixed-toolbar]="loggedIn()">
     <main id="main-main" class="row m-0">
       <router-outlet class="d-none"></router-outlet>
     </main>
 
-    @if (showFooter) {
-      <app-footer></app-footer>
-    }
+    <app-footer></app-footer>
   </div>
 </app-header>

@@ -148,44 +148,57 @@
           <div
             class="col-4 d-none d-md-flex justify-content-end align-items-center"
           >
-            <button
-              mat-button
-              [matMenuTriggerFor]="menu"
-              aria-label="Open menu"
-              class="user-profile-button"
-              disableRipple
-            >
-              <div class="user-profile-content">
-                <div class="user-info">
-                  <div class="user-name">{{ userFullName() }}</div>
-                  <div class="user-role">{{ userRole() }}</div>
-                </div>
-                <div class="avatar">{{ userInitials() }}</div>
-              </div>
-            </button>
-            <mat-menu #menu="matMenu">
+            @if (userService.userData()) {
               <button
-                mat-menu-item
-                (click)="navigateToAdminPage()"
-                *appHasRole="[AuthRole.ADMIN]"
+                mat-button
+                [matMenuTriggerFor]="menu"
+                aria-label="Open menu"
+                class="user-profile-button"
+                disableRipple
               >
-                <mat-icon>admin_panel_settings</mat-icon>
-                Administrácia
+                <div class="user-profile-content">
+                  <div class="user-info">
+                    <div class="user-name">{{ userFullName() }}</div>
+                    <div class="user-role">{{ userRole() }}</div>
+                  </div>
+                  <div class="avatar">{{ userInitials() }}</div>
+                </div>
               </button>
-
-              @for (item of userMenuItems; track item.label) {
-                <button mat-menu-item (click)="handleMenuItemClick(item)">
-                  <mat-icon>{{ item.icon }}</mat-icon>
-                  {{ item.label }}
+              <mat-menu #menu="matMenu">
+                <button
+                  mat-menu-item
+                  (click)="navigateToAdminPage()"
+                  *appHasRole="[AuthRole.ADMIN]"
+                >
+                  <mat-icon>admin_panel_settings</mat-icon>
+                  Administrácia
                 </button>
-              }
-            </mat-menu>
+
+                @for (item of userMenuItems; track item.label) {
+                  <button mat-menu-item (click)="handleMenuItemClick(item)">
+                    <mat-icon>{{ item.icon }}</mat-icon>
+                    {{ item.label }}
+                  </button>
+                }
+              </mat-menu>
+            }
           </div>
         </mat-toolbar>
       </mat-card>
     } @else {
       <mat-toolbar class="mat-elevation-z4 row">
-        <span>Alfri</span>
+        <div class="d-flex align-items-center gap-1">
+          <div class="d-block p-1">
+            <img
+              src="assets/images/logo.svg"
+              width="30"
+              height="30"
+              alt="Alfri logo"
+              class="sidenav-logo"
+            />
+          </div>
+          <span>ALFRI</span>
+        </div>
       </mat-toolbar>
     }
 

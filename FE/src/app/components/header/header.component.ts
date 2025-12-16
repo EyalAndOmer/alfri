@@ -25,7 +25,6 @@ import { NotificationService } from '@services/notification.service';
 import { filter } from 'rxjs';
 import { FormDataService } from '@services/form-data.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NgOptimizedImage } from '@angular/common';
 import { MatCard } from '@angular/material/card';
 
 interface MenuItem {
@@ -54,7 +53,6 @@ interface MenuItem {
     MatExpansionPanelTitle,
     MatExpansionPanelHeader,
     HasRoleDirective,
-    NgOptimizedImage,
     MatCard,
   ],
 })
@@ -100,7 +98,10 @@ export class HeaderComponent {
 
   readonly userFullName = computed(() => {
     const userData = this.userService.userData();
-    if (!userData) return '';
+    if (!userData) {
+      return '';
+    }
+
     return `${userData.firstName} ${userData.lastName}`;
   });
 
@@ -156,6 +157,11 @@ export class HeaderComponent {
   ];
 
   constructor() {
+    // Load user data if logged in
+    if (this.loggedIn()) {
+      this.userService.loadUserData();
+    }
+
     // Fetch form data on init
     this.formDataService.fetchFormData();
 

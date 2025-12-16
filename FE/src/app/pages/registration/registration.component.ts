@@ -10,11 +10,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatCard } from '@angular/material/card';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatButton } from '@angular/material/button';
-import { MatInput } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '@services/auth.service';
@@ -23,26 +18,20 @@ import { UserStore } from '../../stores/user.store';
 import { JwtService } from '@services/jwt.service';
 import { ReplaySubject } from 'rxjs';
 import { RegisterUserDto, Role } from '../../types';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-registration-form',
   standalone: true,
-  imports: [
-    MatCard,
-    ReactiveFormsModule,
-    MatLabel,
-    MatFormField,
-    MatButton,
-    MatInput,
-    MatError,
-    MatSelectModule,
-  ],
+  imports: [ReactiveFormsModule, MatButton],
   templateUrl: './registration.component.html',
   styleUrl: './registration.component.scss',
 })
 export class RegistrationComponent implements OnDestroy {
   registerForm: FormGroup;
   roles: Role[] = [];
+  showPassword = false;
+  showConfirmPassword = false;
   readonly destroyed$: ReplaySubject<void> = new ReplaySubject(1);
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
@@ -80,6 +69,14 @@ export class RegistrationComponent implements OnDestroy {
     this.destroyed$.complete();
   }
 
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
   // custom validator to check that two fields match
   mustMatch(controlName: string, matchingControlName: string): ValidatorFn {
     return (formGroup: AbstractControl): ValidationErrors | null => {
@@ -94,13 +91,14 @@ export class RegistrationComponent implements OnDestroy {
         return null;
       }
 
-      if (control.value !== matchingControl.value) {
-        matchingControl.setErrors({ mustMatch: true });
-        return { mustMatch: true };
-      } else {
+      if (control.value === matchingControl.value) {
         matchingControl.setErrors(null);
         return null;
       }
+
+      matchingControl.setErrors({ mustMatch: true });
+      return { mustMatch: true };
+
     };
   }
 
