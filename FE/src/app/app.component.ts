@@ -13,5 +13,4 @@ import { UserService } from '@services/user.service';
 })
 export class AppComponent {
   private readonly userService = inject(UserService);
-  readonly loggedIn = this.userService.loggedIn;
 }

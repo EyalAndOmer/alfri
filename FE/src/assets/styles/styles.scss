@@ -10,14 +10,9 @@ html, body {
 #main-container {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 64px);
   background-color: $base-light;
-
-  &.has-fixed-toolbar {
-    // Account for fixed header when user is logged in
-    min-height: calc(100vh - 64px);
-    padding-top: 64px;
-  }
+  min-height: 100vh;
+  padding-top: 64px;
 }
 
 #main-main {

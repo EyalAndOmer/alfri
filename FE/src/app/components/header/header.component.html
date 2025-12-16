@@ -186,20 +186,22 @@
         </mat-toolbar>
       </mat-card>
     } @else {
-      <mat-toolbar class="mat-elevation-z4 row">
-        <div class="d-flex align-items-center gap-1">
-          <div class="d-block p-1">
-            <img
-              src="assets/images/logo.svg"
-              width="30"
-              height="30"
-              alt="Alfri logo"
-              class="sidenav-logo"
-            />
+      <mat-card class="position-fixed w-100 z-3 toolbar-container">
+        <mat-toolbar class="mat-elevation-z4 row">
+          <div class="d-flex align-items-center gap-1">
+            <div class="d-block p-1">
+              <img
+                src="assets/images/logo.svg"
+                width="30"
+                height="30"
+                alt="Alfri logo"
+                class="sidenav-logo"
+              />
+            </div>
+            <span>ALFRI</span>
           </div>
-          <span>ALFRI</span>
-        </div>
-      </mat-toolbar>
+        </mat-toolbar>
+      </mat-card>
     }
 
     <!-- Subject Menu -->
