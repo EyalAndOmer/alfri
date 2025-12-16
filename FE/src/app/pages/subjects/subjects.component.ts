@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import {
   catchError,
   debounceTime,
@@ -24,13 +24,16 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
 import { Page, StudyProgramDto, SubjectDto } from '../../types';
-import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
+import { MatCard, MatCardContent } from '@angular/material/card';
 import { SubjectService } from '@services/subject.service';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatInput } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
+import {
+  GenericTableComponent,
+  TableConfig,
+  TextCellRendererComponent,
+} from '@components/generic-table';
 
 @Component({
   selector: 'app-subjects',
@@ -42,7 +45,7 @@ import { MatIcon } from '@angular/material/icon';
     MatOptionModule,
     FormsModule,
     ReactiveFormsModule,
-    SubjectsTableComponent,
+    GenericTableComponent,
     MatCard,
     MatCardContent,
     MatInput,
@@ -54,41 +57,82 @@ import { MatIcon } from '@angular/material/icon';
 export class SubjectsComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();
   private readonly _searchTerm$: Subject<string> = new Subject();
-  dataSource = new MatTableDataSource<SubjectDto>([]);
+
+  // Signals for reactive state management
+  subjectsData = signal<SubjectDto[]>([]);
+  totalElements = signal<number>(0);
+  currentPage = signal<number>(0);
+  pageSize = signal<number>(10);
+  isLoading = signal<boolean>(false);
+  searchTerm = signal<string>('');
+
   private _studyPrograms$!: Observable<StudyProgramDto[]>;
   private _selectedStudyProgramId!: number;
   filterForm: FormGroup;
-  isLoading = false;
-  searchTerm: string = '';
 
-  readonly pageData: Page<SubjectDto> = {
-    content: [],
-    totalElements: 0,
-    size: 10,
-    number: 0,
-    pageable: {
-      sort: {
-        sorted: false,
-        unsorted: false,
-        empty: false,
+  // Generic table configuration
+  tableConfig: TableConfig<SubjectDto> = {
+    columns: [
+      {
+        id: 'name',
+        header: 'Názov predmetu',
+        field: 'name',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: 'auto',
       },
-      offset: 0,
-      pageNumber: 0,
-      pageSize: 0,
-      paged: false,
-      unpaged: false,
-    },
-    last: false,
-    totalPages: 0,
-    sort: {
-      sorted: false,
-      unsorted: false,
-      empty: false,
-    },
-    first: false,
-    numberOfElements: 0,
-    empty: false,
+      {
+        id: 'code',
+        header: 'Kód',
+        field: 'code',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: '120px',
+      },
+      {
+        id: 'abbreviation',
+        header: 'Skratka',
+        field: 'abbreviation',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: '120px',
+      },
+      {
+        id: 'obligation',
+        header: 'Povinnosť',
+        field: 'obligation',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: '120px',
+        align: 'center',
+      },
+      {
+        id: 'recommendedYear',
+        header: 'Ročník',
+        field: 'recommendedYear',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: '100px',
+        align: 'center',
+      },
+      {
+        id: 'semester',
+        header: 'Semester',
+        field: 'semester',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: '100px',
+        align: 'center',
+      },
+    ],
+    enableSorting: true,
+    enablePagination: true,
+    pageSize: 10,
+    pageSizeOptions: [5, 10, 25, 50],
+    enableRowClick: true,
+    stickyHeader: false,
   };
+
 
   get studyPrograms$(): Observable<StudyProgramDto[]> {
     return this._studyPrograms$;
@@ -135,54 +179,28 @@ export class SubjectsComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        tap(() => (this.isLoading = true)),
+        tap(() => this.isLoading.set(true)),
         switchMap((searchTerm: string) => {
           const searchParam = `id.studyProgramId:${this._selectedStudyProgramId},subject.name~${searchTerm}`;
           return this.getSubjectsWithSearch(
             0,
-            this.pageData.size || 10,
+            this.pageSize(),
             searchParam,
           );
         }),
         catchError(() => {
-          this.isLoading = false;
+          this.isLoading.set(false);
           return of({
             content: [],
             totalElements: 0,
             size: 10,
             number: 0,
-            pageable: {
-              sort: { sorted: false, unsorted: false, empty: false },
-              offset: 0,
-              pageNumber: 0,
-              pageSize: 0,
-              paged: false,
-              unpaged: false,
-            },
-            last: false,
-            totalPages: 0,
-            sort: { sorted: false, unsorted: false, empty: false },
-            first: false,
-            numberOfElements: 0,
-            empty: true,
           });
         }),
         takeUntil(this._destroy$),
       )
       .subscribe((page) => {
-        this.dataSource.data = page.content;
-        Object.assign(this.pageData, {
-          size: page.size,
-          totalElements: page.totalElements,
-          number: page.number,
-          content: page.content,
-          totalPages: page.totalPages,
-          last: page.last,
-          first: page.first,
-          numberOfElements: page.numberOfElements,
-          empty: page.empty,
-        });
-        this.isLoading = false;
+        this.updateTableData(page as Page<SubjectDto>);
       });
   }
 
@@ -190,11 +208,27 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     this._searchTerm$.next(searchTerm);
   }
 
+  private convertToTableRow(subject: SubjectDto): SubjectDto {
+    return {
+      ...subject,
+      id: subject.id,
+    };
+  }
+
+  private updateTableData(page: Page<SubjectDto>): void {
+    this.subjectsData.set(page.content.map(s => this.convertToTableRow(s)));
+    this.totalElements.set(page.totalElements);
+    this.currentPage.set(page.number);
+    this.pageSize.set(page.size);
+    this.isLoading.set(false);
+  }
+
   private getSubjects(
     pageNumber: number,
     pageSize: number,
     studyProgramId: number,
   ): void {
+    this.isLoading.set(true);
     this.subjectService
       .getSubjectsWithFocusByStudyProgramId(
         studyProgramId,
@@ -203,23 +237,11 @@ export class SubjectsComponent implements OnInit, OnDestroy {
       )
       .pipe(
         tap((page: Page<SubjectDto>) => {
-          this.dataSource.data = page.content;
-          Object.assign(this.pageData, {
-            size: page.size,
-            totalElements: page.totalElements,
-            number: page.number,
-            content: page.content,
-            totalPages: page.totalPages,
-            last: page.last,
-            first: page.first,
-            numberOfElements: page.numberOfElements,
-            empty: page.empty,
-          });
-          this.isLoading = false;
+          this.updateTableData(page);
         }),
         takeUntil(this._destroy$),
         catchError(() => {
-          this.isLoading = false;
+          this.isLoading.set(false);
           return of();
         }),
       )
@@ -246,35 +268,23 @@ export class SubjectsComponent implements OnInit, OnDestroy {
   }
 
   studyProgramChanged() {
-    this.isLoading = true;
-    this.searchTerm = '';
-    this.getSubjects(0, this.pageData.size, this._selectedStudyProgramId);
+    this.isLoading.set(true);
+    this.searchTerm.set('');
+    this.getSubjects(0, this.pageSize(), this._selectedStudyProgramId);
   }
 
   onPageChange(event: PageEvent) {
-    this.isLoading = true;
+    this.isLoading.set(true);
 
-    if (this.searchTerm.trim()) {
-      const searchParam = `id.studyProgramId:${this._selectedStudyProgramId},subject.name~${this.searchTerm}`;
+    if (this.searchTerm().trim()) {
+      const searchParam = `id.studyProgramId:${this._selectedStudyProgramId},subject.name~${this.searchTerm()}`;
       this.getSubjectsWithSearch(event.pageIndex, event.pageSize, searchParam)
         .pipe(
           tap((page: Page<SubjectDto>) => {
-            this.dataSource.data = page.content;
-            Object.assign(this.pageData, {
-              size: page.size,
-              totalElements: page.totalElements,
-              number: page.number,
-              content: page.content,
-              totalPages: page.totalPages,
-              last: page.last,
-              first: page.first,
-              numberOfElements: page.numberOfElements,
-              empty: page.empty,
-            });
-            this.isLoading = false;
+            this.updateTableData(page);
           }),
           catchError(() => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             return of();
           }),
         )
@@ -291,6 +301,10 @@ export class SubjectsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this._destroy$.next();
     this._destroy$.complete();
+  }
+
+  onRowClick(event: { row: SubjectDto; event: MouseEvent }): void {
+    this.navigateToSubjectDetail(event.row.code);
   }
 
   navigateToSubjectDetail(code: string) {

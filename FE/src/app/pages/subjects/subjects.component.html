@@ -26,8 +26,8 @@
         <input
           matInput
           type="text"
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="onSearchChange($event)"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event); onSearchChange($event)"
           placeholder="Zadajte názov predmetu..."
         />
         <mat-icon matSuffix>search</mat-icon>
@@ -35,14 +35,14 @@
     </div>
   </div>
   <mat-card-content>
-    <app-subjects-table
+    <app-generic-table
       class="overflow-x-scroll"
-      [dataSourceInput]="dataSource"
-      [pageData]="pageData"
-      [isLoading]="isLoading"
+      [data]="subjectsData()"
+      [config]="tableConfig"
+      [loading]="isLoading()"
       (pageChange)="onPageChange($event)"
-      (subjectDetailNavigate)="navigateToSubjectDetail($event)"
+      (rowClick)="onRowClick($event)"
     >
-    </app-subjects-table>
+    </app-generic-table>
   </mat-card-content>
 </mat-card>

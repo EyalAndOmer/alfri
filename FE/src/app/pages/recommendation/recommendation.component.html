@@ -10,14 +10,12 @@
     </mat-card-subtitle>
   </mat-card-header>
 
-  <app-subjects-table
-    [dataSourceInput]="dataSource$"
-    [pageData]="pageData"
-    [isLoading]="isLoading"
-    (subjectDetailNavigate)="navigateToSubjectDetail($event)"
+  <app-generic-table
+    [data]="subjectsData()"
+    [config]="tableConfig"
+    [loading]="isLoading()"
+    (rowClick)="onRowClick($event)"
     (pageChange)="onPageChange($event)"
-    [displayFullInfo]="true"
-    [isPageable]="true"
   >
-  </app-subjects-table>
+  </app-generic-table>
 </mat-card>
