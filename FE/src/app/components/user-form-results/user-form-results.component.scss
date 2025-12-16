@@ -88,7 +88,7 @@
     mat-card-header {
       padding: 0.75rem 1.25rem;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-      background-color: #f8f9fa;
+      background-color: #fff;
       // mimic Bootstrap card header look
 
       .mat-mdc-card-header-text,
@@ -111,10 +111,10 @@
           color: rgb(37, 99, 235);
         }
 
-        // Radar/Interests chart section - Purple theme
+        // Radar/Interests chart section - Orange theme
         &.icon-radar {
-          background-color: rgba(139, 92, 246, 0.1);
-          color: rgb(139, 92, 246);
+          background-color: rgba(249, 115, 22, 0.1);
+          color: rgb(249, 115, 22);
         }
 
         // Leisure activities section - Emerald/Green theme
@@ -127,6 +127,26 @@
 
     mat-card-content {
       padding: 1.25rem;
+
+      // Special styling for chart content
+      &.chart-content {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 420px;
+        .chart-wrapper {
+          position: relative;
+          width: 100%;
+          max-width: 28rem; // max-w-md (448px)
+          aspect-ratio: 1 / 1; // Make it square
+
+          canvas {
+            width: 100% !important;
+            height: 100% !important;
+          }
+        }
+      }
     }
   }
 
@@ -142,5 +162,59 @@
   .section-subtitle {
     margin-bottom: 0.75rem;
     font-size: 1.1rem;
+  }
+
+  // Activities card specific styling
+  .activities-card {
+    display: flex;
+    flex-direction: column;
+
+    mat-card-content {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  .activities-content {
+    display: flex;
+    flex-direction: column;
+
+    .activities-description {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(100, 116, 139, 0.9);
+      margin-bottom: 1.25rem;
+    }
+
+    .activities-chips-wrapper {
+      margin-bottom: 2rem;
+
+      mat-chip-set {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .activity-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        background-color: white;
+        color: rgba(51, 65, 85, 1);
+        border: 1px solid rgba(226, 232, 240, 1);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+        cursor: default;
+
+        &:hover {
+          border-color: rgba(147, 197, 253, 1);
+          color: rgba(37, 99, 235, 1);
+        }
+      }
+    }
   }
 }

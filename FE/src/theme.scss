@@ -2,7 +2,7 @@
 
 // Custom color variables
 $base-light: #f0f9ff;
-$surface-color: #fafafa; // Soft white, easy on the eyes
+$surface-color: #fff;
 
 $my-theme: mat.define-theme(
   (
@@ -26,13 +26,14 @@ html {
   @include mat.all-component-themes($my-theme);
   @include mat.typography-hierarchy($my-theme);
 
-  // Override Material surface colors with softer white
   --mat-card-elevated-container-color: #{$surface-color};
   --mat-card-outlined-container-color: #{$surface-color};
   --mat-toolbar-container-background-color: #{$surface-color};
   --mdc-elevated-card-container-color: #{$surface-color};
   --mdc-outlined-card-container-color: #{$surface-color};
   --mat-menu-container-color: #{$surface-color};
+  --mat-stepper-container-color: #{$surface-color};
+  --mat-table-background-color: #{$surface-color};
 }
 
 :root {

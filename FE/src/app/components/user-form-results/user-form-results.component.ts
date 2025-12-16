@@ -2,9 +2,9 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Input,
-  OnInit,
+  input,
   ViewChild,
+  computed,
 } from '@angular/core';
 import {
   BarController,
@@ -24,23 +24,9 @@ import {
   Title,
   Tooltip,
 } from 'chart.js';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatHeaderRowDef,
-  MatRow,
-  MatRowDef,
-  MatTable,
-  MatTableDataSource,
-} from '@angular/material/table';
 
 import { MatChip, MatChipSet } from '@angular/material/chips';
 import { AnsweredForm, StudyPrograms } from '../../types';
-import { MatPaginator } from '@angular/material/paginator';
 import {
   MatCard,
   MatCardContent,
@@ -49,66 +35,51 @@ import {
 } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { NgClass } from '@angular/common';
+import { SubjectGradesTable, SubjectGrade } from '../subject-grades-table/subject-grades-table';
 
 @Component({
   selector: 'app-user-form-results',
   standalone: true,
   imports: [
-    MatCell,
     MatChip,
     MatChipSet,
-    MatRow,
-    MatRowDef,
-    MatHeaderRow,
-    MatCellDef,
-    MatHeaderCell,
-    MatColumnDef,
-    MatTable,
-    MatHeaderRowDef,
-    MatHeaderCellDef,
-    MatPaginator,
     MatCard,
     MatCardHeader,
     MatCardTitle,
     MatCardContent,
     MatIcon,
     NgClass,
+    SubjectGradesTable,
   ],
   templateUrl: './user-form-results.component.html',
   styleUrl: './user-form-results.component.scss',
 })
-export class UserFormResultsComponent implements OnInit, AfterViewInit {
-  @Input()
-  existingAnswers: AnsweredForm | undefined;
+export class UserFormResultsComponent implements AfterViewInit {
+  // Use input signal instead of @Input
+  existingAnswers = input<AnsweredForm | undefined>();
+
   @ViewChild('radarChart') chart!: ElementRef<HTMLCanvasElement>;
   radarChart: Chart | undefined;
   protected readonly StudyPrograms = StudyPrograms;
   protected readonly Number = Number;
 
-  // Data source for the table
-  dataSource: MatTableDataSource<{ subjectName: string; grade: string }> =
-    new MatTableDataSource();
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  // Computed signal that automatically recalculates when existingAnswers changes
+  subjectGradesData = computed<SubjectGrade[]>(() => {
+    const answers = this.existingAnswers();
+    if (!answers?.sections?.[1]) {
+      return [];
+    }
 
-  displayedColumns: string[] = ['nazovPredmetu', 'znamka'];
+    return answers.sections[1].questions.map((question) => ({
+      subjectName: question.questionTitle,
+      grade: question.answers[0].texts[0].textOfAnswer,
+    }));
+  });
+
   chartDatasets: ChartDataset[] = [
     {
       data: [],
     },
-  ];
-  private colors = [
-    'rgba(255, 99, 132, 0.8)',
-    'rgba(54, 162, 235, 0.8)',
-    'rgba(255, 206, 86, 0.8)',
-    'rgba(75, 192, 192, 0.8)',
-    'rgba(153, 102, 255, 0.8)',
-    'rgba(255, 159, 64, 0.8)',
-    'rgba(128, 128, 128, 0.8)',
-    'rgba(255, 0, 255, 0.8)',
-    'rgba(0, 255, 255, 0.8)',
-    'rgba(0, 128, 0, 0.8)',
-    'rgba(128, 0, 128, 0.8)',
-    'rgba(0, 0, 255, 0.8)',
   ];
 
   constructor() {
@@ -129,30 +100,16 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
     );
   }
 
-  ngOnInit(): void {
-    if (!this.existingAnswers) {
-      return;
-    }
-    this.dataSource.data = this.existingAnswers.sections[1].questions.map(
-      (question) => {
-        return {
-          subjectName: question.questionTitle,
-          grade: question.answers[0].texts[0].textOfAnswer,
-        };
-      },
-    );
-  }
 
   ngAfterViewInit(): void {
     this.initializeRadarChart();
-    this.dataSource.paginator = this.paginator;
   }
 
   initializeRadarChart(): void {
     const canvas = this.chart.nativeElement;
-    const value = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
 
-    if (value) {
+    if (ctx) {
       const focusLabelMapping: Record<string, string> = {
         question_matematika_focus: 'Matematika',
         question_logika_focus: 'Logika',
@@ -168,7 +125,12 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
         question_fyzicka_aktivita_focus: 'Fyzické zameranie',
       };
 
-      this.radarChart = new Chart(value, {
+      // Setup radial gradient for the radar chart fill - Cool Blue/Teal Gradient
+      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 400);
+      gradient.addColorStop(0, 'rgba(14, 116, 144, 0.4)'); // Cyan-700
+      gradient.addColorStop(1, 'rgba(6, 182, 212, 0.05)'); // Cyan-500
+
+      this.radarChart = new Chart(ctx, {
         type: 'radar',
         data: {
           labels: Object.values(focusLabelMapping),
@@ -176,10 +138,28 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           scales: {
             r: {
               angleLines: {
                 display: true,
+                color: 'rgba(14, 116, 144, 0.1)',
+              },
+              grid: {
+                color: 'rgba(14, 116, 144, 0.1)',
+              },
+              pointLabels: {
+                color: '#475569',
+                font: {
+                  size: 12,
+                  family: "'Plus Jakarta Sans', sans-serif",
+                  weight: 600,
+                },
+              },
+              ticks: {
+                display: false,
+                stepSize: 2,
+                backdropColor: 'transparent',
               },
               suggestedMin: 0,
               suggestedMax: 10,
@@ -187,11 +167,24 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
           },
           plugins: {
             tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#f0f9ff',
+              bodyColor: '#e2e8f0',
+              padding: 12,
+              cornerRadius: 12,
+              displayColors: false,
+              titleFont: {
+                family: "'Plus Jakarta Sans', sans-serif",
+                size: 14,
+              },
+              bodyFont: {
+                family: "'Plus Jakarta Sans', sans-serif",
+                size: 13,
+              },
               callbacks: {
                 label: (context) => {
-                  const label = context.label || '';
                   const value = context.raw || 0;
-                  return `${label}: ${value}`;
+                  return `Skóre: ${String(value)}`;
                 },
               },
             },
@@ -203,16 +196,23 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
       });
 
       this.chartDatasets[0] = {
-        label: 'Focus predmetu',
+        label: 'Skóre záujmu',
         fill: true,
-        backgroundColor: this.colors,
-        borderColor: this.colors,
-        borderWidth: 1,
+        backgroundColor: gradient,
+        borderColor: '#f97316', // Orange-500 accent for the line
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#f97316',
+        pointHoverBackgroundColor: '#f97316',
+        pointHoverBorderColor: '#fff',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        tension: 0.3, // Make lines slightly curved for modern feel
         data: [],
       };
 
       const focusesFormData: Record<string, string>[] | undefined =
-        this.existingAnswers?.sections[2].questions.map((question) => {
+        this.existingAnswers()?.sections[2].questions.map((question) => {
           const focuses: Record<string, string> = {};
           focuses[question.questionIdentifier] =
             question.answers[0].texts[0].textOfAnswer;
@@ -238,9 +238,10 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
   }
 
   getStudentName(): string {
-    if (!this.existingAnswers) return '';
+    const answers = this.existingAnswers();
+    if (!answers) return '';
 
-    const questions = this.existingAnswers.sections[0].questions;
+    const questions = answers.sections[0].questions;
     const firstName = questions.find(q => q.questionTitle === 'Meno')?.answers[0]?.texts[0]?.textOfAnswer || '';
     const lastName = questions.find(q => q.questionTitle === 'Priezvisko')?.answers[0]?.texts[0]?.textOfAnswer || '';
 
@@ -248,9 +249,10 @@ export class UserFormResultsComponent implements OnInit, AfterViewInit {
   }
 
   getFilteredQuestions() {
-    if (!this.existingAnswers) return [];
+    const answers = this.existingAnswers();
+    if (!answers) return [];
 
-    return this.existingAnswers.sections[0].questions.filter(
+    return answers.sections[0].questions.filter(
       q => q.questionTitle !== 'Meno' && q.questionTitle !== 'Priezvisko'
     );
   }

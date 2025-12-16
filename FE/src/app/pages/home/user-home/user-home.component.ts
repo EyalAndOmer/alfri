@@ -8,7 +8,7 @@ import { FormService } from '@services/form.service';
 import { AnsweredForm } from '../../../types';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { FormDataService } from '@services/form-data.service';
-import { MatCard } from '@angular/material/card';
+import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
 
 @Component({
   selector: 'app-user-home',
@@ -19,6 +19,8 @@ import { MatCard } from '@angular/material/card';
     UserFormResultsComponent,
     NgxSkeletonLoaderModule,
     MatCard,
+    MatCardContent,
+    MatCardHeader,
   ],
   templateUrl: './user-home.component.html',
   styleUrl: './user-home.component.scss',

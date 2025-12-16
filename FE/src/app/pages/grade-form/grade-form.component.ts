@@ -27,6 +27,7 @@ import { FocusStepComponent } from '@components/grade-form-steps/focus-step/focu
 import { HobbyStepComponent } from '@components/grade-form-steps/hobby-step/hobby-step.component';
 import { QuestionTypes } from '@pages/grade-form/grade-form-types';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 
 @Component({
   selector: 'app-grade-form',
@@ -42,6 +43,10 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     FocusStepComponent,
     HobbyStepComponent,
     NgxSkeletonLoaderModule,
+    MatCard,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardSubtitle,
   ],
   templateUrl: './grade-form.component.html',
   styleUrl: './grade-form.component.scss',
@@ -59,8 +64,7 @@ export class GradeFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly errorService = inject(NotificationService);
   private readonly breakpointObserver = inject(BreakpointObserver);
-  constructor(
-  ) {
+  constructor() {
     this.stepperOrientation = this.breakpointObserver
       .observe('(min-width: 768px)')
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
