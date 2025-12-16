@@ -58,7 +58,7 @@
 
   <!-- Table Container -->
   <div class="table-container">
-    @if (config().enableSorting && sort()) {
+    @if (config().enableSorting) {
       <table
         mat-table
         [dataSource]="dataSource"

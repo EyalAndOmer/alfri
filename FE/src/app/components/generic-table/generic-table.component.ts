@@ -235,6 +235,31 @@ export class GenericTableComponent<
       this.selection = new SelectionModel<T>(mode === 'multiple', []);
     });
 
+    // Setup custom sorting data accessor to handle field paths
+    this.dataSource.sortingDataAccessor = (data: T, sortHeaderId: string) => {
+      // Find the column definition for this sort header
+      const column = this.config().columns.find(col => col.id === sortHeaderId);
+      if (!column || !column.field) {
+        return '';
+      }
+
+      // Use custom sortAccessor if provided
+      if (column.sortAccessor) {
+        return column.sortAccessor(data);
+      }
+
+      // Get value using field path
+      const value = this.getValue(data, column);
+
+      // Convert to sortable value
+      if (value === null || value === undefined) {
+        return '';
+      }
+
+      // Return string or number for sorting
+      return typeof value === 'string' || typeof value === 'number' ? value : String(value);
+    };
+
     // Setup data source with custom filter predicate if provided
     effect(() => {
       const configFn = this.config().filterPredicate;
