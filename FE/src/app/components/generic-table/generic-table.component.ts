@@ -9,6 +9,7 @@ import {
   signal,
   AfterViewInit,
   Type,
+  untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -32,6 +33,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatChipSet, MatChip, MatChipRemove } from '@angular/material/chips';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -46,6 +48,7 @@ import {
 } from './generic-table.types';
 import { TextCellRendererComponent } from '@components/generic-table/cell-renderers';
 import { DynamicCellRendererDirective } from '@components/generic-table/dynamic-cell-renderer.directive';
+import { Page } from '../../types';
 
 @Component({
   selector: 'app-generic-table',
@@ -73,6 +76,9 @@ import { DynamicCellRendererDirective } from '@components/generic-table/dynamic-
     MatCheckbox,
     MatTooltip,
     MatProgressSpinner,
+    MatChipSet,
+    MatChip,
+    MatChipRemove,
     DynamicCellRendererDirective,
   ],
   templateUrl: './generic-table.component.html',
@@ -84,9 +90,9 @@ export class GenericTableComponent<
   // ============ INPUTS (Signal-based) ============
 
   /**
-   * Table data array
+   * Table data as a Page object for paged requests
    */
-  data = input.required<T[]>();
+  data = input.required<Page<T>>();
 
   /**
    * Table configuration
@@ -97,11 +103,6 @@ export class GenericTableComponent<
    * Loading state
    */
   loading = input<boolean>(false);
-
-  /**
-   * Custom filter function
-   */
-  customFilterFn = input<(data: T, filter: string) => boolean>();
 
   // ============ OUTPUTS (Signal-based) ============
 
@@ -157,7 +158,9 @@ export class GenericTableComponent<
   dataSource: MatTableDataSource<T> = new MatTableDataSource<T>();
   selection = new SelectionModel<T>(true, []);
   filterValue = signal<string>('');
-  private filterSubject = new Subject<string>();
+  private readonly filterSubject = new Subject<string>();
+  private readonly selectedIds = signal<unknown[]>([]); // Track selected IDs across data changes
+  private readonly selectedItemsMap = signal<Map<unknown, T>>(new Map()); // Track full selected items
 
   // ============ COMPUTED SIGNALS ============
 
@@ -223,50 +226,146 @@ export class GenericTableComponent<
     return `density-${density}`;
   });
 
-  constructor() {
-    // Update dataSource when data signal changes
-    effect(() => {
-      this.dataSource.data = this.data();
-    });
+  /**
+   * Check if table is in server-side mode
+   */
+  isServerSide = computed(() => {
+    return this.config().serverSide ?? true;
+  });
 
-    // Update selection model mode
+  /**
+   * Total elements from the Page object
+   */
+  totalElements = computed(() => {
+    return this.data().totalElements;
+  });
+
+  /**
+   * Total pages from the Page object
+   */
+  totalPages = computed(() => {
+    return this.data().totalPages;
+  });
+
+  /**
+   * Current page number from the Page object
+   */
+  currentPageNumber = computed(() => {
+    return this.data().number;
+  });
+
+  /**
+   * Current page size from the Page object
+   */
+  currentPageSize = computed(() => {
+    return this.data().size;
+  });
+
+  /**
+   * All selected items across all pages
+   * Returns the actual row objects that are currently tracked
+   */
+  allSelectedItems = computed(() => {
+    const itemsMap = this.selectedItemsMap();
+    return Array.from(itemsMap.values());
+  });
+
+  constructor() {
+    // Update selection model mode (must run first, before data updates)
     effect(() => {
       const mode = this.config().selectionMode ?? 'multiple';
+
+      // Create new selection model with correct mode
       this.selection = new SelectionModel<T>(mode === 'multiple', []);
+
+      // Use untracked to read selectedIds without creating a dependency
+      const currentSelectedIds = untracked(() => this.selectedIds());
+
+      // If we have selected IDs and current data, restore selection
+      if (currentSelectedIds.length > 0 && this.dataSource.data.length > 0) {
+        const itemsToSelect = this.dataSource.data.filter(row =>
+          currentSelectedIds.includes(row.id)
+        );
+        itemsToSelect.forEach(row => this.selection.select(row));
+      }
+    }, { allowSignalWrites: true });
+
+    // Update dataSource when data signal changes, extracting content from Page
+    effect(() => {
+      const pageData = this.data();
+      const newData = pageData.content;
+
+      // Update the data source
+      this.dataSource.data = newData;
+
+      // Use untracked to read selection state without creating dependencies
+      const selectedIdList = untracked(() => this.selectedIds());
+      const shouldRestore = this.config().enableSelection && selectedIdList.length > 0;
+
+      if (shouldRestore) {
+        const newSelection = newData.filter(row => selectedIdList.includes(row.id));
+
+        // Update selection with new object references
+        this.selection.clear();
+        newSelection.forEach(row => this.selection.select(row));
+
+        // Update the map with new object references for items on this page
+        const updatedMap = new Map(untracked(() => this.selectedItemsMap()));
+        newSelection.forEach(row => {
+          updatedMap.set(row.id, row); // Update with new reference
+        });
+        this.selectedItemsMap.set(updatedMap);
+      }
+
+      // Sync paginator with Page data in server-side mode
+      if (this.isServerSide()) {
+        const paginatorInstance = this.paginator();
+        if (paginatorInstance) {
+          paginatorInstance.pageIndex = pageData.number;
+          paginatorInstance.length = pageData.totalElements;
+        }
+      }
+    }, { allowSignalWrites: true });
+
+
+    // Setup custom sorting data accessor to handle field paths (only for client-side mode)
+    effect(() => {
+      if (!this.isServerSide()) {
+        this.dataSource.sortingDataAccessor = (data: T, sortHeaderId: string) => {
+          // Find the column definition for this sort header
+          const column = this.config().columns.find(col => col.id === sortHeaderId);
+          if (!column?.field) {
+            return '';
+          }
+
+          // Use custom sortAccessor if provided
+          if (column.sortAccessor) {
+            return column.sortAccessor(data);
+          }
+
+          // Get value using field path
+          const value = this.getValue(data, column);
+
+          // Convert to sortable value
+          if (value === null || value === undefined) {
+            return '';
+          }
+
+          // Return string or number for sorting
+          return typeof value === 'string' || typeof value === 'number' ? value : String(value);
+        };
+      }
     });
 
-    // Setup custom sorting data accessor to handle field paths
-    this.dataSource.sortingDataAccessor = (data: T, sortHeaderId: string) => {
-      // Find the column definition for this sort header
-      const column = this.config().columns.find(col => col.id === sortHeaderId);
-      if (!column || !column.field) {
-        return '';
-      }
-
-      // Use custom sortAccessor if provided
-      if (column.sortAccessor) {
-        return column.sortAccessor(data);
-      }
-
-      // Get value using field path
-      const value = this.getValue(data, column);
-
-      // Convert to sortable value
-      if (value === null || value === undefined) {
-        return '';
-      }
-
-      // Return string or number for sorting
-      return typeof value === 'string' || typeof value === 'number' ? value : String(value);
-    };
-
-    // Setup data source with custom filter predicate if provided
+    // Setup data source with custom filter predicate (only for client-side mode)
     effect(() => {
-      const configFn = this.config().filterPredicate;
-      if (configFn) {
-        this.dataSource.filterPredicate = configFn;
-      } else {
-        this.dataSource.filterPredicate = this.defaultFilterPredicate.bind(this);
+      if (!this.isServerSide()) {
+        const configFn = this.config().filterPredicate;
+        if (configFn) {
+          this.dataSource.filterPredicate = configFn;
+        } else {
+          this.dataSource.filterPredicate = this.defaultFilterPredicate.bind(this);
+        }
       }
     });
 
@@ -282,16 +381,26 @@ export class GenericTableComponent<
   }
 
   ngAfterViewInit(): void {
-    // Connect paginator
     const paginatorInstance = this.paginator();
-    if (paginatorInstance && this.config().enablePagination) {
-      this.dataSource.paginator = paginatorInstance;
-    }
-
-    // Connect sort
     const sortInstance = this.sort();
-    if (sortInstance && this.config().enableSorting) {
-      this.dataSource.sort = sortInstance;
+
+    if (this.isServerSide()) {
+      // Server-side mode: Don't connect paginator/sort to dataSource
+      // They only emit events for the parent to handle
+      if (paginatorInstance && this.config().enablePagination) {
+        // Set initial values from Page object
+        paginatorInstance.pageIndex = this.data().number;
+        paginatorInstance.pageSize = this.data().size;
+      }
+    } else {
+      // Client-side mode: Connect paginator/sort to dataSource
+      if (paginatorInstance && this.config().enablePagination) {
+        this.dataSource.paginator = paginatorInstance;
+      }
+
+      if (sortInstance && this.config().enableSorting) {
+        this.dataSource.sort = sortInstance;
+      }
     }
 
     // Apply initial sort if configured
@@ -419,16 +528,23 @@ export class GenericTableComponent<
   }
 
   /**
-   * Apply filter to data source
+   * Apply filter to data source (client-side) or emit event (server-side)
    */
   private applyFilter(filterValue: string): void {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    if (this.isServerSide()) {
+      // In server-side mode, just emit the filter change event
+      // Parent component is responsible for fetching filtered data
+      this.filterChange.emit(filterValue);
+    } else {
+      // In client-side mode, apply filter to dataSource
+      this.dataSource.filter = filterValue.trim().toLowerCase();
 
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+      }
+
+      this.filterChange.emit(filterValue);
     }
-
-    this.filterChange.emit(filterValue);
   }
 
   /**
@@ -453,10 +569,39 @@ export class GenericTableComponent<
 
   /**
    * Whether the number of selected elements matches the total number of rows
+   * (or maxSelection limit if configured)
    */
   isAllSelected(): boolean {
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
+    const maxSelection = this.config().maxSelection;
+
+    // Only return true if there are rows
+    if (numRows === 0) {
+      return false;
+    }
+
+    // If maxSelection is set, check if we've selected up to the max limit
+    if (maxSelection) {
+      // Check total selected across ALL pages
+      const totalSelected = this.selectedIds().length;
+
+      // If we've reached the global max, check if all items on current page that can be selected are selected
+      if (totalSelected >= maxSelection) {
+        // All current page items that are in the global selection should be selected
+        const currentPageSelectedCount = this.dataSource.data.filter(row =>
+          this.selectedIds().includes(row.id)
+        ).length;
+        return currentPageSelectedCount === numSelected && numSelected > 0;
+      }
+
+      // Otherwise, check if we've selected up to the remaining available slots on this page
+      const remainingSlots = maxSelection - totalSelected + numSelected;
+      const maxSelectableOnPage = Math.min(remainingSlots, numRows);
+      return numSelected === maxSelectableOnPage;
+    }
+
+    // Otherwise, check if all rows are selected
     return numSelected === numRows;
   }
 
@@ -464,10 +609,34 @@ export class GenericTableComponent<
    * Selects all rows if they are not all selected; otherwise clear selection
    */
   masterToggle(): void {
-    if (this.isAllSelected()) {
+    // Check if we should select or deselect
+    // If any item from current page is selected, we deselect all from current page
+    // Otherwise, we select up to max limit
+    const hasAnySelected = this.selection.hasValue();
+
+    if (hasAnySelected) {
+      // Clear all selections from current page
       this.selection.clear();
     } else {
-      this.dataSource.data.forEach((row) => this.selection.select(row));
+      // Select rows up to max limit
+      const maxSelection = this.config().maxSelection;
+
+      if (maxSelection) {
+        // Check how many items are already selected across ALL pages
+        const totalAlreadySelected = this.selectedIds().length;
+        const remainingSlots = maxSelection - totalAlreadySelected;
+
+        // Only select if we have remaining slots
+        if (remainingSlots > 0) {
+          const rowsToSelect = this.dataSource.data.slice(0, remainingSlots);
+          this.selection.clear();
+          rowsToSelect.forEach((row) => this.selection.select(row));
+        }
+      } else {
+        // No max limit, select all on current page
+        this.selection.clear();
+        this.dataSource.data.forEach((row) => this.selection.select(row));
+      }
     }
     this.onSelectionChange();
   }
@@ -476,6 +645,15 @@ export class GenericTableComponent<
    * Toggle row selection
    */
   toggleRow(row: T): void {
+    const maxSelection = this.config().maxSelection;
+    const isCurrentlySelected = this.selection.isSelected(row);
+
+    // If trying to select and max limit is reached, prevent selection
+    if (!isCurrentlySelected && maxSelection && this.selection.selected.length >= maxSelection) {
+      // Don't allow selection
+      return;
+    }
+
     this.selection.toggle(row);
     this.onSelectionChange();
   }
@@ -488,12 +666,97 @@ export class GenericTableComponent<
   }
 
   /**
+   * Check if a row can be selected (based on max selection limit)
+   */
+  canSelectRow(row: T): boolean {
+    const maxSelection = this.config().maxSelection;
+    const isCurrentlySelected = this.selection.isSelected(row);
+
+    // If already selected, it can always be deselected
+    if (isCurrentlySelected) {
+      return true;
+    }
+
+    // If no max limit, can always select
+    if (!maxSelection) {
+      return true;
+    }
+
+    // Check total selected across ALL pages (not just current page)
+    const totalSelected = this.selectedIds().length;
+    return totalSelected < maxSelection;
+  }
+
+  /**
    * Handle selection change
    */
   private onSelectionChange(): void {
-    const selected = this.selection.selected;
-    this.selectedRows.set(selected);
-    this.selectionChange.emit(selected);
+    const selected = this.selection.selected; // Items selected on CURRENT page only
+
+    // Get existing map to preserve selections from other pages
+    const existingMap = new Map(untracked(() => this.selectedItemsMap()));
+    const currentPageIds = new Set(this.dataSource.data.map(row => row.id));
+
+    // Remove items from current page that are no longer selected
+    for (const [id] of existingMap) {
+      if (currentPageIds.has(id) && !selected.some(row => row.id === id)) {
+        existingMap.delete(id);
+      }
+    }
+
+    // Add newly selected items from current page
+    selected.forEach(row => {
+      existingMap.set(row.id, row);
+    });
+
+    // Update signals with merged selection
+    const allSelectedIds = Array.from(existingMap.keys());
+    this.selectedIds.set(allSelectedIds);
+    this.selectedItemsMap.set(existingMap);
+
+    // Emit all selected items (across all pages)
+    const allSelected = Array.from(existingMap.values());
+    this.selectedRows.set(allSelected);
+    this.selectionChange.emit(allSelected);
+  }
+
+  /**
+   * Remove a selected item by its ID (used by chips)
+   */
+  removeSelectedItem(id: unknown): void {
+    // Remove from selectedIds
+    const currentIds = this.selectedIds();
+    const newIds = currentIds.filter(itemId => itemId !== id);
+    this.selectedIds.set(newIds);
+
+    // Remove from selectedItemsMap
+    const newMap = new Map(this.selectedItemsMap());
+    newMap.delete(id);
+    this.selectedItemsMap.set(newMap);
+
+    // If item is on current page, deselect from SelectionModel
+    const itemOnCurrentPage = this.dataSource.data.find(row => row.id === id);
+    if (itemOnCurrentPage) {
+      this.selection.deselect(itemOnCurrentPage);
+    }
+
+    // Emit updated selection
+    const allSelected = Array.from(newMap.values());
+    this.selectedRows.set(allSelected);
+    this.selectionChange.emit(allSelected);
+  }
+
+  /**
+   * Get display label for a selected item chip
+   * Uses the first visible column's value or falls back to id
+   */
+  getChipLabel(item: T): string {
+    const firstColumn = this.config().columns.find(col => col.visible !== false);
+    if (firstColumn) {
+      const value = this.getValue(item, firstColumn);
+      return value ? String(value) : String(item.id);
+    }
+    return String(item.id);
   }
 
   // ============ SORT METHODS ============

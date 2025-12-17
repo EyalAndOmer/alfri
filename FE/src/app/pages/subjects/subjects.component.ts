@@ -34,6 +34,7 @@ import {
   TableConfig,
   TextCellRendererComponent,
 } from '@components/generic-table';
+import { GenericTableUtils } from '@components/generic-table/generic-table.utils';
 
 @Component({
   selector: 'app-subjects',
@@ -59,7 +60,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
   private readonly _searchTerm$: Subject<string> = new Subject();
 
   // Signals for reactive state management
-  subjectsData = signal<SubjectDto[]>([]);
+  subjectsData = signal<Page<SubjectDto>>(GenericTableUtils.EMPTY_PAGE);
   totalElements = signal<number>(0);
   currentPage = signal<number>(0);
   pageSize = signal<number>(10);
@@ -216,7 +217,10 @@ export class SubjectsComponent implements OnInit, OnDestroy {
   }
 
   private updateTableData(page: Page<SubjectDto>): void {
-    this.subjectsData.set(page.content.map(s => this.convertToTableRow(s)));
+    this.subjectsData.set({
+      ...page,
+      content: page.content.map(s => this.convertToTableRow(s)),
+    });
     this.totalElements.set(page.totalElements);
     this.currentPage.set(page.number);
     this.pageSize.set(page.size);
@@ -265,12 +269,6 @@ export class SubjectsComponent implements OnInit, OnDestroy {
           return of();
         }),
       );
-  }
-
-  studyProgramChanged() {
-    this.isLoading.set(true);
-    this.searchTerm.set('');
-    this.getSubjects(0, this.pageSize(), this._selectedStudyProgramId);
   }
 
   onPageChange(event: PageEvent) {

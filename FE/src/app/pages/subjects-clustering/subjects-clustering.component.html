@@ -21,25 +21,22 @@
             <input
               matInput
               type="text"
-              [(ngModel)]="searchTerm"
+              [ngModel]="searchTerm()"
               (ngModelChange)="onSearchChange($event)"
               placeholder="Zadajte názov predmetu..."
             />
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
-          <app-subjects-table
-            [dataSourceInput]="dataSource"
-            [pageData]="allSubjectsPageData"
-            [isLoading]="isLoadingAllSubjects()"
+          <app-generic-table
+            class="overflow-x-scroll"
+            [data]="allSubjectsData()"
+            [config]="allSubjectsTableConfig"
+            [loading]="isLoadingAllSubjects()"
             (pageChange)="onPageChangeAllSubjects($event)"
-            [displayFullInfo]="false"
-            [isSelectable]="true"
-            [maxSelectableSubjects]="3"
-            (selectedSubjects)="onSelectedSubjectsChanged($event)"
-            (subjectDetailNavigate)="navigateToSubjectDetail($event)"
+            (selectionChange)="onSelectionChange($event)"
           >
-          </app-subjects-table>
+          </app-generic-table>
         </mat-card-content>
       </mat-card>
 
@@ -76,14 +73,13 @@
 
             <mat-card-content>
               @if (selectedSubjects().length > 0) {
-                <app-subjects-table
-                  [pageData]="selectedSubjectsPageData()"
-                  [isLoading]="false"
-                  [displayFullInfo]="false"
-                  [isPageable]="false"
-                  [isScrollable]="true"
-                  (subjectDetailNavigate)="navigateToSubjectDetail($event)"
-                ></app-subjects-table>
+                <app-generic-table
+                  [data]="selectedSubjectsPageData()"
+                  [config]="selectedSubjectsTableConfig"
+                  [loading]="false"
+                  (rowClick)="onRowClick($event.row)"
+                >
+                </app-generic-table>
               } @else {
                 <div class="text-center text-muted p-3">
                   Žiadne vybrané predmety
@@ -109,14 +105,13 @@
                 recommendedSubjectsPageDataComputed().content.length > 0 &&
                 !isLoadingRecommendetSubjects()
               ) {
-                <app-subjects-table
-                  [pageData]="recommendedSubjectsPageDataComputed()"
-                  [isLoading]="false"
-                  [displayFullInfo]="false"
-                  [isPageable]="false"
-                  [isScrollable]="true"
-                  (subjectDetailNavigate)="navigateToSubjectDetail($event)"
-                ></app-subjects-table>
+                <app-generic-table
+                  [data]="recommendedSubjectsPageDataComputed()"
+                  [config]="recommendedSubjectsTableConfig"
+                  [loading]="false"
+                  (rowClick)="onRowClick($event.row)"
+                >
+                </app-generic-table>
               } @else if (
                 recommendedSubjectsPageDataComputed().content.length === 0 &&
                 !isLoadingRecommendetSubjects()

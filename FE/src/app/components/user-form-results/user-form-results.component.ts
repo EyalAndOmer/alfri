@@ -26,7 +26,7 @@ import {
 } from 'chart.js';
 
 import { MatChip, MatChipSet } from '@angular/material/chips';
-import { AnsweredForm, StudyPrograms } from '../../types';
+import { AnsweredForm, Page, StudyPrograms } from '../../types';
 import {
   MatCard,
   MatCardContent,
@@ -42,6 +42,7 @@ import {
   TextCellRendererComponent,
 } from '../generic-table';
 import { GradeCellRendererComponent } from './grade-cell-renderer.component';
+import { GenericTableUtils } from '@components/generic-table/generic-table.utils';
 
 // Updated SubjectGrade to extend TableRow (requires id)
 export interface SubjectGrade extends TableRow {
@@ -77,17 +78,19 @@ export class UserFormResultsComponent implements AfterViewInit {
   protected readonly Number = Number;
 
   // Computed signal that automatically recalculates when existingAnswers changes
-  subjectGradesData = computed<SubjectGrade[]>(() => {
+  subjectGradesData = computed<Page<SubjectGrade>>(() => {
     const answers = this.existingAnswers();
     if (!answers?.sections?.[1]) {
-      return [];
+      return GenericTableUtils.pageOf([]);
     }
 
-    return answers.sections[1].questions.map((question, index) => ({
+    const tableData = answers.sections[1].questions.map((question, index) => ({
       id: index, // Add id for TableRow requirement
       subjectName: question.questionTitle,
       grade: question.answers[0].texts[0].textOfAnswer,
     }));
+
+    return GenericTableUtils.pageOf(tableData);
   });
 
   // Table configuration using component-based approach
@@ -113,6 +116,7 @@ export class UserFormResultsComponent implements AfterViewInit {
     enablePagination: true,
     pageSize: 5,
     pageSizeOptions: [5, 10, 20],
+    serverSide: false,
     header: {
       show: true,
       title: 'Známky z povinných predmetov',

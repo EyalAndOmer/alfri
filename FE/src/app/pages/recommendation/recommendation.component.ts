@@ -19,6 +19,7 @@ import {
   TableConfig,
   TextCellRendererComponent,
 } from '@components/generic-table';
+import { GenericTableUtils } from '@components/generic-table/generic-table.utils';
 
 @Component({
   selector: 'app-recommendation',
@@ -37,7 +38,7 @@ export class RecommendationComponent implements OnInit, OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject();
 
   // Signals for reactive state management
-  subjectsData = signal<SubjectDto[]>([]);
+  subjectsData = signal<Page<SubjectDto>>(GenericTableUtils.EMPTY_PAGE);
   totalElements = signal<number>(0);
   currentPage = signal<number>(0);
   pageSize = signal<number>(10);
@@ -98,6 +99,7 @@ export class RecommendationComponent implements OnInit, OnDestroy {
         align: 'center',
       },
     ],
+    serverSide: false,
     enableSorting: true,
     enablePagination: true,
     pageSize: 10,
@@ -137,11 +139,10 @@ export class RecommendationComponent implements OnInit, OnDestroy {
   }
 
   private updateTableData(page: Page<SubjectDto>): void {
-    this.subjectsData.set(page.content);
+    this.subjectsData.set(page);
     this.totalElements.set(page.totalElements);
     this.currentPage.set(page.number);
     this.pageSize.set(page.size);
-    this.isLoading.set(false);
   }
 
   private getSubjects(): Observable<Page<SubjectDto> | never[]> {

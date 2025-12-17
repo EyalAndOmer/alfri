@@ -56,9 +56,28 @@
     </div>
   }
 
+  <!-- Selected Items Chips -->
+  @if (config().enableSelection && allSelectedItems().length > 0) {
+    <div class="selected-items-section">
+      <div class="selected-items-label">
+        <strong>Selected ({{ allSelectedItems().length }}@if (config().maxSelection) { / {{ config().maxSelection }} }):</strong>
+      </div>
+      <mat-chip-set aria-label="Selected items">
+        @for (item of allSelectedItems(); track item.id) {
+          <mat-chip [removable]="true" (removed)="removeSelectedItem(item.id)">
+            {{ getChipLabel(item) }}
+            <button matChipRemove aria-label="Remove selection">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+  }
+
   <!-- Table Container -->
   <div class="table-container">
-    @if (config().enableSorting) {
+      @if (config().enableSorting) {
       <table
         mat-table
         [dataSource]="dataSource"
@@ -82,6 +101,7 @@
             <td mat-cell *matCellDef="let row" class="select-column">
               <mat-checkbox
                 [checked]="isSelected(row)"
+                [disabled]="!canSelectRow(row)"
                 (change)="toggleRow(row)"
                 (click)="$event.stopPropagation()"
               ></mat-checkbox>
@@ -182,6 +202,7 @@
             <td mat-cell *matCellDef="let row" class="select-column">
               <mat-checkbox
                 [checked]="isSelected(row)"
+                [disabled]="!canSelectRow(row)"
                 (change)="toggleRow(row)"
                 (click)="$event.stopPropagation()"
               ></mat-checkbox>
@@ -285,7 +306,9 @@
   @if (config().enablePagination) {
     <div class="table-footer">
       <mat-paginator
-        [pageSize]="effectivePageSize()"
+        [pageIndex]="currentPageNumber()"
+        [length]="totalElements()"
+        [pageSize]="currentPageSize()"
         [pageSizeOptions]="effectivePageSizeOptions()"
         [showFirstLastButtons]="config().showFirstLastButtons"
         (page)="onPageChange($event)"

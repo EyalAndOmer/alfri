@@ -10,6 +10,7 @@ export { GenericTableComponent } from './generic-table.component';
 // Types and interfaces
 export type {
   TableRow,
+  PagedTableRow,
   TableConfig,
   TableColumnDef,
   TableCellRenderer,

@@ -7,7 +7,6 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { SubjectsTableComponent } from '@components/subjects-table/subjects-table.component';
 import {
   catchError,
   debounceTime,
@@ -43,7 +42,6 @@ import {
 } from '@angular/material/card';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { SubjectService } from '@services/subject.service';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import {
   MatFormField,
@@ -52,12 +50,18 @@ import {
 } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import {
+  GenericTableComponent,
+  TableConfig,
+  TextCellRendererComponent,
+} from '@components/generic-table';
+import { GenericTableUtils } from '@components/generic-table/generic-table.utils';
 
 @Component({
   selector: 'app-subjects-clustering',
   standalone: true,
   imports: [
-    SubjectsTableComponent,
+    GenericTableComponent,
     MatButton,
     MatIcon,
     MatProgressBar,
@@ -81,43 +85,104 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
 
   private readonly _destroy$: Subject<void> = new Subject();
   private readonly _searchTerm$: Subject<string> = new Subject();
-  dataSource = new MatTableDataSource<SubjectDto>([]);
   private _userStudyProgramId!: number;
-  searchTerm: string = '';
 
   // Signals for reactive state management
   private readonly _selectedSubjects = signal<SubjectExtendedDto[]>([]);
   private readonly _recommendedSubjects = signal<SubjectDto[]>([]);
+  readonly allSubjectsData = signal<Page<SubjectExtendedDto>>(GenericTableUtils.EMPTY_PAGE);
   readonly isLoadingAllSubjects = signal<boolean>(false);
   readonly isLoadingRecommendetSubjects = signal<boolean>(false);
+  searchTerm = signal<string>('');
 
-  readonly allSubjectsPageData: Page<SubjectExtendedDto> = {
-    content: [],
-    totalElements: 0,
-    size: 10,
-    number: 0,
-    pageable: {
-      sort: {
-        sorted: false,
-        unsorted: false,
-        empty: false,
+  // Generic table configurations
+  allSubjectsTableConfig: TableConfig<SubjectExtendedDto> = {
+    columns: [
+      {
+        id: 'name',
+        header: 'Názov predmetu',
+        field: 'name',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: 'auto',
       },
-      offset: 0,
-      pageNumber: 0,
-      pageSize: 0,
-      paged: false,
-      unpaged: false,
-    },
-    last: false,
-    totalPages: 0,
-    sort: {
-      sorted: false,
-      unsorted: false,
-      empty: false,
-    },
-    first: false,
-    numberOfElements: 0,
-    empty: false,
+      {
+        id: 'code',
+        header: 'Kód',
+        field: 'code',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: '120px',
+      },
+      {
+        id: 'abbreviation',
+        header: 'Skratka',
+        field: 'abbreviation',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: '120px',
+      },
+    ],
+    enableSorting: true,
+    enablePagination: true,
+    pageSize: 10,
+    pageSizeOptions: [5, 10, 25, 50],
+    enableRowClick: false,
+    enableSelection: true,
+    selectionMode: 'multiple',
+    highlightSelection: true,
+    maxSelection: 3,
+    stickyHeader: false,
+  };
+
+  selectedSubjectsTableConfig: TableConfig<SubjectExtendedDto> = {
+    columns: [
+      {
+        id: 'name',
+        header: 'Názov predmetu',
+        field: 'name',
+        sortable: false,
+        cellRenderer: TextCellRendererComponent,
+        width: 'auto',
+      },
+      {
+        id: 'code',
+        header: 'Kód',
+        field: 'code',
+        sortable: false,
+        cellRenderer: TextCellRendererComponent,
+        width: '100px',
+      },
+    ],
+    enableSorting: false,
+    enablePagination: false,
+    enableRowClick: true,
+    stickyHeader: false,
+  };
+
+  recommendedSubjectsTableConfig: TableConfig<SubjectDto> = {
+    columns: [
+      {
+        id: 'name',
+        header: 'Názov predmetu',
+        field: 'name',
+        sortable: false,
+        cellRenderer: TextCellRendererComponent,
+        width: 'auto',
+      },
+      {
+        id: 'code',
+        header: 'Kód',
+        field: 'code',
+        sortable: false,
+        cellRenderer: TextCellRendererComponent,
+        width: '100px',
+      },
+    ],
+    enableSorting: false,
+    enablePagination: false,
+    enableRowClick: true,
+    stickyHeader: false,
   };
 
   // Computed signals for reactive page data
@@ -202,47 +267,23 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         }),
         catchError((error: HttpErrorResponse) => {
           this.errorService.showError(error.error);
-          return of({
-            content: [],
-            totalElements: 0,
-            size: 10,
-            number: 0,
-            pageable: {
-              sort: { sorted: false, unsorted: false, empty: false },
-              offset: 0,
-              pageNumber: 0,
-              pageSize: 0,
-              paged: false,
-              unpaged: false,
-            },
-            last: false,
-            totalPages: 0,
-            sort: { sorted: false, unsorted: false, empty: false },
-            first: false,
-            numberOfElements: 0,
-            empty: true,
-          });
+          this.isLoadingAllSubjects.set(false);
+          return of(GenericTableUtils.EMPTY_PAGE as Page<SubjectExtendedDto>);
         }),
         takeUntil(this._destroy$),
       )
       .subscribe((page) => {
-        this.dataSource.data = page.content;
-        Object.assign(this.allSubjectsPageData, {
-          size: page.size,
-          totalElements: page.totalElements,
-          number: page.number,
-          content: page.content,
-          totalPages: page.totalPages,
-          last: page.last,
-          first: page.first,
-          numberOfElements: page.numberOfElements,
-          empty: page.empty,
-        });
-        this.isLoadingAllSubjects.set(false);
+        this.updateAllSubjectsTableData(page);
       });
   }
 
+  private updateAllSubjectsTableData(page: Page<SubjectExtendedDto>): void {
+    this.allSubjectsData.set(page);
+    this.isLoadingAllSubjects.set(false);
+  }
+
   onSearchChange(searchTerm: string): void {
+    this.searchTerm.set(searchTerm);
     this._searchTerm$.next(searchTerm);
   }
 
@@ -256,50 +297,11 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         }),
         catchError((error: HttpErrorResponse) => {
           this.errorService.showError(error.error);
-          return of({
-            content: [],
-            totalElements: 0,
-            size: 10,
-            number: 0,
-            pageable: {
-              sort: {
-                sorted: false,
-                unsorted: false,
-                empty: false,
-              },
-              offset: 0,
-              pageNumber: 0,
-              pageSize: 0,
-              paged: false,
-              unpaged: false,
-            },
-            last: false,
-            totalPages: 0,
-            sort: {
-              sorted: false,
-              unsorted: false,
-              empty: false,
-            },
-            first: false,
-            numberOfElements: 0,
-            empty: true,
-          });
+          return of(GenericTableUtils.EMPTY_PAGE as Page<SubjectExtendedDto>);
         }),
       )
       .subscribe((page) => {
-        this.dataSource.data = page.content;
-        Object.assign(this.allSubjectsPageData, {
-          size: page.size,
-          totalElements: page.totalElements,
-          number: page.number,
-          content: page.content,
-          totalPages: page.totalPages,
-          last: page.last,
-          first: page.first,
-          numberOfElements: page.numberOfElements,
-          empty: page.empty,
-        });
-        this.isLoadingAllSubjects.set(false);
+        this.updateAllSubjectsTableData(page);
       });
   }
 
@@ -346,58 +348,24 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
   onPageChangeAllSubjects(event: PageEvent) {
     this.isLoadingAllSubjects.set(true);
 
-    this.getAllSubjects(
-      event.pageIndex,
-      event.pageSize,
-      this._userStudyProgramId,
-    )
+    const searchParam = this.searchTerm().trim()
+      ? `id.studyProgramId:${this._userStudyProgramId},subject.name~${this.searchTerm()}`
+      : `id.studyProgramId:${this._userStudyProgramId}`;
+
+    const subjects$ = this.searchTerm().trim()
+      ? this.getAllSubjectsWithSearch(event.pageIndex, event.pageSize, searchParam)
+      : this.getAllSubjects(event.pageIndex, event.pageSize, this._userStudyProgramId);
+
+    subjects$
       .pipe(
         catchError((error: HttpErrorResponse) => {
           this.errorService.showError(error.error);
-          return of({
-            content: [],
-            totalElements: 0,
-            size: event.pageSize,
-            number: event.pageIndex,
-            pageable: {
-              sort: {
-                sorted: false,
-                unsorted: false,
-                empty: false,
-              },
-              offset: 0,
-              pageNumber: 0,
-              pageSize: 0,
-              paged: false,
-              unpaged: false,
-            },
-            last: false,
-            totalPages: 0,
-            sort: {
-              sorted: false,
-              unsorted: false,
-              empty: false,
-            },
-            first: false,
-            numberOfElements: 0,
-            empty: true,
-          });
+          this.isLoadingAllSubjects.set(false);
+          return of(GenericTableUtils.EMPTY_PAGE as Page<SubjectExtendedDto>);
         }),
       )
       .subscribe((page) => {
-        this.dataSource.data = page.content;
-        Object.assign(this.allSubjectsPageData, {
-          size: page.size,
-          totalElements: page.totalElements,
-          number: page.number,
-          content: page.content,
-          totalPages: page.totalPages,
-          last: page.last,
-          first: page.first,
-          numberOfElements: page.numberOfElements,
-          empty: page.empty,
-        });
-        this.isLoadingAllSubjects.set(false);
+        this.updateAllSubjectsTableData(page);
       });
   }
 
@@ -408,6 +376,14 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
 
   navigateToSubjectDetail(code: string) {
     this.router.navigate(['/subjects/' + code]);
+  }
+
+  onRowClick(subject: SubjectDto | SubjectExtendedDto) {
+    this.navigateToSubjectDetail(subject.code);
+  }
+
+  onSelectionChange(selectedSubjects: SubjectExtendedDto[]) {
+    this._selectedSubjects.set(selectedSubjects);
   }
 
   getSimilarSubjects() {
@@ -432,9 +408,5 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         takeUntil(this._destroy$),
       )
       .subscribe();
-  }
-
-  onSelectedSubjectsChanged($event: SubjectDto[]) {
-    this._selectedSubjects.set($event as SubjectExtendedDto[]);
   }
 }

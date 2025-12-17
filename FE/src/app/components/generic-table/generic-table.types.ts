@@ -10,6 +10,12 @@ export interface TableRow {
 }
 
 /**
+ * Base interface for paged table row data
+ * Extends TableRow to support pagination from backend
+ */
+export type PagedTableRow = TableRow;
+
+/**
  * Base interface that all cell renderer components must implement
  * This provides a contract for custom column renderers
  */
@@ -287,6 +293,14 @@ export interface TableConfig<T extends TableRow = TableRow> {
   // === Pagination Configuration ===
 
   /**
+   * Enable server-side pagination, sorting, and filtering
+   * When true, the table expects Page<T> data and emits events for data changes
+   * When false, uses client-side MatTableDataSource for all operations
+   * @default true (since we now use Page<T> input)
+   */
+  serverSide?: boolean;
+
+  /**
    * Enable pagination
    * @default true
    */
@@ -343,6 +357,13 @@ export interface TableConfig<T extends TableRow = TableRow> {
    * @default true
    */
   highlightSelection?: boolean;
+
+  /**
+   * Maximum number of rows that can be selected
+   * Only applicable when enableSelection is true
+   * @default undefined (no limit)
+   */
+  maxSelection?: number;
 
   // === Interaction Configuration ===
 
