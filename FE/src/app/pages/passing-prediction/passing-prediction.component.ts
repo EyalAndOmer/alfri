@@ -5,7 +5,7 @@ import { SubjectService } from '@services/subject.service';
 import { take } from 'rxjs';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { SubjectPassingPrediction } from '../../types';
-import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
+import { MatCard, MatCardContent } from '@angular/material/card';
 
 @Component({
   selector: 'app-passing-prediction',
@@ -14,7 +14,6 @@ import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
     SubjectPassingPredictionResultComponent,
     MatProgressSpinner,
     MatCard,
-    MatCardHeader,
     MatCardContent,
   ],
   templateUrl: './passing-prediction.component.html',

@@ -40,6 +40,24 @@ html {
   --mdc-filled-button-container-shape: 10px;
   --mdc-outlined-button-container-shape: 10px;
   --mdc-text-button-container-shape: 10px;
+
+  // Design system colors
+  --primary: #0e7490; // Cyan-700
+  --primary-light: #06b6d4; // Cyan-500
+  --primary-soft: #ecfeff; // Cyan-50
+  --secondary: #475569; // Slate-600
+  --accent: #f97316; // Orange-500
+  --accent-light: #ffedd5; // Orange-100
+  --background-light: #f0f9ff; // Sky-50
+  --background-dark: #0f172a; // Slate-900
+  --surface-light: #ffffff;
+  --surface-dark: #1e293b; // Slate-800
+  --text-primary: #0f172a; // Slate-900
+  --text-primary-dark: #f1f5f9; // Slate-100
+  --text-secondary: #64748b; // Slate-500
+  --text-secondary-dark: #94a3b8; // Slate-400
+  --border-light: #e0f2fe; // Sky-100
+  --border-dark: #334155; // Slate-700
 }
 
 button,

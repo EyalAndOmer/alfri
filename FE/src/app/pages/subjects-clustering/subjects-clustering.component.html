@@ -1,5 +1,5 @@
-<div class="container-fluid m-0">
-  <mat-stepper #stepper [linear]="true">
+<div class="container">
+  <mat-stepper #stepper [linear]="true" class="modern-stepper">
     <!-- Step 1: Select Subjects -->
     <mat-step [completed]="selectedSubjects().length > 0">
       <ng-template matStepLabel>Výber predmetov</ng-template>
@@ -64,10 +64,12 @@
       <div class="row m-0 p-0 mt-3">
         <!-- Left side: Selected Subjects -->
         <div class="col-12 col-md-6 mb-3 mb-md-0">
-          <mat-card style="min-height: 400px">
+          <mat-card style="min-height: 400px" class="section-card">
             <mat-card-header>
-              <mat-card-title>
-                Vybrané predmety ({{ selectedSubjects().length }})
+              <mat-card-title class="d-flex align-items-center gap-2">
+                <mat-icon class="text-primary">checklist</mat-icon>
+                Vybrané predmety
+                <span class="badge bg-primary ms-2">{{ selectedSubjects().length }}</span>
               </mat-card-title>
             </mat-card-header>
 
@@ -91,12 +93,14 @@
 
         <!-- Right side: Similar Subjects -->
         <div class="col-12 col-md-6">
-          <mat-card style="min-height: 400px">
+          <mat-card style="min-height: 400px" class="section-card">
             <mat-card-header>
-              <mat-card-title>
-                Podobné predmety ({{
+              <mat-card-title class="d-flex align-items-center gap-2">
+                <mat-icon class="text-warning">auto_awesome</mat-icon>
+                Podobné predmety
+                <span class="badge bg-warning ms-2">{{
                   recommendedSubjectsPageDataComputed().content.length
-                }})
+                }}</span>
               </mat-card-title>
             </mat-card-header>
 
