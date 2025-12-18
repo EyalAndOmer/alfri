@@ -125,4 +125,13 @@ databaseChangeLog:
             schemaName: public
             startValue: 1
             incrementBy: 1
+  - changeSet:
+      id: 01-seq-subject_study_program_id
+      author: liquibase
+      changes:
+        - createSequence:
+            sequenceName: subject_study_program_id_seq
+            schemaName: public
+            startValue: 1
+            incrementBy: 1
 

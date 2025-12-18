@@ -3,7 +3,6 @@
 Handles predictions for grade distributions using Keras models.
 """
 from typing import Dict, List, Any, Optional, Union
-import math
 
 from flask import current_app
 
@@ -171,6 +170,17 @@ class PassingMarkPredictor(PredictionService):
             ValueError: If prediction shape is unexpected
         """
         arr = self._numpy.asarray(predictions)
+
+        # Handle multi-dimensional output (batch predictions)
+        if arr.ndim > 1:
+            # Flatten to 1D (take first sample if batched)
+            arr = arr.flatten() if arr.shape[0] == 1 else arr[0]
+
+        # If we have multiple values, treat as distribution
+        if arr.size > 1:
+            return arr.astype(float).tolist()
+
+        # If scalar, convert to distribution
         return self._scalar_to_distribution_numpy(float(arr))
     
     def _scalar_to_distribution_numpy(self, score: float) -> List[float]:

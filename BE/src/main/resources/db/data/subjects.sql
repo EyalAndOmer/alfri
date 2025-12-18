@@ -1,4 +1,4 @@
--- Subjects
+-- Informatics Subjects
 INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (1, 'algebra', '6BA0001', 'Alg');
 INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (2, 'matematika pre informatikov', '6BA0009', 'MpInf');
 INSERT INTO public.subject (subject_id, name, code, abbreviation) VALUES (3, 'úvod do štúdia', '6BH0003', 'ÚŠ');

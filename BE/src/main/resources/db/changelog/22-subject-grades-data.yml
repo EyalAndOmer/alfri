@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 22-subject-grades-data
+      author: auto-generated
+      changes:
+        - sqlFile:
+            path: db/data/generated_subject_grades.sql
+            relativeToChangelogFile: false
+

@@ -5,20 +5,20 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sk.uniza.fri.alfri.entity.StudyProgramSubject;
-import sk.uniza.fri.alfri.entity.StudyProgramSubjectId;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface StudyProgramSubjectSpringDataRepository
-        extends JpaRepository<StudyProgramSubject, StudyProgramSubjectId>,
+        extends JpaRepository<StudyProgramSubject, Integer>,
         JpaSpecificationExecutor<StudyProgramSubject> {
-    Optional<StudyProgramSubject> findById_SubjectIdAndId_StudyProgramId(Integer id, Integer studyProgramId);
+
+    Optional<StudyProgramSubject> findBySubject_IdAndStudyProgram_Id(Integer subjectId, Integer studyProgramId);
 
     @Query("""
             SELECT s FROM StudyProgramSubject s
             WHERE s.obligation = 'Pov.'
-            AND s.id.studyProgramId = :studyProgramId
+            AND s.studyProgram.id = :studyProgramId
             AND s.recommendedYear <= :recommendedYear
             """)
     List<StudyProgramSubject> findAllMandatorySubjectsForStudyProgramAndYear(

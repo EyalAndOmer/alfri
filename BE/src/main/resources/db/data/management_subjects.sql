@@ -3,8 +3,7 @@
 -- Some subjects already exist in the database and will only be mapped to the new study program
 
 -- First, ensure the study program exists
-INSERT INTO public.study_program (study_program_id, name)
-VALUES (4, 'Manažment');
+
 
 -- study program subjects mappings
 

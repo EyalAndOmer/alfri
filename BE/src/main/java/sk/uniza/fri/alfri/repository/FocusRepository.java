@@ -26,7 +26,7 @@ public interface FocusRepository extends JpaRepository<Focus, Integer> {
             + "(COALESCE(:testingFocus, 0) > 5 AND f.testingFocus > 5) OR "
             + "(COALESCE(:languageFocus, 0) > 5 AND f.languageFocus > 5) OR "
             + "(COALESCE(:physicalFocus, 0) > 5 AND f.physicalFocus > 5)) "
-      + "AND sps.id.studyProgramId = :studyProgramId "
+      + "AND sps.studyProgram.id = :studyProgramId "
       + "AND sps.recommendedYear >= :year")
   Page<Subject> findSubjectByHashMapValuesWithPaging(@Param("mathFocus") Integer mathFocus,
                                              @Param("logicFocus") Integer logicFocus, @Param("programmingFocus") Integer programmingFocus,

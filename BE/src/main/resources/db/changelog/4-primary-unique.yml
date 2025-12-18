@@ -85,7 +85,7 @@ databaseChangeLog:
       changes:
         - addPrimaryKey:
             tableName: student_subject
-            columnNames: student_id, subject_id
+            columnNames: student_id, subject_id, year
             constraintName: student_subject_pk
   - changeSet:
       id: 04-pk-study_program
@@ -101,7 +101,7 @@ databaseChangeLog:
       changes:
         - addPrimaryKey:
             tableName: study_program_subject
-            columnNames: subject_id, study_program_id
+            columnNames: subject_study_program_id
             constraintName: study_program_subject_pk
   - changeSet:
       id: 04-pk-subject_grades

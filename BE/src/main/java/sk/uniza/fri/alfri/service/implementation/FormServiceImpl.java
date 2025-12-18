@@ -252,7 +252,7 @@ public class FormServiceImpl implements FormService {
         List<StudyProgramSubject> mandatorySubjects = this.studyProgramSubjectRepository.findMandatorySubjects(studyProgramId, year);
         // Now join the data with the question entity
         return this.questionRepository.findAllByQuestionIdentifierIn(mandatorySubjects.stream()
-                .map(obj -> String.format("question_%s", obj.getId().getSubject().getCode()))
+                .map(obj -> String.format("question_%s", obj.getSubject().getCode()))
                 .toList());
     }
 

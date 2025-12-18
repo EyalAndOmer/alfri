@@ -42,3 +42,7 @@ databaseChangeLog:
       file: db/changelog/19-focus-data.yml
   - include:
       file: db/changelog/20-management-subjects.yml
+  - include:
+      file: db/changelog/21-student-data.yml
+  - include:
+      file: db/changelog/22-subject-grades-data.yml

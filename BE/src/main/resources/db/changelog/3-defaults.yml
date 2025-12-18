@@ -51,4 +51,8 @@ databaseChangeLog:
             tableName: user
             columnName: user_id
             defaultValueComputed: "nextval('public.user_user_id_seq'::regclass)"
+        - addDefaultValue:
+            tableName: study_program_subject
+            columnName: subject_study_program_id
+            defaultValueComputed: "nextval('public.subject_study_program_id_seq'::regclass)"
 

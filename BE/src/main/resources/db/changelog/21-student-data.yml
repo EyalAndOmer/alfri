@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 21-student-data
+      author: auto-generated
+      changes:
+        - sqlFile:
+            path: db/data/generated_student_data.sql
+            relativeToChangelogFile: false
+

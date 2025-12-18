@@ -152,6 +152,7 @@ databaseChangeLog:
             tableName: study_program_subject
             schemaName: public
             columns:
+              - column: { name: subject_study_program_id, type: INT, constraints: { nullable: false } }
               - column: { name: study_program_id, type: INT, constraints: { nullable: false } }
               - column: { name: subject_id, type: INT, constraints: { nullable: false } }
               - column: { name: obligation, type: VARCHAR(4), constraints: { nullable: false } }

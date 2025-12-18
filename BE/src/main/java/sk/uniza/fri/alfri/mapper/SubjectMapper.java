@@ -32,7 +32,7 @@ public interface SubjectMapper {
                     subject.getCode(),
                     subject.getAbbreviation(),
                     studyProgramSubject.getObligation(),
-                    studyProgramSubject.getId().getStudyProgram().getName(),
+                    studyProgramSubject.getStudyProgram().getName(),
                     mapSemester(studyProgramSubject.getSemesterWinter()),
                     studyProgramSubject.getRecommendedYear(),
                     subject.getFocus() != null ? toFocusDTO(subject.getFocus()) : null
