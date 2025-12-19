@@ -42,14 +42,14 @@ resilience4j:
         waitDurationInOpenState: 30s
         failureRateThreshold: 50
         recordExceptions:
-          - sk.uniza.fri.alfri.client.PythonServiceServerException
+          - sk.uniza.fri.alfri.infrastructure.exception.PythonServiceServerException
   retry:
     instances:
       pythonServiceRetry:
         maxAttempts: 2
         waitDuration: 200ms
         retryExceptions:
-          - sk.uniza.fri.alfri.client.PythonServiceServerException
+          - sk.uniza.fri.alfri.infrastructure.exception.PythonServiceServerException
 
 frontend-url: ${FRONTEND_PROD_URL}
 # no default user in production

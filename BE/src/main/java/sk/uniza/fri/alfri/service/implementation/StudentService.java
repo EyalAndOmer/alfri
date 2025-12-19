@@ -1,7 +1,6 @@
 package sk.uniza.fri.alfri.service.implementation;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.core.io.ResourceLoader;
 
 import java.io.IOException;
 
@@ -13,7 +12,7 @@ import sk.uniza.fri.alfri.entity.User;
 import sk.uniza.fri.alfri.repository.StudentRepository;
 import sk.uniza.fri.alfri.repository.StudyProgramRepository;
 import sk.uniza.fri.alfri.service.IStudentService;
-import sk.uniza.fri.alfri.client.PythonMlClient;
+import sk.uniza.fri.alfri.infrastructure.PythonMlClient;
 
 
 @Service

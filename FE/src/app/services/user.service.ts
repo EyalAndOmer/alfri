@@ -40,9 +40,39 @@ export class UserService  {
     this.userId = userId;
   }
 
+  /**
+   * Checks if user is logged in by verifying token existence and expiration.
+   * Note: This is a client-side check only. Token signature validity is verified
+   * server-side on each API request. If the token is invalid (e.g., signing key changed),
+   * the server will return 401 and the token should be cleared via error handling.
+   */
   loggedIn = () => {
-    const expired = this.jwtHelper.isTokenExpired();
-    return !expired;
+    try {
+      const token = this.jwtHelper.tokenGetter();
+
+      // Handle promise-based token getter
+      if (token instanceof Promise) {
+        // Can't reliably check async tokens synchronously
+        // Fall back to checking localStorage directly
+        const syncToken = localStorage.getItem('access_token');
+        if (!syncToken) {
+          return false;
+        }
+        return !this.jwtHelper.isTokenExpired(syncToken);
+      }
+
+      // No token means not logged in
+      if (!token) {
+        return false;
+      }
+
+      // Check if token is expired
+      return !this.jwtHelper.isTokenExpired(token);
+    } catch (error) {
+      // If token is malformed or invalid, consider not logged in
+      console.error('Invalid token format:', error);
+      return false;
+    }
   };
 
   loadUserInfo(): Observable<UserDto> {

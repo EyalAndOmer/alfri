@@ -5,8 +5,8 @@ import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import sk.uniza.fri.alfri.client.PythonMlClient;
-import sk.uniza.fri.alfri.client.dto.*;
+import sk.uniza.fri.alfri.infrastructure.PythonMlClient;
+import sk.uniza.fri.alfri.infrastructure.dto.*;
 import sk.uniza.fri.alfri.service.PythonPredictionService;
 
 @Service

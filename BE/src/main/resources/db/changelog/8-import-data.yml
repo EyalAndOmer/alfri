@@ -58,7 +58,6 @@ databaseChangeLog:
               SELECT setval('public.answer_type_answer_type_id_seq', 5, true);
               SELECT setval('public.study_program_id_sequence', 4, true);
               SELECT setval('public.subject_subject_id_seq', 176, true);
-              SELECT setval('public.student_id', 5, true);
   - changeSet:
       id: 08-study-program-subject-data
       author: liquibase

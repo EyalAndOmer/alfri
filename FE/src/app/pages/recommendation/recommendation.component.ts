@@ -5,7 +5,7 @@ import { NotificationService } from '@services/notification.service';
 import { StudentService } from '@services/student.service';
 import { Observable, of, Subject } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { Page, StudyProgramDto, SubjectDto } from '../../types';
+import { Page, SubjectDto } from '../../types';
 import {
   MatCard,
   MatCardHeader,
@@ -121,7 +121,7 @@ export class RecommendationComponent implements OnInit, OnDestroy {
     this.studentService
       .getStudyProgramOfCurrentUser()
       .pipe(
-        switchMap((studyProgram: StudyProgramDto) => {
+        switchMap(() => {
           return this.getSubjects();
         }),
         catchError((error: HttpErrorResponse) => {

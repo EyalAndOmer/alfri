@@ -10,7 +10,7 @@ import feign.Util;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sk.uniza.fri.alfri.client.PythonServiceServerException;
+import sk.uniza.fri.alfri.infrastructure.exception.PythonServiceServerException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;

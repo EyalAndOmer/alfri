@@ -1,4 +1,4 @@
-package sk.uniza.fri.alfri.client;
+package sk.uniza.fri.alfri.infrastructure;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import sk.uniza.fri.alfri.client.dto.*;
+import sk.uniza.fri.alfri.infrastructure.dto.*;
 
 @FeignClient(name = "python-ml-client", url = "${python.service.base-url}")
 public interface PythonMlClient {

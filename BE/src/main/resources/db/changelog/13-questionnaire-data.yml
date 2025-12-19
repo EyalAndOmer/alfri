@@ -12,7 +12,7 @@ databaseChangeLog:
 
             INSERT INTO public.question (question_id, section_id, answer_type_id, position_in_questionnaire, question_title, optional, question_identifier) VALUES (105, 61, 1, 1, 'Meno', false, 'question_meno');
             INSERT INTO public.question (question_id, section_id, answer_type_id, position_in_questionnaire, question_title, optional, question_identifier) VALUES (106, 61, 1, 2, 'Priezvisko', false, 'question_priezvisko');
-            INSERT INTO public.question (question_id, section_id, answer_type_id, position_in_questionnaire, question_title, optional, question_identifier) VALUES (107, 61, 1, 3, 'Ročník v škole', false, 'question_rocnik');
+            INSERT INTO public.question (question_id, section_id, answer_type_id, position_in_questionnaire, question_title, optional, question_identifier) VALUES (107, 61, 5, 3, 'Ročník v škole', false, 'question_rocnik');
             INSERT INTO public.question (question_id, section_id, answer_type_id, position_in_questionnaire, question_title, optional, question_identifier) VALUES (108, 61, 5, 4, 'Fakulta', false, 'question_fakulta');
             INSERT INTO public.question (question_id, section_id, answer_type_id, position_in_questionnaire, question_title, optional, question_identifier) VALUES (109, 61, 5, 5, 'Odbor', false, 'question_odbor');
             INSERT INTO public.question (question_id, section_id, answer_type_id, position_in_questionnaire, question_title, optional, question_identifier) VALUES (115, 63, 2, 1, 'Matematika', false, 'question_matematika_focus');

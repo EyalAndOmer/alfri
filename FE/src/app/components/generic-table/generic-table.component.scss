@@ -186,6 +186,8 @@
     .generic-table {
       width: 100%;
       border-collapse: collapse;
+      // Ensure table layout is stable
+      table-layout: auto;
 
       // ============ TABLE HEADERS ============
       th {

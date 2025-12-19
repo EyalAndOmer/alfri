@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import sk.uniza.fri.alfri.common.pagitation.PageDefinition;
 import sk.uniza.fri.alfri.common.pagitation.PageableAssembler;
 import sk.uniza.fri.alfri.common.pagitation.SearchDefinition;
-import sk.uniza.fri.alfri.constant.ModelType;
+import sk.uniza.fri.alfri.dto.ModelType;
 import sk.uniza.fri.alfri.dto.KeywordDTO;
 import sk.uniza.fri.alfri.dto.StudentYearCountDTO;
 import sk.uniza.fri.alfri.dto.focus.FocusCategorySumDTO;
@@ -35,7 +35,7 @@ import sk.uniza.fri.alfri.repository.SubjectKeywordRepository;
 import sk.uniza.fri.alfri.repository.SubjectRepository;
 import sk.uniza.fri.alfri.service.FormService;
 import sk.uniza.fri.alfri.service.ISubjectService;
-import sk.uniza.fri.alfri.client.dto.*;
+import sk.uniza.fri.alfri.infrastructure.dto.*;
 import sk.uniza.fri.alfri.service.PythonPredictionService;
 
 @Service
@@ -206,7 +206,7 @@ public class SubjectService implements ISubjectService {
                                 answerText -> questionToFocusMap.getOrDefault(
                                         answerText.getAnswer().getAnswerQuestion().getQuestionIdentifier(), null),
                                 answerText -> Integer.parseInt(answerText.getTextOfAnswer()),
-                                (oldValue, newValue) -> newValue));
+                                (_, newValue) -> newValue));
 
         Integer mathFocus = values.getOrDefault("math_focus", null);
         Integer logicFocus = values.getOrDefault("logic_focus", null);

@@ -1,4 +1,4 @@
-package sk.uniza.fri.alfri.constant;
+package sk.uniza.fri.alfri.dto;
 
 /**
  * Created by petos on 1/5/25.

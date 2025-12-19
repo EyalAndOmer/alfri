@@ -262,6 +262,17 @@ export class GenericTableComponent<
   });
 
   /**
+   * Get min-height style for table container
+   */
+  getTableContainerMinHeight = computed(() => {
+    const minHeight = this.config().minHeight;
+    if (!minHeight) {
+      return '400px'; // Default min-height
+    }
+    return typeof minHeight === 'number' ? `${minHeight}px` : minHeight;
+  });
+
+  /**
    * All selected items across all pages
    * Returns the actual row objects that are currently tracked
    */

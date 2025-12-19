@@ -1,6 +1,6 @@
 package sk.uniza.fri.alfri.service;
 
-import sk.uniza.fri.alfri.client.dto.*;
+import sk.uniza.fri.alfri.infrastructure.dto.*;
 
 public interface PythonPredictionService {
     PassingChanceResponseDto passingChance(PassingChanceRequestDto request);

@@ -399,6 +399,13 @@ export interface TableConfig<T extends TableRow = TableRow> {
   stickyHeader?: boolean;
 
   /**
+   * Minimum height for table container (prevents layout jumping during data load)
+   * Can be a number (in pixels) or a CSS string (e.g., '400px', '50vh')
+   * @default '400px'
+   */
+  minHeight?: number | string;
+
+  /**
    * Table header configuration
    */
   header?: TableHeaderConfig;

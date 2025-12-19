@@ -1,4 +1,4 @@
-package sk.uniza.fri.alfri.client.dto;
+package sk.uniza.fri.alfri.infrastructure.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

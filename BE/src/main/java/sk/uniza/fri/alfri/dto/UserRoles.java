@@ -1,4 +1,4 @@
-package sk.uniza.fri.alfri.constant;
+package sk.uniza.fri.alfri.dto;
 
 import lombok.Getter;
 

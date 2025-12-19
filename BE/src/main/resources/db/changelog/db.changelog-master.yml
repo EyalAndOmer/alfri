@@ -46,3 +46,5 @@ databaseChangeLog:
       file: db/changelog/21-student-data.yml
   - include:
       file: db/changelog/22-subject-grades-data.yml
+  - include:
+      file: db/changelog/23-reset-student-sequence.yml

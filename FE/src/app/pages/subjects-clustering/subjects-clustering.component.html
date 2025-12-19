@@ -34,6 +34,7 @@
             [config]="allSubjectsTableConfig"
             [loading]="isLoadingAllSubjects()"
             (pageChange)="onPageChangeAllSubjects($event)"
+            (sortChange)="onSortChange($event)"
             (selectionChange)="onSelectionChange($event)"
           >
           </app-generic-table>

@@ -108,22 +108,21 @@ public class SubjectController {
     @GetMapping(path = "/focus-prediction", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<SubjectExtendedDto>> getAllSubjectsFromFocusPrediction(
             @RequestHeader(value = "Authorization") String token,
-      PagitationRequestQuery pagitationRequestQuery) {
-
-    log.info("Getting focus prediction subjects on page {} with page size {}",
-        pagitationRequestQuery.page, pagitationRequestQuery.size);
+            PagitationRequestQuery pagitationRequestQuery) {
+        log.info("Getting focus prediction subjects on page {} with page size {}",
+                pagitationRequestQuery.page, pagitationRequestQuery.size);
 
         String parsedToken = token.replace("Bearer ", "");
         String username = jwtService.extractUsername(parsedToken);
         User user = userService.getUser(username);
 
         SortDefinition sortDefinition = SortRequestQuery.from(pagitationRequestQuery.sort);
-    PageDefinition pageDefinition = new PageDefinition(pagitationRequestQuery.page,
-        pagitationRequestQuery.size, sortDefinition);
+        PageDefinition pageDefinition = new PageDefinition(pagitationRequestQuery.page,
+                pagitationRequestQuery.size, sortDefinition);
 
         Page<Subject> subjects = this.subjectService.makeSubjectsFocusPrediction(user, pageDefinition);
 
-    Page<SubjectExtendedDto> similarSubjectsDto =
+        Page<SubjectExtendedDto> similarSubjectsDto =
                 subjects.map(SubjectMapper.INSTANCE::toCustomSubjectExtendedDto);
 
         return ResponseEntity.ok(similarSubjectsDto);
@@ -212,7 +211,7 @@ public class SubjectController {
 
         String currentUserEmail = currentUser.getEmail();
 
-    log.info("Making prediction by student year for user with email {}", currentUserEmail);
+        log.info("Making prediction by student year for user with email {}", currentUserEmail);
 
         List<String> marksList = subjectService.makePassingMarkPrediction(currentUserEmail);
         List<String> chanceList = subjectService.makePassingChancePrediction(currentUserEmail);

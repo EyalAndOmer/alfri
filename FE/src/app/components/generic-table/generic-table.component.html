@@ -76,7 +76,7 @@
   }
 
   <!-- Table Container -->
-  <div class="table-container">
+  <div class="table-container" [style.min-height]="getTableContainerMinHeight()">
       @if (config().enableSorting) {
       <table
         mat-table

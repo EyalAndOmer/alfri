@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import sk.uniza.fri.alfri.constant.UserRoles;
+import sk.uniza.fri.alfri.dto.UserRoles;
 import sk.uniza.fri.alfri.dto.user.ChangePasswordDto;
 import sk.uniza.fri.alfri.entity.Role;
 import sk.uniza.fri.alfri.entity.User;

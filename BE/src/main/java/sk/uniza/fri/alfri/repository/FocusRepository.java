@@ -12,8 +12,8 @@ import sk.uniza.fri.alfri.entity.Subject;
 import java.util.List;
 
 public interface FocusRepository extends JpaRepository<Focus, Integer> {
-  @Query("SELECT DISTINCT f.subject FROM Focus f "
-      + "JOIN f.subject.studyProgramSubjects sps "
+    @Query("SELECT DISTINCT f.subject FROM Focus f "
+            + "JOIN f.subject.studyProgramSubjects sps "
             + "WHERE ((COALESCE(:mathFocus, 0) > 5 AND f.mathFocus > 5) OR "
             + "(COALESCE(:logicFocus, 0) > 5 AND f.logicFocus > 5) OR "
             + "(COALESCE(:programmingFocus, 0) > 5 AND f.programmingFocus > 5) OR "
@@ -26,17 +26,17 @@ public interface FocusRepository extends JpaRepository<Focus, Integer> {
             + "(COALESCE(:testingFocus, 0) > 5 AND f.testingFocus > 5) OR "
             + "(COALESCE(:languageFocus, 0) > 5 AND f.languageFocus > 5) OR "
             + "(COALESCE(:physicalFocus, 0) > 5 AND f.physicalFocus > 5)) "
-      + "AND sps.studyProgram.id = :studyProgramId "
-      + "AND sps.recommendedYear >= :year")
-  Page<Subject> findSubjectByHashMapValuesWithPaging(@Param("mathFocus") Integer mathFocus,
-                                             @Param("logicFocus") Integer logicFocus, @Param("programmingFocus") Integer programmingFocus,
-                                             @Param("designFocus") Integer designFocus, @Param("economicsFocus") Integer economicsFocus,
-                                             @Param("managementFocus") Integer managementFocus,
-                                             @Param("hardwareFocus") Integer hardwareFocus, @Param("networkFocus") Integer networkFocus,
-                                             @Param("dataFocus") Integer dataFocus, @Param("testingFocus") Integer testingFocus,
-                                             @Param("languageFocus") Integer languageFocus, @Param("physicalFocus") Integer physicalFocus,
-      @Param("studyProgramId") Integer studyProgramId, @Param("year") Integer year,
-      Pageable pageable);
+            + "AND sps.studyProgram.id = :studyProgramId "
+            + "AND sps.recommendedYear >= :year")
+    Page<Subject> findSubjectByHashMapValuesWithPaging(@Param("mathFocus") Integer mathFocus,
+                                                       @Param("logicFocus") Integer logicFocus, @Param("programmingFocus") Integer programmingFocus,
+                                                       @Param("designFocus") Integer designFocus, @Param("economicsFocus") Integer economicsFocus,
+                                                       @Param("managementFocus") Integer managementFocus,
+                                                       @Param("hardwareFocus") Integer hardwareFocus, @Param("networkFocus") Integer networkFocus,
+                                                       @Param("dataFocus") Integer dataFocus, @Param("testingFocus") Integer testingFocus,
+                                                       @Param("languageFocus") Integer languageFocus, @Param("physicalFocus") Integer physicalFocus,
+                                                       @Param("studyProgramId") Integer studyProgramId, @Param("year") Integer year,
+                                                       Pageable pageable);
 
 
     @Query(nativeQuery = true, value = """
@@ -91,6 +91,6 @@ public interface FocusRepository extends JpaRepository<Focus, Integer> {
             """)
     List<Tuple> findFocusCategorySums();
 
-  @Query("SELECT f FROM Focus f WHERE f.subject.id IN :subjectIds")
-  List<Focus> findBySubjectIds(@Param("subjectIds") List<Integer> subjectIds);
+    @Query("SELECT f FROM Focus f WHERE f.subject.id IN :subjectIds")
+    List<Focus> findBySubjectIds(@Param("subjectIds") List<Integer> subjectIds);
 }

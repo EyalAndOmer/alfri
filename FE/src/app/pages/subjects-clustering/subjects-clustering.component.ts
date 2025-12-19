@@ -22,6 +22,7 @@ import {
 } from 'rxjs';
 import { Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
+import { SortDirection } from '@angular/material/sort';
 import { HttpErrorResponse } from '@angular/common/http';
 import { StudentService } from '@services//student.service';
 import { NotificationService } from '@services//notification.service';
@@ -94,6 +95,8 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
   readonly isLoadingAllSubjects = signal<boolean>(false);
   readonly isLoadingRecommendetSubjects = signal<boolean>(false);
   searchTerm = signal<string>('');
+  sortActive = signal<string>('');
+  sortDirection = signal<SortDirection>('');
 
   // Generic table configurations
   allSubjectsTableConfig: TableConfig<SubjectExtendedDto> = {
@@ -123,6 +126,7 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         width: '120px',
       },
     ],
+    serverSide: true,
     enableSorting: true,
     enablePagination: true,
     pageSize: 10,
@@ -261,8 +265,8 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         tap(() => this.isLoadingAllSubjects.set(true)),
         switchMap((searchTerm: string) => {
           const searchParam = searchTerm.trim()
-            ? `id.studyProgramId:${this._userStudyProgramId},subject.name~${searchTerm}`
-            : `id.studyProgramId:${this._userStudyProgramId}`;
+            ? `studyProgramId:${this._userStudyProgramId},subject.name~${searchTerm}`
+            : `studyProgramId:${this._userStudyProgramId}`;
           return this.getAllSubjectsWithSearch(0, 10, searchParam);
         }),
         catchError((error: HttpErrorResponse) => {
@@ -310,11 +314,13 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
     pageSize: number,
     studyProgramId: number,
   ): Observable<Page<SubjectExtendedDto>> {
+    const sort = this.buildSortParam();
     return this.subjectService
       .getSubjectsWithFocusByStudyProgramId(
         studyProgramId,
         pageNumber,
         pageSize,
+        sort,
       )
       .pipe(
         takeUntil(this._destroy$),
@@ -330,11 +336,13 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
     pageSize: number,
     searchParam: string,
   ): Observable<Page<SubjectExtendedDto>> {
+    const sort = this.buildSortParam();
     return this.subjectService
       .getSubjectsWithFocusByStudyProgramIdAndSearch(
         pageNumber,
         pageSize,
         searchParam,
+        sort,
       )
       .pipe(
         takeUntil(this._destroy$),
@@ -349,8 +357,8 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
     this.isLoadingAllSubjects.set(true);
 
     const searchParam = this.searchTerm().trim()
-      ? `id.studyProgramId:${this._userStudyProgramId},subject.name~${this.searchTerm()}`
-      : `id.studyProgramId:${this._userStudyProgramId}`;
+      ? `studyProgramId:${this._userStudyProgramId},subject.name~${this.searchTerm()}`
+      : `studyProgramId:${this._userStudyProgramId}`;
 
     const subjects$ = this.searchTerm().trim()
       ? this.getAllSubjectsWithSearch(event.pageIndex, event.pageSize, searchParam)
@@ -384,6 +392,47 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
 
   onSelectionChange(selectedSubjects: SubjectExtendedDto[]) {
     this._selectedSubjects.set(selectedSubjects);
+  }
+
+  onSortChange(sort: { active: string; direction: SortDirection }): void {
+    this.sortActive.set(sort.active);
+    this.sortDirection.set(sort.direction);
+
+    // Reload data with new sort
+    this.isLoadingAllSubjects.set(true);
+
+    const searchParam = this.searchTerm().trim()
+      ? `studyProgramId:${this._userStudyProgramId},subject.name~${this.searchTerm()}`
+      : `studyProgramId:${this._userStudyProgramId}`;
+
+    const subjects$ = this.searchTerm().trim()
+      ? this.getAllSubjectsWithSearch(this.allSubjectsData().number, this.allSubjectsData().size, searchParam)
+      : this.getAllSubjects(this.allSubjectsData().number, this.allSubjectsData().size, this._userStudyProgramId);
+
+    subjects$
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          this.errorService.showError(error.error);
+          this.isLoadingAllSubjects.set(false);
+          return of(GenericTableUtils.EMPTY_PAGE as Page<SubjectExtendedDto>);
+        }),
+      )
+      .subscribe((page) => {
+        this.updateAllSubjectsTableData(page);
+      });
+  }
+
+  private buildSortParam(): string | undefined {
+    const active = this.sortActive();
+    const direction = this.sortDirection();
+
+    if (!active || !direction) {
+      return undefined;
+    }
+
+    // Convert 'asc' to 'ASC' and 'desc' to 'DESC' for backend compatibility
+    const sortDirection = direction === 'asc' ? 'ASC' : 'DESC';
+    return `subject.${active},${sortDirection}`;
   }
 
   getSimilarSubjects() {

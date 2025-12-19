@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
-@EnableFeignClients(basePackages = "sk.uniza.fri.alfri.client")
+@EnableFeignClients(basePackages = "sk.uniza.fri.alfri.infrastructure")
 public class AlfriApplication {
 
     public static void main(String[] args) {

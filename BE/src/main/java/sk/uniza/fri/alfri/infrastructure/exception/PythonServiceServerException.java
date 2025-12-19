@@ -1,4 +1,4 @@
-package sk.uniza.fri.alfri.client;
+package sk.uniza.fri.alfri.infrastructure.exception;
 
 /**
  * Marker exception to classify Python service 5xx responses as retryable and circuit-breaker recorded failures.

@@ -35,6 +35,7 @@ import {
   TextCellRendererComponent,
 } from '@components/generic-table';
 import { GenericTableUtils } from '@components/generic-table/generic-table.utils';
+import { SortDirection } from '@angular/material/sort';
 
 @Component({
   selector: 'app-subjects',
@@ -66,6 +67,8 @@ export class SubjectsComponent implements OnInit, OnDestroy {
   pageSize = signal<number>(10);
   isLoading = signal<boolean>(false);
   searchTerm = signal<string>('');
+  sortActive = signal<string>('');
+  sortDirection = signal<SortDirection>('');
 
   private _studyPrograms$!: Observable<StudyProgramDto[]>;
   private _selectedStudyProgramId!: number;
@@ -126,6 +129,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
         align: 'center',
       },
     ],
+    serverSide: true,
     enableSorting: true,
     enablePagination: true,
     pageSize: 10,
@@ -182,7 +186,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
         distinctUntilChanged(),
         tap(() => this.isLoading.set(true)),
         switchMap((searchTerm: string) => {
-          const searchParam = `id.studyProgramId:${this._selectedStudyProgramId},subject.name~${searchTerm}`;
+          const searchParam = `studyProgramId:${this._selectedStudyProgramId},subject.name~${searchTerm}`;
           return this.getSubjectsWithSearch(
             0,
             this.pageSize(),
@@ -233,11 +237,13 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     studyProgramId: number,
   ): void {
     this.isLoading.set(true);
+    const sort = this.buildSortParam();
     this.subjectService
       .getSubjectsWithFocusByStudyProgramId(
         studyProgramId,
         pageNumber,
         pageSize,
+        sort,
       )
       .pipe(
         tap((page: Page<SubjectDto>) => {
@@ -257,11 +263,13 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     pageSize: number,
     searchParam: string,
   ): Observable<Page<SubjectDto>> {
+    const sort = this.buildSortParam();
     return this.subjectService
       .getSubjectsWithFocusByStudyProgramIdAndSearch(
         pageNumber,
         pageSize,
         searchParam,
+        sort,
       )
       .pipe(
         takeUntil(this._destroy$),
@@ -275,7 +283,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
 
     if (this.searchTerm().trim()) {
-      const searchParam = `id.studyProgramId:${this._selectedStudyProgramId},subject.name~${this.searchTerm()}`;
+      const searchParam = `studyProgramId:${this._selectedStudyProgramId},subject.name~${this.searchTerm()}`;
       this.getSubjectsWithSearch(event.pageIndex, event.pageSize, searchParam)
         .pipe(
           tap((page: Page<SubjectDto>) => {
@@ -303,6 +311,45 @@ export class SubjectsComponent implements OnInit, OnDestroy {
 
   onRowClick(event: { row: SubjectDto; event: MouseEvent }): void {
     this.navigateToSubjectDetail(event.row.code);
+  }
+
+  onSortChange(sort: { active: string; direction: SortDirection }): void {
+    this.sortActive.set(sort.active);
+    this.sortDirection.set(sort.direction);
+
+    // Reset to first page when sorting changes
+    this.currentPage.set(0);
+
+    // Reload data with new sort
+    if (this.searchTerm().trim()) {
+      const searchParam = `studyProgramId:${this._selectedStudyProgramId},subject.name~${this.searchTerm()}`;
+      this.getSubjectsWithSearch(0, this.pageSize(), searchParam)
+        .pipe(
+          tap((page: Page<SubjectDto>) => {
+            this.updateTableData(page);
+          }),
+          catchError(() => {
+            this.isLoading.set(false);
+            return of();
+          }),
+        )
+        .subscribe();
+    } else {
+      this.getSubjects(0, this.pageSize(), this._selectedStudyProgramId);
+    }
+  }
+
+  private buildSortParam(): string | undefined {
+    const active = this.sortActive();
+    const direction = this.sortDirection();
+
+    if (!active || !direction) {
+      return undefined;
+    }
+
+    // Convert 'asc' to 'ASC' and 'desc' to 'DESC' for backend compatibility
+    const sortDirection = direction === 'asc' ? 'ASC' : 'DESC';
+    return `${active},${sortDirection}`;
   }
 
   navigateToSubjectDetail(code: string) {
