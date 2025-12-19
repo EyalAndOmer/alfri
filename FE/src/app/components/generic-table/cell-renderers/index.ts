@@ -15,4 +15,5 @@ export { DateCellRendererComponent } from './date-cell-renderer.component';
 export { NumberCellRendererComponent } from './number-cell-renderer.component';
 export { ActionsCellRendererComponent, type TableAction } from './actions-cell-renderer.component';
 export { BooleanCellRendererComponent } from './boolean-cell-renderer.component';
-
+export { LinkCellRendererComponent } from './link-cell-renderer.component';
+export { PercentageCellRendererComponent } from './percentage-cell-renderer.component';

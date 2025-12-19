@@ -1,22 +1,22 @@
-import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { Subject, takeUntil } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { SubjectGradesDto } from '../../types';
+import { Page, SubjectGradesDto } from '../../types';
 import {
   MatCard,
   MatCardContent,
   MatCardHeader,
   MatCardTitle,
 } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { SubjectService } from '@services/subject.service';
+import {
+  GenericTableComponent,
+  TableConfig,
+  TextCellRendererComponent,
+  NumberCellRendererComponent,
+  PercentageCellRendererComponent,
+} from '@components/generic-table';
+import { GenericTableUtils } from '@components/generic-table/generic-table.utils';
 
 @Component({
   selector: 'app-subject-reports',
@@ -24,18 +24,11 @@ import { SubjectService } from '@services/subject.service';
   standalone: true,
   styleUrls: ['./subject-reports.component.scss'],
   imports: [
-    MatTableModule,
-    MatProgressBarModule,
-    MatRadioButton,
-    MatRadioGroup,
-    FormsModule,
     MatCard,
     MatCardHeader,
     MatCardTitle,
     MatCardContent,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatPaginatorModule,
+    GenericTableComponent,
   ],
 })
 export class SubjectReportsComponent implements OnInit, OnDestroy {
@@ -43,32 +36,124 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
   private readonly subjectsService = inject(SubjectService);
   private readonly router = inject(Router);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  // Signals for reactive state management
+  subjectsData = signal<Page<SubjectGradesDto & { id: number }>>(GenericTableUtils.EMPTY_PAGE);
+  isLoading = signal<boolean>(false);
 
-  dataSource = new MatTableDataSource<SubjectGradesDto>([]);
-  isLoading = false;
-
-  sortCriteria = 'lowestAverage';
-
-  public readonly columnsToDisplay: string[] = [
-    'name',
-    'code',
-    'studentsCount',
-    'averageScore',
-    'gradeA',
-    'gradeB',
-    'gradeC',
-    'gradeD',
-    'gradeE',
-    'gradeFx',
-  ];
+  // Generic table configuration
+  tableConfig: TableConfig<SubjectGradesDto & { id: number }> = {
+    columns: [
+      {
+        id: 'name',
+        header: 'Názov',
+        field: 'subject.name',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: 'auto',
+      },
+      {
+        id: 'code',
+        header: 'Kód predmetu',
+        field: 'subject.code',
+        sortable: true,
+        cellRenderer: TextCellRendererComponent,
+        width: '150px',
+        align: 'center',
+      },
+      {
+        id: 'studentsCount',
+        header: 'Počet študentov',
+        field: 'studentsCount',
+        sortable: true,
+        cellRenderer: NumberCellRendererComponent,
+        width: '150px',
+        align: 'center',
+      },
+      {
+        id: 'averageScore',
+        header: 'Priemerná známka',
+        field: 'gradeAverage',
+        sortable: true,
+        cellRenderer: NumberCellRendererComponent,
+        width: '150px',
+        align: 'center',
+      },
+      {
+        id: 'gradeA',
+        header: 'A',
+        field: 'gradeA',
+        sortable: true,
+        cellRenderer: PercentageCellRendererComponent,
+        width: '100px',
+        align: 'center',
+      },
+      {
+        id: 'gradeB',
+        header: 'B',
+        field: 'gradeB',
+        sortable: true,
+        cellRenderer: PercentageCellRendererComponent,
+        width: '100px',
+        align: 'center',
+      },
+      {
+        id: 'gradeC',
+        header: 'C',
+        field: 'gradeC',
+        sortable: true,
+        cellRenderer: PercentageCellRendererComponent,
+        width: '100px',
+        align: 'center',
+      },
+      {
+        id: 'gradeD',
+        header: 'D',
+        field: 'gradeD',
+        sortable: true,
+        cellRenderer: PercentageCellRendererComponent,
+        width: '100px',
+        align: 'center',
+      },
+      {
+        id: 'gradeE',
+        header: 'E',
+        field: 'gradeE',
+        sortable: true,
+        cellRenderer: PercentageCellRendererComponent,
+        width: '100px',
+        align: 'center',
+      },
+      {
+        id: 'gradeFx',
+        header: 'FX',
+        field: 'gradeFx',
+        sortable: true,
+        cellRenderer: PercentageCellRendererComponent,
+        width: '100px',
+        align: 'center',
+      },
+    ],
+    serverSide: false, // Using client-side since we're getting all data at once
+    enableSorting: true, // Enable client-side sorting
+    enablePagination: true,
+    pageSize: 10,
+    pageSizeOptions: [5, 10, 20, 50],
+    enableRowClick: true,
+    stickyHeader: true,
+    header: {
+      show: true,
+      enableSearch: true,
+      searchPlaceholder: 'Vyhľadať predmet...',
+    },
+    filterPredicate: (data: SubjectGradesDto & { id: number }, filter: string): boolean => {
+      const normalizedFilter = filter.toLowerCase();
+      const subjectName = data.subject.name?.toLowerCase() || '';
+      return subjectName.includes(normalizedFilter);
+    },
+  };
 
   ngOnInit(): void {
     this.fetchFilteredSubjects();
-  }
-
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
   }
 
   ngOnDestroy(): void {
@@ -77,29 +162,51 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
   }
 
   fetchFilteredSubjects(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
 
-    // Fetch a large number to get all subjects for client-side pagination
+    // Fetch all subjects for client-side pagination and sorting
     this.subjectsService
-      .getFilteredSubjects(this.sortCriteria, 100)
+      .getFilteredSubjects('lowestAverage', 1000) // Fetch all subjects
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (data) => {
-          this.dataSource.data = data;
-          this.isLoading = false;
+          // Convert array response to Page format and add id property
+          const pageData: Page<SubjectGradesDto & { id: number }> = {
+            content: data.map((item, index) => ({
+              ...item,
+              id: item.subject.id || index, // Use subject id or fallback to index
+            })),
+            totalElements: data.length,
+            totalPages: Math.ceil(data.length / this.tableConfig.pageSize!),
+            size: this.tableConfig.pageSize!,
+            number: 0,
+            pageable: {
+              sort: { sorted: false, unsorted: true, empty: true },
+              offset: 0,
+              pageNumber: 0,
+              pageSize: this.tableConfig.pageSize!,
+              paged: true,
+              unpaged: false,
+            },
+            last: data.length <= this.tableConfig.pageSize!,
+            sort: { sorted: false, unsorted: true, empty: true },
+            first: true,
+            numberOfElements: Math.min(data.length, this.tableConfig.pageSize!),
+            empty: data.length === 0,
+          };
+
+          this.subjectsData.set(pageData);
+          this.isLoading.set(false);
         },
         error: (error) => {
           console.error('Error fetching subjects:', error);
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
       });
   }
 
-  public navigateToSubjectDetail(code: string): void {
-    this.router.navigate(['/subjects/', code]);
-  }
 
-  onSortChange(): void {
-    this.fetchFilteredSubjects();
+  onRowClick(event: { row: SubjectGradesDto & { id: number }; event: MouseEvent }): void {
+    this.router.navigate(['/subjects', event.row.subject.code]);
   }
 }

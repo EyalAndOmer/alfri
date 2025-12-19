@@ -31,6 +31,8 @@ export {
   NumberCellRendererComponent,
   BooleanCellRendererComponent,
   ActionsCellRendererComponent,
+  LinkCellRendererComponent,
+  PercentageCellRendererComponent,
   type TableAction,
 } from './cell-renderers';
 

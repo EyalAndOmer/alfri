@@ -190,6 +190,12 @@ export interface TableColumnDef<T extends TableRow> {
    * Function to generate tooltip for cells
    */
   cellTooltip?: (row: T, value: unknown) => string;
+
+  /**
+   * Additional metadata to pass to cell renderer
+   * Can be used for custom renderers that need extra configuration
+   */
+  metadata?: any;
 }
 
 /**
