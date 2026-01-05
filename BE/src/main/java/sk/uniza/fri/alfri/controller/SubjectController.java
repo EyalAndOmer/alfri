@@ -30,6 +30,7 @@ import sk.uniza.fri.alfri.dto.SubjectsPredictionsResult;
 import sk.uniza.fri.alfri.dto.focus.FocusCategorySumDTO;
 import sk.uniza.fri.alfri.dto.subject.SubjectDto;
 import sk.uniza.fri.alfri.dto.subject.SubjectExtendedDto;
+import sk.uniza.fri.alfri.dto.subject.SubjectWithCountDto;
 import sk.uniza.fri.alfri.entity.StudyProgramSubject;
 import sk.uniza.fri.alfri.entity.Subject;
 import sk.uniza.fri.alfri.entity.SubjectGrade;
@@ -249,11 +250,12 @@ public class SubjectController {
         PageDefinition pageDefinition = new PageDefinition(pagitationRequestQuery.page,
                 pagitationRequestQuery.size, sortDefinition);
 
-        Page<StudyProgramSubject> subjects = subjectService.getMostPopularElectiveSubjects(pageDefinition);
+        Page<SubjectWithCountDto> subjects = subjectService.getMostPopularElectiveSubjects(pageDefinition);
 
         Page<SubjectDto> subjectDtos =
-                subjects.map(StudyProgramSubjectMapper.INSTANCE::studyProgramSubjectToSubjectDto);
+                subjects.map(StudyProgramSubjectMapper.INSTANCE::subjectWithCountDtoToSubjectDto);
 
-        return ResponseEntity.ok().body(subjectDtos);
+        return ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofHours(6)))
+                .body(subjectDtos);
     }
 }

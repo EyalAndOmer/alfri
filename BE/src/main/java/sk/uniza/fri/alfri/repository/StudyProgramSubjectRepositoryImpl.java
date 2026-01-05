@@ -8,6 +8,7 @@ import sk.uniza.fri.alfri.common.pagitation.PageableAssembler;
 import sk.uniza.fri.alfri.common.pagitation.SearchDefinition;
 import sk.uniza.fri.alfri.common.pagitation.SearchSpecification;
 import sk.uniza.fri.alfri.entity.StudyProgramSubject;
+import sk.uniza.fri.alfri.dto.subject.SubjectWithCountDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class StudyProgramSubjectRepositoryImpl implements StudyProgramSubjectRep
     }
 
     @Override
-    public Page<StudyProgramSubject> findMostPopularElectiveSubjects(PageDefinition pageDefinition) {
+    public Page<SubjectWithCountDto> findMostPopularElectiveSubjects(PageDefinition pageDefinition) {
         Pageable pageable = PageableAssembler.from(pageDefinition);
         return this.studyProgramSubjectSpringDataRepository.findMostPopularElectiveSubjects(pageable);
     }

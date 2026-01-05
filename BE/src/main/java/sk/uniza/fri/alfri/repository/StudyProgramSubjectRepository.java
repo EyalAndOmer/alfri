@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import sk.uniza.fri.alfri.common.pagitation.PageDefinition;
 import sk.uniza.fri.alfri.common.pagitation.SearchDefinition;
 import sk.uniza.fri.alfri.entity.StudyProgramSubject;
+import sk.uniza.fri.alfri.dto.subject.SubjectWithCountDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,5 +17,5 @@ public interface StudyProgramSubjectRepository {
 
     List<StudyProgramSubject> findMandatorySubjects(Long studyProgramId, int year);
 
-    Page<StudyProgramSubject> findMostPopularElectiveSubjects(PageDefinition pageDefinition);
+    Page<SubjectWithCountDto> findMostPopularElectiveSubjects(PageDefinition pageDefinition);
 }

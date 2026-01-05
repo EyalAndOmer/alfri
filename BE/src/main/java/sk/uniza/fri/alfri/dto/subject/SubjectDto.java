@@ -38,12 +38,13 @@ public final class SubjectDto implements Serializable {
     private @NotBlank(message = "Subject's study program cannot be null or blank!") String semester;
     private @Positive(
             message = "Subject's recommended year must be positive!") Integer recommendedYear;
+    private Long studentCount;
 
     @Override
     public String toString() {
         return "SubjectDto[" + "name=" + name + ", " + "code=" + code + ", " + "abbreviation="
                 + abbreviation + ", " + "obligation=" + obligation + ", " + "studyProgramName="
                 + studyProgramName + ", " + "semester=" + semester + ", " + "recommendedYear="
-                + recommendedYear + ']';
+                + recommendedYear + ", " + "studentCount=" + studentCount + ']';
     }
 }

@@ -81,6 +81,32 @@ export interface SubjectExtendedDto extends SubjectDto {
   focusDTO: FocusDto;
 }
 
+export interface StudyProgramSubject {
+  id: number;
+  subject: SubjectDto;
+  studyProgram: StudyProgramDto;
+  recommendedYear: number;
+  semester: string;
+  obligation: string;
+}
+
+export interface SubjectWithCountDto {
+  studyProgramSubject: StudyProgramSubject;
+  studentCount: number;
+}
+
+export interface PopularSubjectRow {
+  id: number;
+  name: string;
+  code: string;
+  abbreviation: string;
+  studyProgramName: string;
+  obligation: string;
+  recommendedYear: number;
+  semester: string;
+  studentCount: number;
+}
+
 export interface StudyProgramDto {
   id: number;
   name: string;
@@ -317,4 +343,17 @@ export interface StudentTrendDataPoint {
   year: number;
   informatika: number;
   manazment: number;
+}
+
+// Flattened interface for table display
+export interface PopularSubjectRow {
+  id: number;
+  name: string;
+  code: string;
+  abbreviation: string;
+  studyProgramName: string;
+  obligation: string;
+  recommendedYear: number;
+  semester: string;
+  studentCount: number;
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sk.uniza.fri.alfri.entity.StudyProgramSubject;
+import sk.uniza.fri.alfri.dto.subject.SubjectWithCountDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,16 +29,21 @@ public interface StudyProgramSubjectSpringDataRepository
             @Param("recommendedYear") Integer recommendedYear);
 
     @Query("""
-            SELECT sps FROM StudyProgramSubject sps
+            SELECT new sk.uniza.fri.alfri.dto.subject.SubjectWithCountDto(
+                sps,
+                CAST(COALESCE((SELECT COUNT(DISTINCT ss.studentId)
+                 FROM StudentSubject ss
+                 WHERE ss.subjectId = sps.subject.id), 0) AS long)
+            )
+            FROM StudyProgramSubject sps
             WHERE sps.obligation IN ('Výb.', 'P.v.')
-            GROUP BY sps.id, sps.subject, sps.studyProgram, sps.obligation, sps.recommendedYear, sps.semesterWinter
             ORDER BY (
                 SELECT COUNT(DISTINCT ss.studentId)
                 FROM StudentSubject ss
                 WHERE ss.subjectId = sps.subject.id
             ) DESC
             """)
-    Page<StudyProgramSubject> findMostPopularElectiveSubjects(Pageable pageable);
+    Page<SubjectWithCountDto> findMostPopularElectiveSubjects(Pageable pageable);
 }
 
 

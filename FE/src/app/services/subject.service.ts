@@ -7,6 +7,7 @@ import {
   SubjectExtendedDto,
   SubjectGradesDto,
   SubjectPassingPrediction,
+  PopularSubjectRow,
 } from '../types';
 import { Observable } from 'rxjs';
 
@@ -121,6 +122,26 @@ export class SubjectService {
   > {
     return this.http.get<SubjectPassingPrediction[]>(
       `${this.URL}/makePredictions`,
+    );
+  }
+
+  public getMostPopularElectives(
+    pageNumber: number,
+    pageSize: number,
+    sort?: string,
+  ): Observable<Page<PopularSubjectRow>> {
+    let urlParameters: HttpParams = new HttpParams();
+    urlParameters = urlParameters
+      .append('page', pageNumber)
+      .append('size', pageSize);
+
+    if (sort) {
+      urlParameters = urlParameters.append('sort', sort);
+    }
+
+    return this.http.get<Page<PopularSubjectRow>>(
+      `${this.URL}/mostPopularElectives`,
+      { params: urlParameters },
     );
   }
 }

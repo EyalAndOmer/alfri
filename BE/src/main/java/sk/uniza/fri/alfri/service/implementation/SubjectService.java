@@ -18,6 +18,7 @@ import sk.uniza.fri.alfri.dto.ModelType;
 import sk.uniza.fri.alfri.dto.KeywordDTO;
 import sk.uniza.fri.alfri.dto.StudentYearCountDTO;
 import sk.uniza.fri.alfri.dto.focus.FocusCategorySumDTO;
+import sk.uniza.fri.alfri.dto.subject.SubjectWithCountDto;
 import sk.uniza.fri.alfri.entity.Answer;
 import sk.uniza.fri.alfri.entity.AnswerText;
 import sk.uniza.fri.alfri.entity.Focus;
@@ -412,7 +413,7 @@ public class SubjectService implements ISubjectService {
     }
 
     @Override
-    public Page<StudyProgramSubject> getMostPopularElectiveSubjects(PageDefinition pageDefinition) {
+    public Page<SubjectWithCountDto> getMostPopularElectiveSubjects(PageDefinition pageDefinition) {
         return this.studyProgramSubjectRepository.findMostPopularElectiveSubjects(pageDefinition);
     }
 }
