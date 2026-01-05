@@ -40,8 +40,6 @@ public class AuthController {
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthResponseDto> authenticateUser(
             @RequestBody @Valid UserCredentialsDto credentialsDTO) throws InvalidCredentialsException {
-        log.info("AuthenticateUser of user {} started!", credentialsDTO);
-
         User user = this.modelMapper.map(credentialsDTO, User.class);
         User authenticatedUser = authService.verifyUser(user);
         String token = jwtService.generateToken(authenticatedUser);
