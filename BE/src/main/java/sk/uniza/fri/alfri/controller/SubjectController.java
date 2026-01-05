@@ -238,4 +238,22 @@ public class SubjectController {
 
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/mostPopularElectives")
+    public ResponseEntity<Page<SubjectDto>> getMostPopularElectiveSubjects(
+            PagitationRequestQuery pagitationRequestQuery) {
+        log.info("Getting most popular elective subjects on page {} with page size {}",
+                pagitationRequestQuery.page, pagitationRequestQuery.size);
+
+        SortDefinition sortDefinition = SortRequestQuery.from(pagitationRequestQuery.sort);
+        PageDefinition pageDefinition = new PageDefinition(pagitationRequestQuery.page,
+                pagitationRequestQuery.size, sortDefinition);
+
+        Page<StudyProgramSubject> subjects = subjectService.getMostPopularElectiveSubjects(pageDefinition);
+
+        Page<SubjectDto> subjectDtos =
+                subjects.map(StudyProgramSubjectMapper.INSTANCE::studyProgramSubjectToSubjectDto);
+
+        return ResponseEntity.ok().body(subjectDtos);
+    }
 }

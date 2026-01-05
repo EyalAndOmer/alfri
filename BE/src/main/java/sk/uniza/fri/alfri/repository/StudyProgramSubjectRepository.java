@@ -15,4 +15,6 @@ public interface StudyProgramSubjectRepository {
     Optional<StudyProgramSubject> findByIdSubjectId(Integer id, Integer studyProgramId);
 
     List<StudyProgramSubject> findMandatorySubjects(Long studyProgramId, int year);
+
+    Page<StudyProgramSubject> findMostPopularElectiveSubjects(PageDefinition pageDefinition);
 }

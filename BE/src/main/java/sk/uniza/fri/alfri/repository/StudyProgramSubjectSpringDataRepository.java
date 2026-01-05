@@ -1,5 +1,7 @@
 package sk.uniza.fri.alfri.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +26,18 @@ public interface StudyProgramSubjectSpringDataRepository
     List<StudyProgramSubject> findAllMandatorySubjectsForStudyProgramAndYear(
             @Param("studyProgramId") Long studyProgramId,
             @Param("recommendedYear") Integer recommendedYear);
+
+    @Query("""
+            SELECT sps FROM StudyProgramSubject sps
+            WHERE sps.obligation IN ('Výb.', 'P.v.')
+            GROUP BY sps.id, sps.subject, sps.studyProgram, sps.obligation, sps.recommendedYear, sps.semesterWinter
+            ORDER BY (
+                SELECT COUNT(DISTINCT ss.studentId)
+                FROM StudentSubject ss
+                WHERE ss.subjectId = sps.subject.id
+            ) DESC
+            """)
+    Page<StudyProgramSubject> findMostPopularElectiveSubjects(Pageable pageable);
 }
+
+

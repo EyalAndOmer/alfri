@@ -410,4 +410,9 @@ public class SubjectService implements ISubjectService {
 
         return subjectPage.getContent();
     }
+
+    @Override
+    public Page<StudyProgramSubject> getMostPopularElectiveSubjects(PageDefinition pageDefinition) {
+        return this.studyProgramSubjectRepository.findMostPopularElectiveSubjects(pageDefinition);
+    }
 }

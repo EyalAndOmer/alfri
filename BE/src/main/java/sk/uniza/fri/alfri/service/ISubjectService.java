@@ -39,4 +39,6 @@ public interface ISubjectService {
     List<KeywordDTO> getAllKeywords();
 
     List<StudentYearCountDTO> getStudentCountsByYear();
+
+    Page<StudyProgramSubject> getMostPopularElectiveSubjects(PageDefinition pageDefinition);
 }

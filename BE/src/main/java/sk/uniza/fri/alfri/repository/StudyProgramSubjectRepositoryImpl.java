@@ -42,4 +42,10 @@ public class StudyProgramSubjectRepositoryImpl implements StudyProgramSubjectRep
     public List<StudyProgramSubject> findMandatorySubjects(Long studyProgramId, int year) {
         return this.studyProgramSubjectSpringDataRepository.findAllMandatorySubjectsForStudyProgramAndYear(studyProgramId, year);
     }
+
+    @Override
+    public Page<StudyProgramSubject> findMostPopularElectiveSubjects(PageDefinition pageDefinition) {
+        Pageable pageable = PageableAssembler.from(pageDefinition);
+        return this.studyProgramSubjectSpringDataRepository.findMostPopularElectiveSubjects(pageable);
+    }
 }
