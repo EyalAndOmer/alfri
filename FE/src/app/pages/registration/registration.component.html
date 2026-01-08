@@ -1,156 +1,189 @@
 <div class="registration-container container">
-  <div class="registration-wrapper">
+  <div class="registration-wrapper mat-elevation-z4">
     <!-- Left Panel - Info Section -->
-    <div class="info-panel">
-      <div class="pattern-grid"></div>
-      <div class="blob blob-top"></div>
-      <div class="blob blob-bottom"></div>
-      <div class="info-content">
-        <div class="brain-image-wrapper">
-          <img src="assets/images/brain_lb.png" alt="ALFRI Brain" class="brain-image img-fluid" />
+    <div class="row">
+      <div class="info-panel col-12 col-md-6">
+        <div class="pattern-grid"></div>
+        <div class="blob blob-top"></div>
+        <div class="blob blob-bottom"></div>
+        <div class="info-content">
+          <div class="brain-image-wrapper">
+            <img
+              src="assets/images/brain_lb.png"
+              alt="ALFRI Brain"
+              class="brain-image img-fluid"
+            />
+          </div>
+          <h2 class="info-title">
+            Prvý inteligentný asistent pre študentov a učiteľov FRI UNIZA.
+          </h2>
         </div>
-        <h2 class="info-title">
-          Prvý inteligentný asistent pre študentov a učiteľov FRI UNIZA.
-        </h2>
       </div>
-    </div>
 
-    <!-- Right Panel - Form Section -->
-    <div class="form-panel">
-      <div class="form-content">
-        <div class="form-header">
-          <h1 class="form-title">Registrácia</h1>
-          <p class="form-subtitle">Vytvorte si účet pre prístup k systému.</p>
-        </div>
-
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="registration-form">
-          <div class="form-group">
-            <label class="form-label" for="name">Meno*</label>
-            <div class="input-wrapper">
-              <span class="material-icons input-icon">person</span>
-              <input
-                class="form-input"
-                id="name"
-                formControlName="name"
-                type="text"
-                placeholder="Vaše meno"
-                required
-              />
-            </div>
-            @if (registerForm.controls["name"].invalid && registerForm.controls["name"].touched) {
-              <span class="error-message">Neplatné meno.</span>
-            }
+      <!-- Right Panel - Form Section -->
+      <div class="form-panel col-12 col-md-6">
+        <div class="form-content">
+          <div class="form-header">
+            <h1 class="form-title">Registrácia</h1>
+            <p class="form-subtitle">Vytvorte si účet pre prístup k systému.</p>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="surname">Priezvisko*</label>
-            <div class="input-wrapper">
-              <span class="material-icons input-icon">person</span>
-              <input
-                class="form-input"
-                id="surname"
-                formControlName="surname"
-                type="text"
-                placeholder="Vaše priezvisko"
-                required
-              />
+          <form
+            [formGroup]="registerForm"
+            (ngSubmit)="onSubmit()"
+            class="registration-form"
+          >
+            <div class="form-group">
+              <label class="form-label" for="name">Meno*</label>
+              <div class="input-wrapper">
+                <span class="material-icons input-icon">person</span>
+                <input
+                  class="form-input"
+                  id="name"
+                  formControlName="name"
+                  type="text"
+                  placeholder="Vaše meno"
+                  required
+                />
+              </div>
+              @if (
+                registerForm.controls["name"].invalid &&
+                registerForm.controls["name"].touched
+              ) {
+                <span class="error-message">Neplatné meno.</span>
+              }
             </div>
-            @if (registerForm.controls["surname"].invalid && registerForm.controls["surname"].touched) {
-              <span class="error-message">Neplatné priezvisko.</span>
-            }
-          </div>
 
-          <div class="form-group">
-            <label class="form-label" for="email">Email*</label>
-            <div class="input-wrapper">
-              <span class="material-icons input-icon">mail</span>
-              <input
-                class="form-input"
-                id="email"
-                formControlName="email"
-                type="email"
-                placeholder="meno.priezvisko@fri.uniza.sk"
-                required
-              />
+            <div class="form-group">
+              <label class="form-label" for="surname">Priezvisko*</label>
+              <div class="input-wrapper">
+                <span class="material-icons input-icon">person</span>
+                <input
+                  class="form-input"
+                  id="surname"
+                  formControlName="surname"
+                  type="text"
+                  placeholder="Vaše priezvisko"
+                  required
+                />
+              </div>
+              @if (
+                registerForm.controls["surname"].invalid &&
+                registerForm.controls["surname"].touched
+              ) {
+                <span class="error-message">Neplatné priezvisko.</span>
+              }
             </div>
-            @if (registerForm.controls["email"].invalid && registerForm.controls["email"].touched) {
-              <span class="error-message">Neplatná emailová adresa.</span>
-            }
-          </div>
 
-          <div class="form-group">
-            <label class="form-label" for="password">Heslo*</label>
-            <div class="input-wrapper">
-              <span class="material-icons input-icon">lock</span>
-              <input
-                class="form-input"
-                id="password"
-                formControlName="password"
-                [type]="showPassword ? 'text' : 'password'"
-                placeholder="••••••••"
-                required
-                pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{8,}$"
-              />
-              <button
-                type="button"
-                class="password-toggle"
-                (click)="togglePasswordVisibility()"
-                aria-label="Toggle password visibility"
+            <div class="form-group">
+              <label class="form-label" for="email">Email*</label>
+              <div class="input-wrapper">
+                <span class="material-icons input-icon">mail</span>
+                <input
+                  class="form-input"
+                  id="email"
+                  formControlName="email"
+                  type="email"
+                  placeholder="meno.priezvisko@fri.uniza.sk"
+                  required
+                />
+              </div>
+              @if (
+                registerForm.controls["email"].invalid &&
+                registerForm.controls["email"].touched
+              ) {
+                <span class="error-message">Neplatná emailová adresa.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="password">Heslo*</label>
+              <div class="input-wrapper">
+                <span class="material-icons input-icon">lock</span>
+                <input
+                  class="form-input"
+                  id="password"
+                  formControlName="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  required
+                  pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{8,}$"
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  (click)="togglePasswordVisibility()"
+                  aria-label="Toggle password visibility"
+                >
+                  <span class="material-icons">
+                    {{ showPassword ? "visibility_off" : "visibility" }}
+                  </span>
+                </button>
+              </div>
+              @if (
+                registerForm.controls["password"].invalid &&
+                registerForm.controls["password"].touched
+              ) {
+                <span class="error-message"
+                  >Heslo nie je príliš komplexné.</span
+                >
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="confirmPassword"
+                >Potvrď heslo*</label
               >
-                <span class="material-icons">
-                  {{ showPassword ? 'visibility_off' : 'visibility' }}
-                </span>
-              </button>
+              <div class="input-wrapper">
+                <span class="material-icons input-icon">lock</span>
+                <input
+                  class="form-input"
+                  id="confirmPassword"
+                  formControlName="confirmPassword"
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  (click)="toggleConfirmPasswordVisibility()"
+                  aria-label="Toggle confirm password visibility"
+                >
+                  <span class="material-icons">
+                    {{ showConfirmPassword ? "visibility_off" : "visibility" }}
+                  </span>
+                </button>
+              </div>
+              @if (
+                registerForm.controls["confirmPassword"].invalid &&
+                registerForm.controls["confirmPassword"].touched
+              ) {
+                <span class="error-message">Heslá sa nezhodujú.</span>
+              }
             </div>
-            @if (registerForm.controls["password"].invalid && registerForm.controls["password"].touched) {
-              <span class="error-message">Heslo nie je príliš komplexné.</span>
-            }
+
+            <button mat-raised-button color="primary" type="submit">
+              Registrovať
+            </button>
+          </form>
+
+          <div class="divider">
+            <span>Alebo</span>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="confirmPassword">Potvrď heslo*</label>
-            <div class="input-wrapper">
-              <span class="material-icons input-icon">lock</span>
-              <input
-                class="form-input"
-                id="confirmPassword"
-                formControlName="confirmPassword"
-                [type]="showConfirmPassword ? 'text' : 'password'"
-                placeholder="••••••••"
-                required
-              />
-              <button
-                type="button"
-                class="password-toggle"
-                (click)="toggleConfirmPasswordVisibility()"
-                aria-label="Toggle confirm password visibility"
+          <div class="auth-prompt">
+            <p>
+              Už máte účet?
+              <a
+                class="auth-link"
+                href="javascript:void(0)"
+                (click)="redirectToLogin()"
               >
-                <span class="material-icons">
-                  {{ showConfirmPassword ? 'visibility_off' : 'visibility' }}
-                </span>
-              </button>
-            </div>
-            @if (registerForm.controls["confirmPassword"].invalid && registerForm.controls["confirmPassword"].touched) {
-              <span class="error-message">Heslá sa nezhodujú.</span>
-            }
+                Prihláste sa
+              </a>
+            </p>
           </div>
-
-          <button mat-raised-button color="primary" type="submit">
-            Registrovať
-          </button>
-        </form>
-
-        <div class="divider">
-          <span>Alebo</span>
-        </div>
-
-        <div class="auth-prompt">
-          <p>
-            Už máte účet?
-            <a class="auth-link" href="javascript:void(0)" (click)="redirectToLogin()">
-              Prihláste sa
-            </a>
-          </p>
         </div>
       </div>
     </div>

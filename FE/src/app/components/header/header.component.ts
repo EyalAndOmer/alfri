@@ -75,17 +75,22 @@ export class HeaderComponent {
   readonly canAccessSubjects = computed(
     () =>
       !!this.formData() ||
-      this.authService.hasRole([AuthRole.ADMIN, AuthRole.TEACHER]),
+      this.authService.hasRole([AuthRole.STUDENT]),
   );
 
   readonly canAccessReports = computed(
-    () =>
-      !!this.formData() ||
-      this.authService.hasRole([
-        AuthRole.VEDENIE,
-        AuthRole.ADMIN,
-        AuthRole.TEACHER,
-      ]),
+    () => {
+      const output =
+        !!this.formData() ||
+        this.authService.hasRole([
+          AuthRole.VEDENIE,
+          AuthRole.ADMIN,
+          AuthRole.TEACHER,
+        ]);
+
+      console.log(output);
+      return output;
+    }
   );
 
   readonly userInitials = computed(() => {

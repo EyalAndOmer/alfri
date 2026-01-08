@@ -265,14 +265,15 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         tap(() => this.isLoadingAllSubjects.set(true)),
         switchMap((searchTerm: string) => {
           const searchParam = searchTerm.trim()
-            ? `studyProgramId:${this._userStudyProgramId},subject.name~${searchTerm}`
-            : `studyProgramId:${this._userStudyProgramId}`;
-          return this.getAllSubjectsWithSearch(0, 10, searchParam);
-        }),
-        catchError((error: HttpErrorResponse) => {
-          this.errorService.showError(error.error);
-          this.isLoadingAllSubjects.set(false);
-          return of(GenericTableUtils.EMPTY_PAGE as Page<SubjectExtendedDto>);
+            ? `studyProgram.id:${this._userStudyProgramId},subject.name~${searchTerm}`
+            : `studyProgram.id:${this._userStudyProgramId}`;
+          return this.getAllSubjectsWithSearch(0, 10, searchParam).pipe(
+            catchError((error: HttpErrorResponse) => {
+              this.errorService.showError(error.error);
+              return of(GenericTableUtils.EMPTY_PAGE as Page<SubjectExtendedDto>);
+            }),
+            finalize(() => this.isLoadingAllSubjects.set(false))
+          );
         }),
         takeUntil(this._destroy$),
       )
@@ -283,7 +284,6 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
 
   private updateAllSubjectsTableData(page: Page<SubjectExtendedDto>): void {
     this.allSubjectsData.set(page);
-    this.isLoadingAllSubjects.set(false);
   }
 
   onSearchChange(searchTerm: string): void {
@@ -292,12 +292,16 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
   }
 
   private getStudentsStudyProgramAndItsSubjects() {
+    this.isLoadingAllSubjects.set(true);
     this.studentService
       .getStudyProgramOfCurrentUser()
       .pipe(
         switchMap((studyProgram: StudyProgramDto) => {
           this._userStudyProgramId = studyProgram.id;
           return this.getAllSubjects(0, 10, this._userStudyProgramId);
+        }),
+        finalize(() => {
+          this.isLoadingAllSubjects.set(false);
         }),
         catchError((error: HttpErrorResponse) => {
           this.errorService.showError(error.error);
@@ -366,9 +370,9 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
 
     subjects$
       .pipe(
+        finalize(() => this.isLoadingAllSubjects.set(false)),
         catchError((error: HttpErrorResponse) => {
           this.errorService.showError(error.error);
-          this.isLoadingAllSubjects.set(false);
           return of(GenericTableUtils.EMPTY_PAGE as Page<SubjectExtendedDto>);
         }),
       )
@@ -411,9 +415,9 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
 
     subjects$
       .pipe(
+        finalize(() => this.isLoadingAllSubjects.set(false)),
         catchError((error: HttpErrorResponse) => {
           this.errorService.showError(error.error);
-          this.isLoadingAllSubjects.set(false);
           return of(GenericTableUtils.EMPTY_PAGE as Page<SubjectExtendedDto>);
         }),
       )
@@ -436,6 +440,11 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
   }
 
   getSimilarSubjects() {
+    // Move to next step immediately to show loading state
+    if (this.stepper) {
+      this.stepper.next();
+    }
+
     this.isLoadingRecommendetSubjects.set(true);
 
     this.subjectService
@@ -447,12 +456,6 @@ export class SubjectsClusteringComponent implements OnInit, OnDestroy {
         }),
         finalize(() => {
           this.isLoadingRecommendetSubjects.set(false);
-          // Move to next step after loading is complete
-          setTimeout(() => {
-            if (this.stepper) {
-              this.stepper.next();
-            }
-          }, 100);
         }),
         takeUntil(this._destroy$),
       )

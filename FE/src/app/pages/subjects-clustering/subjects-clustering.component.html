@@ -107,25 +107,20 @@
 
             <mat-card-content>
               @if (
-                recommendedSubjectsPageDataComputed().content.length > 0 &&
-                !isLoadingRecommendetSubjects()
-              ) {
-                <app-generic-table
-                  [data]="recommendedSubjectsPageDataComputed()"
-                  [config]="recommendedSubjectsTableConfig"
-                  [loading]="false"
-                  (rowClick)="onRowClick($event.row)"
-                >
-                </app-generic-table>
-              } @else if (
                 recommendedSubjectsPageDataComputed().content.length === 0 &&
                 !isLoadingRecommendetSubjects()
               ) {
                 <div class="text-center text-muted p-3">
                   Nenašli sa žiadne podobné predmety
                 </div>
-              } @else if (isLoadingRecommendetSubjects()) {
-                <div class="text-center text-muted p-3">Načítavam...</div>
+              } @else {
+                <app-generic-table
+                  [data]="recommendedSubjectsPageDataComputed()"
+                  [config]="recommendedSubjectsTableConfig"
+                  [loading]="isLoadingRecommendetSubjects()"
+                  (rowClick)="onRowClick($event.row)"
+                >
+                </app-generic-table>
               }
             </mat-card-content>
           </mat-card>

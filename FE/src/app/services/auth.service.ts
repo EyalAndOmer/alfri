@@ -79,6 +79,7 @@ export class AuthService {
     }
 
     const userRoles = this.jwtHelper.decodeToken()?.roles;
+    console.log(userRoles);
 
     if (!userRoles) {
       return false;

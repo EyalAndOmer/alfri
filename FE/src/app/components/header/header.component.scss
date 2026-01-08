@@ -13,7 +13,6 @@
 .mat-toolbar.mat-primary {
   position: sticky;
   top: 0;
-  z-index: 1;
 }
 
 .hidden {
@@ -28,6 +27,7 @@
   height: 64px; // Fixed height for the toolbar
   top: 0;
   left: 0;
+  z-index: 300 !important;
 }
 
 

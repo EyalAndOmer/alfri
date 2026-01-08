@@ -43,6 +43,7 @@ import {
 } from '../generic-table';
 import { GradeCellRendererComponent } from './grade-cell-renderer.component';
 import { GenericTableUtils } from '@components/generic-table/generic-table.utils';
+import { GradeUtils } from './grade.utils';
 
 // Updated SubjectGrade to extend TableRow (requires id)
 export interface SubjectGrade extends TableRow {
@@ -91,6 +92,21 @@ export class UserFormResultsComponent implements AfterViewInit {
     }));
 
     return GenericTableUtils.pageOf(tableData);
+  });
+
+  // Computed signal for grade average
+  gradeAverage = computed<string>(() => {
+    const answers = this.existingAnswers();
+    if (!answers?.sections?.[1]) {
+      return '0.00';
+    }
+
+    const grades = answers.sections[1].questions.map((question) => {
+      const gradeText = question.answers[0].texts[0].textOfAnswer;
+      return GradeUtils.letterGradeToNumber(gradeText);
+    });
+
+    return GradeUtils.calculateAverage(grades);
   });
 
   // Table configuration using component-based approach
@@ -285,16 +301,6 @@ export class UserFormResultsComponent implements AfterViewInit {
     }
   }
 
-  getStudentName(): string {
-    const answers = this.existingAnswers();
-    if (!answers) return '';
-
-    const questions = answers.sections[0].questions;
-    const firstName = questions.find(q => q.questionTitle === 'Meno')?.answers[0]?.texts[0]?.textOfAnswer || '';
-    const lastName = questions.find(q => q.questionTitle === 'Priezvisko')?.answers[0]?.texts[0]?.textOfAnswer || '';
-
-    return `${firstName} ${lastName}`.trim();
-  }
 
   getFilteredQuestions() {
     const answers = this.existingAnswers();

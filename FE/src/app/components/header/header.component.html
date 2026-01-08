@@ -96,7 +96,7 @@
   <!--   top toolbar - PC   -->
   <mat-sidenav-content>
     @if (loggedIn()) {
-      <mat-card class="position-fixed w-100 z-3 toolbar-container">
+      <mat-card class="position-fixed w-100 toolbar-container">
         <mat-toolbar color="secondary" class="row">
           <div class="col-12 col-md-8 d-flex align-items-center gap-3 p-0">
             <button
@@ -186,8 +186,8 @@
         </mat-toolbar>
       </mat-card>
     } @else {
-      <mat-card class="position-fixed w-100 z-3 toolbar-container">
-        <mat-toolbar class="mat-elevation-z4 row">
+      <mat-card class="position-fixed w-100 toolbar-container">
+        <mat-toolbar class="row">
           <div class="d-flex align-items-center gap-1">
             <div class="d-block p-1">
               <img
