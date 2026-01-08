@@ -78,7 +78,9 @@
             </mat-card-header>
             <mat-card-content class="chart-content">
               <div class="chart-wrapper">
-                <canvas #radarChart id="chart"></canvas>
+                @if (radarChartOptions) {
+                  <app-radar-chart [options]="radarChartOptions" />
+                }
               </div>
             </mat-card-content>
           </mat-card>

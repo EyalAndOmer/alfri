@@ -147,7 +147,6 @@ export class HeaderComponent {
       icon: 'query_stats',
       route: 'subjects-grades-correlation',
     },
-    { label: 'Reporty údajov', icon: 'analytics', route: 'data-report' },
     { label: 'Kľúčové slová', icon: 'vpn_key', route: 'keywords' },
   ];
 
