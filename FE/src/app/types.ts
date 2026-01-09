@@ -2,14 +2,10 @@ import {
   ApexAxisChartSeries,
   ApexChart,
   ApexDataLabels,
-  ApexGrid,
-  ApexLegend,
   ApexPlotOptions,
   ApexResponsive,
-  ApexStroke,
   ApexTitleSubtitle,
   ApexXAxis,
-  ApexYAxis,
 } from 'ng-apexcharts';
 import { AuthRole } from '@enums/auth-role';
 
@@ -341,12 +337,39 @@ export interface DataReportDto {
   subjectCount: number;
   studyProgramCount: number;
   studentTrend: StudentTrendDataPoint[];
+  studentsPerYear: StudentsPerYear[];
+  averageGradeByYear: AverageGradeDataPoint[];
+  gradeDistribution: GradeDistribution[];
+}
+
+export interface StudentsPerYear {
+  year: number;
+  count: number;
 }
 
 export interface StudentTrendDataPoint {
   year: number;
-  informatika: number;
-  manazment: number;
+  programCounts: StudyProgramCount;
+}
+
+export type StudyProgramId = 3 | 4;
+
+export type StudyProgramCount = {
+  [K in StudyProgramId]: number;
+};
+
+export interface AverageGradeDataPoint {
+  academicYear: number; // e.g., 2019, 2020, 2021...
+  year1: number; // Average grade for 1st year students
+  year2: number; // Average grade for 2nd year students
+  year3: number; // Average grade for 3rd year students
+  year4: number; // Average grade for 4th year students
+  year5: number; // Average grade for 5th year students
+}
+
+export interface GradeDistribution {
+  grade: string; // A, B, C, D, E, FX
+  count: number;
 }
 
 // Flattened interface for table display

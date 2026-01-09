@@ -3,19 +3,17 @@ import {
   NgApexchartsModule,
   ApexChart,
   ApexDataLabels,
-  ApexGrid,
   ApexLegend,
-  ApexStroke,
   ApexTitleSubtitle,
-  ApexXAxis,
-  ApexYAxis,
   ApexOptions,
   ChartComponent,
-  ApexAxisChartSeries,
+  ApexNonAxisChartSeries,
+  ApexPlotOptions,
+  ApexResponsive,
 } from 'ng-apexcharts';
 
 @Component({
-  selector: 'app-line-chart',
+  selector: 'app-pie-chart',
   standalone: true,
   imports: [NgApexchartsModule],
   template: `
@@ -25,14 +23,13 @@ import {
           #chart
           [series]="chartOptions().series || []"
           [chart]="computedChartOptions()"
-          [xaxis]="computedXAxisOptions()"
-          [yaxis]="computedYAxisOptions()"
+          [labels]="computedLabels()"
           [dataLabels]="computedDataLabelsOptions()"
-          [stroke]="computedStrokeOptions()"
           [title]="computedTitleOptions()"
           [legend]="computedLegendOptions()"
-          [grid]="computedGridOptions()"
           [colors]="computedColors()"
+          [plotOptions]="computedPlotOptions()"
+          [responsive]="computedResponsive()"
         ></apx-chart>
       </div>
     }
@@ -46,7 +43,7 @@ import {
     `,
   ],
 })
-export class LineChartComponent {
+export class PieChartComponent {
   @ViewChild('chart') chart?: ChartComponent;
 
   // Input for chart options
@@ -56,7 +53,7 @@ export class LineChartComponent {
   height = input<number>(350);
 
   // Public method to update series without re-rendering the entire chart
-  public updateSeries(newSeries: ApexAxisChartSeries, animate: boolean = false): void {
+  public updateSeries(newSeries: ApexNonAxisChartSeries, animate: boolean = false): void {
     if (this.chart) {
       this.chart.updateSeries(newSeries, animate);
     }
@@ -67,79 +64,64 @@ export class LineChartComponent {
     const options = this.chartOptions();
     return {
       height: this.height(),
-      type: 'line',
-      zoom: {
-        enabled: false,
-      },
-      toolbar: {
-        show: true,
-      },
+      type: 'pie',
       ...options.chart,
     };
+  });
+
+  computedLabels = computed<string[]>(() => {
+    const options = this.chartOptions();
+    return options.labels || [];
   });
 
   computedDataLabelsOptions = computed<ApexDataLabels>(() => {
     const options = this.chartOptions();
     return {
-      enabled: false,
+      enabled: true,
       ...options.dataLabels,
-    };
-  });
-
-  computedStrokeOptions = computed<ApexStroke>(() => {
-    const options = this.chartOptions();
-    return {
-      curve: 'smooth',
-      width: 3,
-      ...options.stroke,
-    };
-  });
-
-  computedXAxisOptions = computed<ApexXAxis>(() => {
-    const options = this.chartOptions();
-    return {
-      ...options.xaxis,
-    };
-  });
-
-  computedYAxisOptions = computed<ApexYAxis | ApexYAxis[]>(() => {
-    const options = this.chartOptions();
-    return {
-      ...options.yaxis,
     };
   });
 
   computedTitleOptions = computed<ApexTitleSubtitle>(() => {
     const options = this.chartOptions();
     return {
+      text: '',
       align: 'left',
       ...options.title,
-    };
-  });
-
-  computedGridOptions = computed<ApexGrid>(() => {
-    const options = this.chartOptions();
-    return {
-      row: {
-        colors: ['#f3f3f3', 'transparent'],
-        opacity: 0.5,
-      },
-      ...options.grid,
     };
   });
 
   computedLegendOptions = computed<ApexLegend>(() => {
     const options = this.chartOptions();
     return {
-      position: 'top',
-      horizontalAlign: 'right',
+      position: 'bottom',
+      horizontalAlign: 'center',
       ...options.legend,
     };
   });
 
   computedColors = computed<string[]>(() => {
     const options = this.chartOptions();
-    return options.colors || ['#2E93fA', '#FF9800', '#66DA26', '#546E7A'];
+    return options.colors || ['#2E93fA', '#66DA26', '#546E7A', '#E91E63', '#FF9800'];
+  });
+
+  computedPlotOptions = computed<ApexPlotOptions>(() => {
+    const options = this.chartOptions();
+    return {
+      pie: {
+        donut: {
+          labels: {
+            show: false,
+          },
+        },
+      },
+      ...options.plotOptions,
+    };
+  });
+
+  computedResponsive = computed<ApexResponsive[]>(() => {
+    const options = this.chartOptions();
+    return options.responsive || [];
   });
 }
 
