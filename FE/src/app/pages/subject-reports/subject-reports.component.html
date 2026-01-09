@@ -10,6 +10,8 @@
         [data]="subjectsData()"
         [config]="tableConfig"
         [loading]="isLoading()"
+        (pageChange)="onPageChange($event)"
+        (sortChange)="onSortChange($event)"
         (rowClick)="onRowClick($event)"
       >
       </app-generic-table>

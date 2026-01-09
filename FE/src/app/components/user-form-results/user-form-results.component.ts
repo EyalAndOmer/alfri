@@ -1,9 +1,7 @@
 import {
   AfterViewInit,
   Component,
-  ElementRef,
   input,
-  ViewChild,
   computed,
 } from '@angular/core';
 
@@ -26,7 +24,12 @@ import {
 import { GradeCellRendererComponent } from './grade-cell-renderer.component';
 import { GenericTableUtils } from '@components/generic-table/generic-table.utils';
 import { GradeUtils } from './grade.utils';
-import { RadarChartComponent, RadarChartOptions } from '@components/charts';
+import {
+  RadarChartComponent,
+  RadarChartOptions,
+  getFocusChartLabels,
+  getFocusChartKeys
+} from '@components/charts';
 
 // Updated SubjectGrade to extend TableRow (requires id)
 export interface SubjectGrade extends TableRow {
@@ -131,21 +134,6 @@ export class UserFormResultsComponent implements AfterViewInit {
   }
 
   initializeRadarChart(): void {
-    const focusLabelMapping: Record<string, string> = {
-      question_matematika_focus: 'Matematika',
-      question_logika_focus: 'Logika',
-      question_programovanie_focus: 'Programovanie',
-      question_dizajn_focus: 'Dizajn',
-      question_ekonomika_focus: 'Ekonomika',
-      question_manazment_focus: 'Manažment',
-      question_hardver_focus: 'Hardvér',
-      question_siete_focus: 'Sieťové technológie',
-      question_data_focus: 'Práca s dátami',
-      question_testovanie_focus: 'Testovanie',
-      question_jazyky_focus: 'Jazyky',
-      question_fyzicka_aktivita_focus: 'Fyzické zameranie',
-    };
-
     const focusesFormData: Record<string, string>[] | undefined =
       this.existingAnswers()?.sections[2].questions.map((question) => {
         const focuses: Record<string, string> = {};
@@ -158,18 +146,13 @@ export class UserFormResultsComponent implements AfterViewInit {
       // Merge all objects in the array into one
       const mergedFocusesFormData = Object.assign({}, ...focusesFormData);
 
-      const chartData = Object.values(
-        Object.fromEntries(
-          Object.keys(focusLabelMapping).map((key) => [
-            key,
-            mergedFocusesFormData[key],
-          ]),
-        ),
-      ) as number[];
+      const chartData = getFocusChartKeys().map(
+        key => Number(mergedFocusesFormData[key]) || 0
+      );
 
       this.radarChartOptions = {
         data: {
-          labels: Object.values(focusLabelMapping),
+          labels: getFocusChartLabels(),
           data: chartData,
           label: 'Skóre záujmu',
         },

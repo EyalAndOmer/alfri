@@ -17,6 +17,8 @@ import {
   PercentageCellRendererComponent,
 } from '@components/generic-table';
 import { GenericTableUtils } from '@components/generic-table/generic-table.utils';
+import { PageEvent } from '@angular/material/paginator';
+import { SortDirection } from '@angular/material/sort';
 
 @Component({
   selector: 'app-subject-reports',
@@ -39,6 +41,10 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
   // Signals for reactive state management
   subjectsData = signal<Page<SubjectGradesDto & { id: number }>>(GenericTableUtils.EMPTY_PAGE);
   isLoading = signal<boolean>(false);
+  currentPage = signal<number>(0);
+  pageSize = signal<number>(10);
+  sortActive = signal<string>('');
+  sortDirection = signal<SortDirection>('asc');
 
   // Generic table configuration
   tableConfig: TableConfig<SubjectGradesDto & { id: number }> = {
@@ -47,7 +53,6 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
         id: 'name',
         header: 'Názov',
         field: 'subject.name',
-        sortable: true,
         cellRenderer: TextCellRendererComponent,
         width: 'auto',
       },
@@ -55,7 +60,6 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
         id: 'code',
         header: 'Kód predmetu',
         field: 'subject.code',
-        sortable: true,
         cellRenderer: TextCellRendererComponent,
         width: '150px',
         align: 'center',
@@ -64,7 +68,6 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
         id: 'studentsCount',
         header: 'Počet študentov',
         field: 'studentsCount',
-        sortable: true,
         cellRenderer: NumberCellRendererComponent,
         width: '150px',
         align: 'center',
@@ -73,7 +76,6 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
         id: 'averageScore',
         header: 'Priemerná známka',
         field: 'gradeAverage',
-        sortable: true,
         cellRenderer: NumberCellRendererComponent,
         width: '150px',
         align: 'center',
@@ -133,8 +135,8 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
         align: 'center',
       },
     ],
-    serverSide: false, // Using client-side since we're getting all data at once
-    enableSorting: true, // Enable client-side sorting
+    serverSide: true,
+    enableSorting: true,
     enablePagination: true,
     pageSize: 10,
     pageSizeOptions: [5, 10, 20, 50],
@@ -161,41 +163,38 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
     this._destroy$.complete();
   }
 
-  fetchFilteredSubjects(): void {
+  private buildSortParam(): string | undefined {
+    if (!this.sortActive() || this.sortDirection() === '') {
+      return undefined;
+    }
+    return `${this.sortActive()},${this.sortDirection()}`;
+  }
+
+  fetchFilteredSubjects(pageNumber?: number, pageSize?: number, sort?: string): void {
     this.isLoading.set(true);
 
-    // Fetch all subjects for client-side pagination and sorting
+    const page = pageNumber ?? this.currentPage();
+    const size = pageSize ?? this.pageSize();
+    const sortParam = sort ?? this.buildSortParam();
+
+    // Fetch subjects with server-side pagination
     this.subjectsService
-      .getFilteredSubjects('lowestAverage', 1000) // Fetch all subjects
+      .getSubjectsWithGrades(page, size, sortParam)
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (data) => {
-          // Convert array response to Page format and add id property
+          // Add id property to each item
           const pageData: Page<SubjectGradesDto & { id: number }> = {
-            content: data.map((item, index) => ({
+            ...data,
+            content: data.content.map((item) => ({
               ...item,
-              id: item.subject.id || index, // Use subject id or fallback to index
+              id: item.subject.id, // Use subject id
             })),
-            totalElements: data.length,
-            totalPages: Math.ceil(data.length / this.tableConfig.pageSize!),
-            size: this.tableConfig.pageSize!,
-            number: 0,
-            pageable: {
-              sort: { sorted: false, unsorted: true, empty: true },
-              offset: 0,
-              pageNumber: 0,
-              pageSize: this.tableConfig.pageSize!,
-              paged: true,
-              unpaged: false,
-            },
-            last: data.length <= this.tableConfig.pageSize!,
-            sort: { sorted: false, unsorted: true, empty: true },
-            first: true,
-            numberOfElements: Math.min(data.length, this.tableConfig.pageSize!),
-            empty: data.length === 0,
           };
 
           this.subjectsData.set(pageData);
+          this.currentPage.set(data.number);
+          this.pageSize.set(data.size);
           this.isLoading.set(false);
         },
         error: (error) => {
@@ -203,6 +202,21 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
           this.isLoading.set(false);
         },
       });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.fetchFilteredSubjects(event.pageIndex, event.pageSize);
+  }
+
+  onSortChange(sort: { active: string; direction: SortDirection }): void {
+    this.sortActive.set(sort.active);
+    this.sortDirection.set(sort.direction);
+
+    // Reset to first page when sorting changes
+    this.currentPage.set(0);
+
+    // Reload data with new sort
+    this.fetchFilteredSubjects(0, this.pageSize());
   }
 
 

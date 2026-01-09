@@ -7,6 +7,7 @@ import {
 } from '@angular/router';
 import { UserService } from '@services/user.service';
 import { AuthService } from '@services/auth.service';
+import { AuthRole } from '@enums/auth-role';
 
 /**
  * Basic JWT token auth guard
@@ -49,9 +50,9 @@ export const roleAppGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  const expectedRole = route.data['role'];
+  const expectedRoles: AuthRole[] = route.data['role'];
 
-  if (authService.hasRole(expectedRole)) {
+  if (authService.hasRole(expectedRoles)) {
     return true;
   }
 

@@ -81,7 +81,6 @@ export class HeaderComponent {
   readonly canAccessReports = computed(
     () => {
       const output =
-        !!this.formData() ||
         this.authService.hasRole([
           AuthRole.VEDENIE,
           AuthRole.ADMIN,

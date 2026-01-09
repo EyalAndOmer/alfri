@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -11,6 +12,8 @@ import { AuthService } from '@services/auth.service';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
 import { NotificationService } from '@services/notification.service';
 import { Router } from '@angular/router';
 import { UserFormResultsComponent } from '@components/user-form-results/user-form-results.component';
@@ -26,11 +29,17 @@ import { filter, Subject, takeUntil } from 'rxjs';
   templateUrl: './profile.component.html',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     MatLabel,
     MatFormField,
     MatInput,
     MatButton,
+    MatCard,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardContent,
+    MatIcon,
     UserFormResultsComponent,
     HasRoleDirective,
   ],

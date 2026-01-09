@@ -5,7 +5,9 @@
     <div
       class="col-12 col-md-auto d-flex align-items-center justify-content-center"
     >
-      <canvas #radarChart id="chart"></canvas>
+      @if (radarChartOptions) {
+        <app-radar-chart [options]="radarChartOptions" />
+      }
     </div>
     <div class="col-12 col-md-6 col-lg-8 row">
       @for (question of section.questions; track question) {

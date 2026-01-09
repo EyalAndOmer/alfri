@@ -22,7 +22,6 @@ import { SubjectGradeCorrelationComponent } from '@pages/subject-grade-correlati
 import { AdminPageComponent } from '@pages/admin-page/admin-page.component';
 import { PassingPredictionComponent } from '@pages/passing-prediction/passing-prediction.component';
 import { KeywordsComponent } from '@pages/keywords/keywords.component';
-import { PopularSubjectsComponent } from '@pages/popular-subjects/popular-subjects.component';
 import { AuthRole } from '@enums/auth-role';
 
 export const routes: Routes = [
@@ -80,12 +79,14 @@ export const routes: Routes = [
   {
     path: 'subject-reports',
     component: SubjectReportsComponent,
-    canActivate: [() => inject(AuthGuards).canActivate()],
+    canActivate: [() => inject(AuthGuards).canActivate(), roleAppGuard],
+    data: { role: [AuthRole.ADMIN, AuthRole.TEACHER, AuthRole.VEDENIE] },
   },
   {
     path: 'subjects-grades-correlation',
     component: SubjectGradeCorrelationComponent,
-    canActivate: [() => inject(AuthGuards).canActivate()],
+    canActivate: [() => inject(AuthGuards).canActivate(), roleAppGuard],
+    data: { role: [AuthRole.ADMIN, AuthRole.TEACHER, AuthRole.VEDENIE] },
   },
   {
     path: 'admin-page',
@@ -96,12 +97,8 @@ export const routes: Routes = [
   {
     path: 'keywords',
     component: KeywordsComponent,
-    canActivate: [() => inject(AuthGuards).canActivate()],
-  },
-  {
-    path: 'popular-subjects',
-    component: PopularSubjectsComponent,
-    canActivate: [() => inject(AuthGuards).canActivate()],
+    canActivate: [() => inject(AuthGuards).canActivate(), roleAppGuard],
+    data: { role: [AuthRole.ADMIN, AuthRole.TEACHER, AuthRole.VEDENIE] },
   },
   {
     path: 'profile',

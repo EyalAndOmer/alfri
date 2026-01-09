@@ -108,12 +108,23 @@ export class SubjectService {
     );
   }
 
-  getFilteredSubjects(
-    sortCriteria: string,
-    subjectCount: number,
-  ): Observable<SubjectGradesDto[]> {
-    return this.http.get<SubjectGradesDto[]>(
-      `${this.URL}/subjectReport?sortCriteria=${sortCriteria}&count=${subjectCount}`,
+  public getSubjectsWithGrades(
+    pageNumber: number,
+    pageSize: number,
+    sort?: string,
+  ): Observable<Page<SubjectGradesDto>> {
+    let urlParameters: HttpParams = new HttpParams();
+    urlParameters = urlParameters
+      .append('page', pageNumber)
+      .append('size', pageSize);
+
+    if (sort) {
+      urlParameters = urlParameters.append('sort', sort);
+    }
+
+    return this.http.get<Page<SubjectGradesDto>>(
+      `${this.URL}/with-grades`,
+      { params: urlParameters },
     );
   }
 

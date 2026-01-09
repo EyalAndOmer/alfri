@@ -14,6 +14,7 @@ import {
   ChartConfiguration,
   Filler,
   Legend,
+  LineElement,
   LinearScale,
   PointElement,
   RadarController,
@@ -85,6 +86,7 @@ export class RadarChartComponent implements AfterViewInit, OnChanges, OnDestroy 
     chartJs.register(
       LinearScale,
       PointElement,
+      LineElement,
       RadialLinearScale,
       RadarController,
       Filler,
