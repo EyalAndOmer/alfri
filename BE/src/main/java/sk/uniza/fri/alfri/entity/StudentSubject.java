@@ -39,6 +39,11 @@ public class StudentSubject {
     @Column(name = "year", nullable = false)
     private Integer year;
 
+    @NotNull(message = "StudentSubject's calendar year cannot be null!")
+    @Positive(message = "StudentSubject's calendar year must be positive!")
+    @Column(name = "calendar_year", nullable = false)
+    private Integer calendarYear;
+
     @Size(max = 2)
     @Column(name = "mark", length = 2)
     private String mark;

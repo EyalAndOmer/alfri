@@ -19,13 +19,39 @@
   <div class="col-12 col-md-6">
     <mat-card>
       <!-- Radar Chart Container -->
-      <canvas #chart id="chart"></canvas>
+      @if (radarChartOptions) {
+        <app-radar-chart [options]="radarChartOptions"></app-radar-chart>
+      }
     </mat-card>
   </div>
   <div class="col-12 col-md-6">
     <mat-card>
       <!-- Bar Chart Container -->
       <canvas #barChart id="barChart"></canvas>
+    </mat-card>
+  </div>
+  <div class="col-12">
+    <mat-card>
+      @if (hasGradeAveragesData() === null) {
+        <!-- Loading state -->
+        <div class="no-data-message">
+          <p class="text-center text-muted py-4">
+            Načítavam dáta...
+          </p>
+        </div>
+      } @else if (hasGradeAveragesData() === true) {
+        <!-- Line Chart Container -->
+        <canvas #lineChart id="lineChart"></canvas>
+      } @else {
+        <!-- No data state -->
+        <div class="no-data-message">
+          <p class="text-center text-muted py-4">
+            <mat-icon class="info-icon">info</mat-icon>
+            <br />
+            Pre tento predmet nie sú dostupné dáta o vývoji priemernej známky v rokoch.
+          </p>
+        </div>
+      }
     </mat-card>
   </div>
 </div>

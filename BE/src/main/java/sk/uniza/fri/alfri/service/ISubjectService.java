@@ -5,6 +5,7 @@ import sk.uniza.fri.alfri.common.pagitation.PageDefinition;
 import sk.uniza.fri.alfri.common.pagitation.SearchDefinition;
 import sk.uniza.fri.alfri.dto.KeywordDTO;
 import sk.uniza.fri.alfri.dto.StudentYearCountDTO;
+import sk.uniza.fri.alfri.dto.SubjectGradeAverageByYearDTO;
 import sk.uniza.fri.alfri.dto.focus.FocusCategorySumDTO;
 import sk.uniza.fri.alfri.dto.subject.SubjectWithCountDto;
 import sk.uniza.fri.alfri.entity.StudyProgramSubject;
@@ -25,7 +26,7 @@ public interface ISubjectService {
 
     List<StudyProgramSubject> findSubjectByIds(List<Integer> ids);
 
-    List<SubjectGrade> getFilteredSubjects(String sortCriteria, Integer numberOfSubjects);
+    Page<SubjectGrade> getSubjectsWithGrades(PageDefinition pageDefinition);
 
     Page<Subject> makeSubjectsFocusPrediction(User user, PageDefinition pageDefinition);
 
@@ -42,6 +43,8 @@ public interface ISubjectService {
     List<StudentYearCountDTO> getStudentCountsByYear();
 
     Page<SubjectWithCountDto> getMostPopularElectiveSubjects(PageDefinition pageDefinition);
+
+    List<SubjectGradeAverageByYearDTO> getSubjectGradeAveragesByYear(Integer subjectId);
 }
 
 

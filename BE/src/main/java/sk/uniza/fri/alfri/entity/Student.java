@@ -36,4 +36,8 @@ public class Student {
     @Positive(message = "Student's year must be positive number!")
     @Column(name = "year", nullable = false)
     private Integer year;
+
+    @Positive(message = "Student's enrollment year must be positive number!")
+    @Column(name = "enrollment_year")
+    private Integer enrollmentYear;
 }

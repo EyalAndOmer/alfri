@@ -138,19 +138,6 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     stickyHeader: false,
   };
 
-
-  get studyPrograms$(): Observable<StudyProgramDto[]> {
-    return this._studyPrograms$;
-  }
-
-  get selectedStudyProgramId(): number {
-    return this._selectedStudyProgramId;
-  }
-
-  set selectedStudyProgramId(selected: number) {
-    this._selectedStudyProgramId = selected;
-  }
-
   private readonly subjectService = inject(SubjectService);
   private readonly studyProgramService = inject(StudyProgramService);
   private readonly formBuilder = inject(FormBuilder);
@@ -186,7 +173,7 @@ export class SubjectsComponent implements OnInit, OnDestroy {
         distinctUntilChanged(),
         tap(() => this.isLoading.set(true)),
         switchMap((searchTerm: string) => {
-          const searchParam = `studyProgramId:${this._selectedStudyProgramId},subject.name~${searchTerm}`;
+          const searchParam = `studyProgram.id:${this._selectedStudyProgramId},subject.name~${searchTerm}`;
           return this.getSubjectsWithSearch(
             0,
             this.pageSize(),

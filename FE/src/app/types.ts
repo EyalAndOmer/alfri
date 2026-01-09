@@ -81,6 +81,12 @@ export interface SubjectExtendedDto extends SubjectDto {
   focusDTO: FocusDto;
 }
 
+export interface GradeAverageByYearDto {
+  year: number;
+  averageGrade: number;
+  studentCount: number;
+}
+
 export interface StudyProgramSubject {
   id: number;
   subject: SubjectDto;

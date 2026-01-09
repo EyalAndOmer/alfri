@@ -26,6 +26,13 @@ def _parse_json_env(var_name: str, default=None):
 #   should adjust them for your actual routing/lookup logic. You can override
 #   the entire mapping by setting the MODEL_MAP environment variable (JSON).
 DEFAULT_MODEL_MAP = {
+    # Clustering models
+    "kmeans_model": {"type": "kmeans", "path": "kmeans_model.pkl", "studyProgramId": 3},
+    "kmeans_model_manazment": {"type": "kmeans", "path": "kmeans_model_manazment.pkl", "studyProgramId": 4},
+
+    # Prediction models
+
+    # Second grade
     "aus1_h5": {"type": "keras", "role": "mark", "path": "aus1.h5", "subject": 'Algoritmy a udajove struktury 1'},
     "aus1_pkl": {"type": "logistic", "path": "aus1.pkl", "role": "chance", "subject": "Algoritmy a udajove struktury 1"},
 
@@ -35,9 +42,17 @@ DEFAULT_MODEL_MAP = {
     "mata1_h5": {"type": "keras", "path": "mata1.h5", "role": "mark", "subject": "Matematicka analyza 1"},
     "mata1_pkl": {"type": "logistic", "path": "mata1.pkl", "role": "chance", "subject": "Matematicka analyza 1"},
 
-    "kmeans_model": {"type": "kmeans", "path": "kmeans_model.pkl", "studyProgramId": 3},
-    "kmeans_model_manazment": {"type": "kmeans", "path": "kmeans_model_manazment.pkl", "studyProgramId": 4},
+    # Third grade
+    "modelovanie_a_simulacia_h5": {"type": "keras", "path": "mata1.h5", "role": "mark", "subject": "Modelovanie a simulácia"},
+    "modelovanie_a_simulacia_pkl": {"type": "logistic", "path": "mata1.pkl", "role": "chance", "subject": "Modelovanie a simulácia"},
 
+    "principy_operacnych_systemov_h5": {"type": "keras", "path": "mata1.h5", "role": "mark", "subject": "Princípy operačných systémov"},
+    "principy_operacnych_systemov_pkl": {"type": "logistic", "path": "mata1.pkl", "role": "chance", "subject": "Princípy operačných systémov"},
+
+    "vyvoj_aplikacii_internet_intranet_h5": {"type": "keras", "path": "mata1.h5", "role": "mark", "subject": "Vývoj aplikácií pre internet a intranet"},
+    "vyvoj_aplikacii_internet_intranet_pkl": {"type": "logistic", "path": "mata1.pkl", "role": "chance", "subject": "Vývoj aplikácií pre internet a intranet"},
+
+    # Fourth grade
     "best_model_AUS": {"type": "keras", "path": "best_model_AUS.h5"},
     "best_model_DIS": {"type": "keras", "path": "best_model_DIS.h5"},
     "best_model_OPTS": {"type": "keras", "path": "best_model_OPTS.h5"},

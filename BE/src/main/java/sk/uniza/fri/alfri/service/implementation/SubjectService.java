@@ -8,13 +8,11 @@ import java.util.stream.Collectors;
 import jakarta.persistence.Tuple;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sk.uniza.fri.alfri.common.pagitation.PageDefinition;
 import sk.uniza.fri.alfri.common.pagitation.PageableAssembler;
 import sk.uniza.fri.alfri.common.pagitation.SearchDefinition;
-import sk.uniza.fri.alfri.dto.ModelType;
 import sk.uniza.fri.alfri.dto.KeywordDTO;
 import sk.uniza.fri.alfri.dto.StudentYearCountDTO;
 import sk.uniza.fri.alfri.dto.focus.FocusCategorySumDTO;
@@ -42,8 +40,6 @@ import sk.uniza.fri.alfri.service.PythonPredictionService;
 @Service
 @Slf4j
 public class SubjectService implements ISubjectService {
-    public static final String NO_SUBJECTS_FOUND_MESSAGE = "No subjects found!";
-
     private static final Map<String, Integer> MARK_MAPPING =
             Map.of("A", 0, "B", 1, "C", 2, "D", 3, "E", 4, "Fx", 5, "*", 6);
 
@@ -337,10 +333,24 @@ public class SubjectService implements ISubjectService {
                 return List.of(getMarkOfSubjectFromQuestionnaire("Algebra", user),
                         getMarkOfSubjectFromQuestionnaire("Matematika pre informatikov", user));
             }
-
-            case "Algoritmy a udajove struktury 2" -> {
+            case "Modelovanie a simulácia" -> {
+                return List.of(getMarkOfSubjectFromQuestionnaire("Pravdepodobnosť a štatistika", user),
+                        getMarkOfSubjectFromQuestionnaire("Diskrétna optimalizácia", user),
+                        getMarkOfSubjectFromQuestionnaire("Matematická analýza 1", user));
+            }
+            case "Princípy operačných systémov" -> {
                 return List.of(getMarkOfSubjectFromQuestionnaire("Algoritmy a údajové štruktúry 1", user),
                         getMarkOfSubjectFromQuestionnaire("Informatika 3", user),
+                        getMarkOfSubjectFromQuestionnaire("Číslicové počítače", user));
+            }
+            case "Vývoj aplikácií pre internet a intranet" -> {
+                return List.of(getMarkOfSubjectFromQuestionnaire("Databázové systémy", user),
+                        getMarkOfSubjectFromQuestionnaire("Diskrétna optimalizácia", user),
+                        getMarkOfSubjectFromQuestionnaire("Informatika 3", user));
+            }
+            case "Algoritmy a udajove struktury 2" -> {
+                return List.of(getMarkOfSubjectFromQuestionnaire("Algoritmy a údajové štruktúry 1", user),
+                        getMarkOfSubjectFromQuestionnaire("Algoritmy a údajové štruktúry 1", user),
                         getMarkOfSubjectFromQuestionnaire("Informatika 2", user));
             }
 
@@ -377,6 +387,9 @@ public class SubjectService implements ISubjectService {
                 return List.of("Matematicka analyza 1", "Algoritmy a udajove struktury 1",
                         "Diskretna pravdepodobnost");
             }
+            case 3 -> {
+                return List.of("Modelovanie a simulácia", "Princípy operačných systémov", "Vývoj aplikácií pre internet a intranet");
+            }
             case 4 -> {
                 return List.of("Algoritmy a udajove struktury 2", "Optimalizacia sieti",
                         "Diskretna simulacia");
@@ -386,34 +399,28 @@ public class SubjectService implements ISubjectService {
         }
     }
 
-    private String getModelPath(String subjectName, ModelType type) {
-        return switch (type) {
-            case CHANCE -> CHANCE_MODEL_PATHS.get(subjectName);
-            case MARK -> MARK_MODEL_PATHS.get(subjectName);
-        };
-    }
-
     @Override
-    public List<SubjectGrade> getFilteredSubjects(String sortCriteria, Integer numberOfSubjects) {
-        Pageable pageable = PageRequest.of(0, numberOfSubjects);
-
-        Page<SubjectGrade> subjectPage = switch (sortCriteria) {
-            case "lowestAverage" -> subjectGradeRepository.findAllByOrderByGradeAverageAsc(pageable)
-                    .orElseThrow(() -> new EntityNotFoundException(NO_SUBJECTS_FOUND_MESSAGE));
-            case "highestAverage" -> subjectGradeRepository.findAllByOrderByGradeAverageDesc(pageable)
-                    .orElseThrow(() -> new EntityNotFoundException(NO_SUBJECTS_FOUND_MESSAGE));
-            case "mostAGrades" -> subjectGradeRepository.findAllByOrderByGradeADesc(pageable)
-                    .orElseThrow(() -> new EntityNotFoundException(NO_SUBJECTS_FOUND_MESSAGE));
-            case "mostFXGrades" -> subjectGradeRepository.findAllByOrderByGradeFxDesc(pageable)
-                    .orElseThrow(() -> new EntityNotFoundException(NO_SUBJECTS_FOUND_MESSAGE));
-            default -> throw new IllegalArgumentException("Invalid sorting criteria");
-        };
-
-        return subjectPage.getContent();
+    public Page<SubjectGrade> getSubjectsWithGrades(PageDefinition pageDefinition) {
+        Pageable pageable = PageableAssembler.from(pageDefinition);
+        return subjectGradeRepository.findAll(pageable);
     }
 
     @Override
     public Page<SubjectWithCountDto> getMostPopularElectiveSubjects(PageDefinition pageDefinition) {
         return this.studyProgramSubjectRepository.findMostPopularElectiveSubjects(pageDefinition);
+    }
+
+    @Override
+    public List<sk.uniza.fri.alfri.dto.SubjectGradeAverageByYearDTO> getSubjectGradeAveragesByYear(Integer subjectId) {
+        log.info("Getting grade averages for subject with id {} grouped by year", subjectId);
+        List<Tuple> results = studentSubjectRepository.findGradeAverageBySubjectIdGroupedByYear(subjectId);
+
+        return results.stream()
+                .map(tuple -> new sk.uniza.fri.alfri.dto.SubjectGradeAverageByYearDTO(
+                        tuple.get("year", Integer.class),
+                        tuple.get("averageGrade", Double.class),
+                        tuple.get("studentCount", Long.class)
+                ))
+                .toList();
     }
 }

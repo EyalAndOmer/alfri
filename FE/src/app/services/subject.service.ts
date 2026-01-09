@@ -8,6 +8,7 @@ import {
   SubjectGradesDto,
   SubjectPassingPrediction,
   PopularSubjectRow,
+  GradeAverageByYearDto,
 } from '../types';
 import { Observable } from 'rxjs';
 
@@ -136,23 +137,11 @@ export class SubjectService {
     );
   }
 
-  public getMostPopularElectives(
-    pageNumber: number,
-    pageSize: number,
-    sort?: string,
-  ): Observable<Page<PopularSubjectRow>> {
-    let urlParameters: HttpParams = new HttpParams();
-    urlParameters = urlParameters
-      .append('page', pageNumber)
-      .append('size', pageSize);
-
-    if (sort) {
-      urlParameters = urlParameters.append('sort', sort);
-    }
-
-    return this.http.get<Page<PopularSubjectRow>>(
-      `${this.URL}/mostPopularElectives`,
-      { params: urlParameters },
+  public getGradeAveragesByYear(
+    subjectId: number,
+  ): Observable<GradeAverageByYearDto[]> {
+    return this.http.get<GradeAverageByYearDto[]>(
+      `${this.URL}/${subjectId}/grade-averages-by-year`,
     );
   }
 }

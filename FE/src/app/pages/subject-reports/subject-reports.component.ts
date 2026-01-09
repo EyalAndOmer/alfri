@@ -205,10 +205,15 @@ export class SubjectReportsComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(event: PageEvent): void {
+    // Set loading state immediately to prevent flicker
+    this.isLoading.set(true);
     this.fetchFilteredSubjects(event.pageIndex, event.pageSize);
   }
 
   onSortChange(sort: { active: string; direction: SortDirection }): void {
+    // Set loading state immediately to prevent flicker
+    this.isLoading.set(true);
+
     this.sortActive.set(sort.active);
     this.sortDirection.set(sort.direction);
 

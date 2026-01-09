@@ -25,6 +25,7 @@ import sk.uniza.fri.alfri.common.pagitation.SortDefinition;
 import sk.uniza.fri.alfri.common.pagitation.SortRequestQuery;
 import sk.uniza.fri.alfri.dto.KeywordDTO;
 import sk.uniza.fri.alfri.dto.StudentYearCountDTO;
+import sk.uniza.fri.alfri.dto.SubjectGradeAverageByYearDTO;
 import sk.uniza.fri.alfri.dto.SubjectGradeDto;
 import sk.uniza.fri.alfri.dto.SubjectsPredictionsResult;
 import sk.uniza.fri.alfri.dto.focus.FocusCategorySumDTO;
@@ -191,16 +192,23 @@ public class SubjectController {
         return ResponseEntity.ok().body(similarSubjectsDto);
     }
 
-    @GetMapping("/subjectReport")
-    public ResponseEntity<List<SubjectGradeDto>> getReport(@RequestParam String sortCriteria,
-                                                           @RequestParam @Positive Integer count) {
-        log.info("Getting top {} subjects sorted by: {}", count, sortCriteria);
+    @GetMapping("/with-grades")
+    public ResponseEntity<Page<SubjectGradeDto>> getSubjectsWithGrades(
+            PagitationRequestQuery pagitationRequestQuery) {
+        log.info("Getting subjects with grades on page {} with page size {}",
+                pagitationRequestQuery.page, pagitationRequestQuery.size);
 
-        List<SubjectGrade> subjects = subjectService.getFilteredSubjects(sortCriteria, count);
-        log.info("{} subjects returned", subjects.size());
+        SortDefinition sortDefinition = SortRequestQuery.from(pagitationRequestQuery.sort);
+        PageDefinition pageDefinition = new PageDefinition(pagitationRequestQuery.page,
+                pagitationRequestQuery.size, sortDefinition);
 
-        List<SubjectGradeDto> subjectGradeDtos =
-                subjects.stream().map(SubjectGradeMapper.INSTANCE::toDto).toList();
+        Page<SubjectGrade> subjects = subjectService.getSubjectsWithGrades(pageDefinition);
+
+        Page<SubjectGradeDto> subjectGradeDtos =
+                subjects.map(SubjectGradeMapper.INSTANCE::toDto);
+
+        log.info("{} subjects with grades returned on page {} with page size {}",
+                subjects.getSize(), pagitationRequestQuery.page, pagitationRequestQuery.size);
 
         return ResponseEntity.ok().body(subjectGradeDtos);
     }
@@ -257,5 +265,18 @@ public class SubjectController {
 
         return ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofHours(6)))
                 .body(subjectDtos);
+    }
+
+    @GetMapping("/{subjectId}/grade-averages-by-year")
+    public ResponseEntity<List<SubjectGradeAverageByYearDTO>> getSubjectGradeAveragesByYear(
+            @PathVariable @Positive Integer subjectId) {
+        log.info("Getting grade averages for subject with id {} grouped by year", subjectId);
+
+        List<SubjectGradeAverageByYearDTO> gradeAverages =
+                subjectService.getSubjectGradeAveragesByYear(subjectId);
+
+        log.info("Returning {} year records for subject with id {}", gradeAverages.size(), subjectId);
+
+        return ResponseEntity.ok().body(gradeAverages);
     }
 }

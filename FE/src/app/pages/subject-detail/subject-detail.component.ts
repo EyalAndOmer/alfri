@@ -1,10 +1,12 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   inject,
   OnDestroy,
   OnInit,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -18,12 +20,12 @@ import {
   Chart as chartJs,
   ChartConfiguration,
   ChartData,
-  ChartDataset,
   ChartItem,
   ChartType,
   Filler,
   Legend,
   LinearScale,
+  LineController,
   LineElement,
   PointElement,
   RadarController,
@@ -32,33 +34,35 @@ import {
   Title,
   Tooltip,
 } from 'chart.js';
-import { SubjectExtendedDto } from '../../types';
+import { GradeAverageByYearDto, SubjectExtendedDto } from '../../types';
 import { SubjectService } from '@services/subject.service';
 import { MatCard } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
+import { RadarChartComponent, RadarChartOptions } from '@components/charts/radar-chart.component';
 
 @Component({
   selector: 'app-subject-detail',
   standalone: true,
-  imports: [MatCard],
+  imports: [MatCard, MatIcon, RadarChartComponent],
   templateUrl: './subject-detail.component.html',
   styleUrl: './subject-detail.component.scss',
 })
 export class SubjectDetailComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @ViewChild('chart') public focusChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('barChart') public barChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('lineChart') public lineChartRef?: ElementRef<HTMLCanvasElement>;
   public subjectData!: SubjectExtendedDto;
   public loading = true;
-  private chart!: Chart;
+  public radarChartOptions: RadarChartOptions | null = null;
   private barChart!: Chart;
-  private ctx!: ChartItem;
   private barCtx!: ChartItem;
-  private chartDatasets: ChartDataset[] = [
-    {
-      data: [],
-    },
-  ];
+  private lineChart!: Chart;
+  private lineCtx!: ChartItem;
+
+  // Signals for reactive state management
+  public gradeAveragesData = signal<GradeAverageByYearDto[]>([]);
+  public hasGradeAveragesData = signal<boolean | null>(null); // null = loading, true = has data, false = no data
 
   private colors = [
     'rgba(255, 99, 132, 0.8)',
@@ -122,9 +126,72 @@ export class SubjectDetailComponent
 
   public barChartType: ChartType = 'bar';
 
+  private lineChartData: ChartData<'line'> = {
+    labels: [],
+    datasets: [
+      {
+        label: 'Priemerná známka',
+        data: [],
+        borderColor: 'rgb(14, 116, 144)',
+        backgroundColor: 'rgba(14, 116, 144, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      },
+    ],
+  };
+
+  public lineChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    aspectRatio: 1,
+    scales: {
+      x: {
+        beginAtZero: true,
+      },
+      y: {
+        beginAtZero: true,
+        max: 5,
+        reverse: true, // Lower grade number is better (1 is best, 5 is worst)
+        ticks: {
+          stepSize: 0.5,
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        callbacks: {
+          afterLabel: (context) => {
+            const dataIndex = context.dataIndex;
+            const data = this.gradeAveragesData();
+            if (data[dataIndex]) {
+              return `Počet študentov: ${data[dataIndex].studentCount}`;
+            }
+            return '';
+          },
+        },
+      },
+      title: {
+        display: true,
+        text: 'Vývoj priemernej známky v rokoch',
+        font: {
+          size: 16,
+        },
+      },
+    },
+  };
+
+  public lineChartType: ChartType = 'line';
+
   private readonly subjectService = inject(SubjectService);
   private readonly activateRoute = inject(ActivatedRoute);
   private readonly location = inject(Location);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
     chartJs.register(
@@ -132,6 +199,7 @@ export class SubjectDetailComponent
       LinearScale,
       PointElement,
       LineElement,
+      LineController,
       TimeScale,
       Title,
       Tooltip,
@@ -145,20 +213,29 @@ export class SubjectDetailComponent
   }
 
   ngAfterViewInit(): void {
-    this.chartGeneration();
+    this.initBarChart();
   }
 
-  private chartGeneration() {
-    const canvas = this.focusChart.nativeElement;
+  private initBarChart(): void {
     const barCanvas = this.barChartRef.nativeElement;
-    const value = canvas.getContext('2d');
     const barValue = barCanvas.getContext('2d');
 
-    if (value && barValue) {
-      this.ctx = value;
+    if (barValue) {
       this.barCtx = barValue;
-      this.generateRadarChart();
       this.generateBarChart();
+    }
+  }
+
+  private initLineChart(): void {
+    if (!this.lineChartRef) return;
+
+    const lineCanvas = this.lineChartRef.nativeElement;
+    const lineValue = lineCanvas.getContext('2d');
+
+    if (lineValue) {
+      this.lineCtx = lineValue;
+      this.generateLineChart();
+      this.updateLineChart(this.gradeAveragesData());
     }
   }
 
@@ -169,17 +246,44 @@ export class SubjectDetailComponent
         .subscribe((data) => {
           this.subjectData = data;
           this.loading = false;
+
+          // Initialize radar chart with empty data first for animation
+          this.initializeRadarChartWithEmptyData();
+
+          // Then update with real data after a short delay for animation
+          setTimeout(() => {
+            this.updateRadarChartOptions();
+          }, 100);
+
           this.updateCharts();
+
+          // Fetch grade averages by year
+          this.subjectService
+            .getGradeAveragesByYear(data.id)
+            .subscribe((gradeData) => {
+              console.log('Grade averages by year:', gradeData);
+              this.gradeAveragesData.set(gradeData);
+              this.hasGradeAveragesData.set(gradeData.length > 0);
+
+              // Trigger change detection and initialize line chart after view updates
+              if (gradeData.length > 0) {
+                this.cdr.detectChanges();
+                // Use setTimeout to ensure the canvas is in the DOM after @if renders
+                setTimeout(() => {
+                  this.initLineChart();
+                }, 0);
+              }
+            });
         });
     });
   }
 
   ngOnDestroy(): void {
-    if (this.chart) {
-      this.chart.destroy();
-    }
     if (this.barChart) {
       this.barChart.destroy();
+    }
+    if (this.lineChart) {
+      this.lineChart.destroy();
     }
   }
 
@@ -188,11 +292,6 @@ export class SubjectDetailComponent
   }
 
   private updateCharts() {
-    if (this.chart) {
-      this.chart.data.labels = this.getRadarChartLabels();
-      this.chart.data.datasets = [this.getFocusData()];
-      this.chart.update();
-    }
 
     if (this.barChart) {
       this.barChart.data.datasets[0].data = this.generateRandomValues(
@@ -211,47 +310,91 @@ export class SubjectDetailComponent
     });
   }
 
-  private generateRadarChart() {
-    this.chart = new Chart(this.ctx, {
-      type: 'radar',
+  private generateLineChart() {
+    this.lineChart = new Chart(this.lineCtx, {
+      type: this.lineChartType,
+      data: this.lineChartData,
+      options: this.lineChartOptions,
+    });
+  }
+
+  private updateLineChart(data: GradeAverageByYearDto[]) {
+    if (!this.lineChart) return;
+
+    this.lineChart.data.labels = data.map(d => `Rok ${d.year}`);
+    this.lineChart.data.datasets[0].data = data.map(d => d.averageGrade);
+    this.lineChart.update();
+  }
+
+  private initializeRadarChartWithEmptyData() {
+    if (!this.subjectData) return;
+
+    const labels = this.getRadarChartLabels();
+    const emptyData = new Array(labels.length).fill(0);
+
+    this.radarChartOptions = {
+      data: {
+        labels: labels,
+        data: emptyData,
+        label: 'Focus predmetu',
+      },
+      title: 'Zameranie predmetu',
+      colors: {
+        borderColor: '#f97316',
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#f97316',
+        pointHoverBackgroundColor: '#f97316',
+        pointHoverBorderColor: '#fff',
+      },
+      scales: {
+        suggestedMin: 0,
+        suggestedMax: 10,
+        angleLineColor: 'rgba(14, 116, 144, 0.1)',
+        gridColor: 'rgba(14, 116, 144, 0.1)',
+        pointLabelColor: '#475569',
+        pointLabelFontSize: 12,
+        showTicks: false,
+      },
+      legend: {
+        display: false,
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+    };
+  }
+
+  private updateRadarChartOptions() {
+    if (!this.subjectData) return;
+
+    this.radarChartOptions = {
       data: {
         labels: this.getRadarChartLabels(),
-        datasets: this.chartDatasets,
+        data: Object.values(this.subjectData.focusDTO),
+        label: 'Focus predmetu',
       },
-      options: {
-        responsive: true,
-        scales: {
-          r: {
-            angleLines: {
-              display: true,
-            },
-            suggestedMin: 0,
-            suggestedMax: 10,
-          },
-        },
-        plugins: {
-          title: {
-            display: true,
-            text: 'Zameranie predmetu',
-            font: {
-              size: 16,
-            },
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const label = context.label || '';
-                const value = context.raw || 0;
-                return `${label}: ${value}`;
-              },
-            },
-          },
-          legend: {
-            display: false,
-          },
-        },
+      title: 'Zameranie predmetu',
+      colors: {
+        borderColor: '#f97316',
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#f97316',
+        pointHoverBackgroundColor: '#f97316',
+        pointHoverBorderColor: '#fff',
       },
-    });
+      scales: {
+        suggestedMin: 0,
+        suggestedMax: 10,
+        angleLineColor: 'rgba(14, 116, 144, 0.1)',
+        gridColor: 'rgba(14, 116, 144, 0.1)',
+        pointLabelColor: '#475569',
+        pointLabelFontSize: 12,
+        showTicks: false,
+      },
+      legend: {
+        display: false,
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+    };
   }
 
   private getRadarChartLabels(): string[] {
@@ -277,16 +420,6 @@ export class SubjectDetailComponent
       : [];
   }
 
-  private getFocusData(): ChartDataset {
-    return {
-      label: 'Focus predmetu',
-      fill: true,
-      backgroundColor: this.colors,
-      borderColor: this.colors,
-      borderWidth: 1,
-      data: this.subjectData ? Object.values(this.subjectData.focusDTO) : [],
-    };
-  }
 
   private generateRandomValues(sum: number, count: number): number[] {
     const values = Array.from({ length: count }, () => Math.random());

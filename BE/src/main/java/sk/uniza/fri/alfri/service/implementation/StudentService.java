@@ -47,17 +47,8 @@ public class StudentService implements IStudentService {
     }
 
   @Override
-  public void makePrediction() throws IOException {
-    if (pythonServiceEnabled) {
-      // Use remote python service to trigger predictions
-      pythonMlClient.triggerPrediction();
-    }
-
-    // Fallback to original behavior: run local python script
-//    ProcessBuilder processBuilder =
-//        new ProcessBuilder("python3", "./python_scripts/passing_chance_prediction.py");
-//    String output = ProcessUtils.getOutputFromProcess(processBuilder, false);
-//    System.out.println(output);
+  public void makePrediction() {
+        pythonMlClient.triggerPrediction();
   }
 
     @Override

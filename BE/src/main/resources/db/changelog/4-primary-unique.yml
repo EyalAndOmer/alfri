@@ -85,7 +85,7 @@ databaseChangeLog:
       changes:
         - addPrimaryKey:
             tableName: student_subject
-            columnNames: student_id, subject_id, year
+            columnNames: student_id, subject_id, year, calendar_year
             constraintName: student_subject_pk
   - changeSet:
       id: 04-pk-study_program

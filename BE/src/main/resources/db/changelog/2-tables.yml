@@ -170,6 +170,7 @@ databaseChangeLog:
               - column: { name: user_id, type: INT }
               - column: { name: study_program_id, type: INT, constraints: { nullable: false } }
               - column: { name: year, type: INT, constraints: { nullable: false } }
+              - column: { name: enrollment_year, type: INT }
   - changeSet:
       id: 02-table-student_subject
       author: liquibase
@@ -182,6 +183,7 @@ databaseChangeLog:
               - column: { name: subject_id, type: INT, constraints: { nullable: false } }
               - column: { name: mark, type: VARCHAR(2) }
               - column: { name: year, type: INT, constraints: { nullable: false } }
+              - column: { name: calendar_year, type: INT, constraints: { nullable: false } }
   - changeSet:
       id: 02-table-answer
       author: liquibase

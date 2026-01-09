@@ -21,44 +21,6 @@ INSERT INTO public."user" (user_id, role_id, email, first_name, last_name, passw
 INSERT INTO public."user" (user_id, role_id, email, first_name, last_name, password) VALUES (2, 1, 'majba@stud.uniza.sk', 'Maroš', 'Majba', '$2a$10$.s7derW1HlXmpRLyTEJjGOZEV6nZEuYYZqAWYXrIauIHLPm9u5mI6');
 INSERT INTO public."user" (user_id, role_id, email, first_name, last_name, password) VALUES (3, 1, 'szathmary@stud.uniza.sk', 'Peter', 'Szathmáry', '$2a$10$rcn.t1DBfl67OcbY/5bqmeRGLuSVkueYmp19I/CgfMz0sQuS1UbM2');
 
--- Student subjects
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (4, 147, 'B', 3);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (3, 110, 'D', 2);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (2, 108, 'A', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (4, 93, 'C', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (4, 91, 'A', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (4, 89, 'B', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (3, 90, 'A', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (2, 93, 'D', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (2, 90, 'E', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (4, 92, 'B', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (2, 92, 'A', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (2, 91, 'C', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (4, 90, 'A', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (3, 91, 'D', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (2, 89, 'E', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (3, 89, 'C', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (3, 93, 'B', 1);
-INSERT INTO public.student_subject (student_id, subject_id, mark, year)
-VALUES (3, 92, 'D', 1);
-
 -- Subject grades
 INSERT INTO subject_grades (subject_id, grade_a, grade_b, grade_c, grade_d, grade_e, grade_fx, students_count, grade_average) VALUES (1, 12.58, 9.2, 15.34, 22.7, 30.37, 9.82, 326, 3.7857);
 INSERT INTO subject_grades (subject_id, grade_a, grade_b, grade_c, grade_d, grade_e, grade_fx, students_count, grade_average) VALUES (2, 7.5, 15.62, 20, 23.44, 18.75, 14.69, 320, 3.7439);

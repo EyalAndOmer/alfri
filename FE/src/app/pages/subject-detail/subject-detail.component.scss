@@ -5,6 +5,20 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+mat-card {
+  padding: 16px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+app-radar-chart {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 h2 {
   font-size: 1.5rem;
   font-weight: 600;
@@ -44,3 +58,26 @@ h2 {
   outline: 3px solid #feb81c;
   outline-offset: 2px;
 }
+
+.no-data-message {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+    color: #64748b;
+  }
+
+  .info-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+}
+
