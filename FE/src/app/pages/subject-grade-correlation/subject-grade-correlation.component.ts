@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   BehaviorSubject,
   forkJoin,
@@ -12,9 +12,7 @@ import {
 import { SubjectGradeCorrelationService } from '@services/subject-grade-correlation.service';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { MatCheckbox } from '@angular/material/checkbox';
 import {
   MatTab,
   MatTabChangeEvent,
@@ -33,9 +31,7 @@ import { ApexChartOptions, SubjectGradeCorrelation } from '../../types';
   imports: [
     NgApexchartsModule,
     MatProgressSpinner,
-    MatInput,
     FormsModule,
-    MatCheckbox,
     MatTabGroup,
     MatTab,
     AsyncPipe,
@@ -64,10 +60,11 @@ export class SubjectGradeCorrelationComponent implements OnInit, OnDestroy {
 
   private readonly _chartOptions: ApexChartOptions;
   private readonly _destroy$: ReplaySubject<void> = new ReplaySubject(1);
+  private readonly subjectGradeCorrelationService = inject(
+    SubjectGradeCorrelationService,
+  );
 
-  constructor(
-    private readonly subjectGradeCorrelationService: SubjectGradeCorrelationService,
-  ) {
+  constructor() {
     this._chartOptions = {
       series: [],
       chart: {
@@ -171,30 +168,6 @@ export class SubjectGradeCorrelationComponent implements OnInit, OnDestroy {
     this._destroy$.complete();
   }
 
-  private groupByFirstSubject(
-    data: SubjectGradeCorrelation[],
-  ): SubjectGradeCorrelation[][] {
-    const groupedData = data.reduce(
-      (
-        accumulator: Record<string, SubjectGradeCorrelation[]>,
-        currentValue,
-      ) => {
-        const subjectName = currentValue.firstSubject.name;
-
-        if (!accumulator[subjectName]) {
-          accumulator[subjectName] = [];
-        }
-
-        accumulator[subjectName].push(currentValue);
-
-        return accumulator;
-      },
-      {},
-    );
-
-    return Object.values(groupedData);
-  }
-
   private loadHeatmapData(): void {
     this.subjectGradeCorrelationService
       .getSubjectGradeCorrelation()
@@ -202,29 +175,56 @@ export class SubjectGradeCorrelationComponent implements OnInit, OnDestroy {
       .subscribe((data: SubjectGradeCorrelation[]) => {
         this.chartOptions.series = [];
 
-        const groupedData = this.groupByFirstSubject(data);
+        // Collect all unique subjects from both firstSubject and secondSubject
+        const allSubjectsMap = new Map<number, { id: number; name: string }>();
+        data.forEach((correlation) => {
+          allSubjectsMap.set(correlation.firstSubject.id, {
+            id: correlation.firstSubject.id,
+            name: correlation.firstSubject.name,
+          });
+          allSubjectsMap.set(correlation.secondSubject.id, {
+            id: correlation.secondSubject.id,
+            name: correlation.secondSubject.name,
+          });
+        });
 
-        groupedData.sort((a, b) =>
-          a[0].firstSubject.name.localeCompare(b[0].firstSubject.name),
+        const allSubjects = Array.from(allSubjectsMap.values()).sort((a, b) =>
+          a.name.localeCompare(b.name),
         );
-        groupedData.forEach((subjectCorrelation: SubjectGradeCorrelation[]) => {
-          subjectCorrelation.sort((a, b) =>
-            a.secondSubject.name.localeCompare(b.secondSubject.name),
-          );
-          const subjectName: string = subjectCorrelation[0].firstSubject?.name;
+
+        // Create a map for quick lookup of correlations
+        const correlationMap = new Map<string, number>();
+        data.forEach((correlation) => {
+          const key = `${correlation.firstSubject.id}-${correlation.secondSubject.id}`;
+          correlationMap.set(key, correlation.correlation);
+        });
+
+        // Build series for each subject
+        allSubjects.forEach((subject) => {
           const dataPoints: { x: string; y: string }[] = [];
 
-          subjectCorrelation.forEach((correlation: SubjectGradeCorrelation) => {
+          allSubjects.forEach((otherSubject) => {
+            let correlationValue: number;
+
+            if (subject.id === otherSubject.id) {
+              // Diagonal: self-correlation is always 1
+              correlationValue = 1;
+            } else {
+              // Look up the correlation from the data
+              const key = `${subject.id}-${otherSubject.id}`;
+              correlationValue = correlationMap.get(key) ?? 0;
+            }
+
             dataPoints.push({
-              x: correlation.secondSubject.name,
-              y: correlation.correlation.toFixed(2),
+              x: otherSubject.name,
+              y: correlationValue.toFixed(2),
             });
           });
 
           this.chartOptions.series.push({
-            name: subjectName,
+            name: subject.name,
             data: dataPoints,
-            group: subjectName,
+            group: subject.name,
           });
         });
 

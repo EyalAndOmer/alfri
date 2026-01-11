@@ -1,9 +1,6 @@
 package sk.uniza.fri.alfri.service.implementation;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Optional;
-
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import sk.uniza.fri.alfri.constant.UserRoles;
+import sk.uniza.fri.alfri.dto.UserRoles;
 import sk.uniza.fri.alfri.dto.user.ChangePasswordDto;
 import sk.uniza.fri.alfri.entity.Role;
 import sk.uniza.fri.alfri.entity.User;
@@ -25,98 +22,109 @@ import sk.uniza.fri.alfri.repository.RoleRepository;
 import sk.uniza.fri.alfri.repository.UserRepository;
 import sk.uniza.fri.alfri.service.IAuthService;
 
+import java.util.List;
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class AuthService implements IAuthService {
 
-  private final UserRepository userRepository;
-  private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-  private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-  private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-  public AuthService(UserRepository userRepository, RoleRepository roleRepository,
-      PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
-    this.userRepository = userRepository;
-    this.roleRepository = roleRepository;
-    this.passwordEncoder = passwordEncoder;
-    this.authenticationManager = authenticationManager;
-  }
-
-  @Override
-  @Transactional
-  public User registerUser(User userToRegister)
-      throws UserAlreadyRegisteredException {
-    log.info("Trying to register user with email {}", userToRegister.getEmail());
-
-    // Check if a user with the same email is already registered
-    if (userRepository.findByEmail(userToRegister.getEmail()).isPresent()) {
-      throw new UserAlreadyRegisteredException(
-          String.format("User with email %s is already registered!", userToRegister.getEmail()));
+    public AuthService(UserRepository userRepository, RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
-    List<Role> roles = List.of(this.roleRepository.findById(UserRoles.STUDENT.getRoleId()).orElseThrow(
-            () -> new EntityNotFoundException(String.format("Role with id %d was not found", UserRoles.STUDENT.getRoleId()))));
+    @Override
+    @Transactional
+    public User registerUser(User userToRegister)
+            throws UserAlreadyRegisteredException {
+        log.info("Trying to register user with email {}", userToRegister.getEmail());
 
-    User user = User.builder().firstName(userToRegister.getFirstName())
-        .lastName(userToRegister.getLastName()).email(userToRegister.getEmail())
-        .password(passwordEncoder.encode(userToRegister.getPassword())).build();
+        // Check if a user with the same email is already registered
+        if (userRepository.findByEmail(userToRegister.getEmail()).isPresent()) {
+            throw new UserAlreadyRegisteredException(
+                    String.format("User with email %s is already registered!", userToRegister.getEmail()));
+        }
 
-    List<UserRole> userRoles = roles.stream().map(role -> new UserRole(null, user, role)).toList();
-    user.setUserRoles(userRoles);
+        Role studentRole = this.roleRepository.findById(UserRoles.STUDENT.getRoleId()).orElseThrow(
+            () -> new EntityNotFoundException(String.format("Role with id %d was not found", UserRoles.STUDENT.getRoleId())));
 
-    log.info("User with email {} was registered!", user.getEmail());
+        User user = User.builder()
+        .firstName(userToRegister.getFirstName())
+                .lastName(userToRegister.getLastName())
+        .email(userToRegister.getEmail())
+                .password(passwordEncoder.encode(userToRegister.getPassword()))
+        .build();
 
-    return userRepository.save(user);
-  }
+        UserRole userRole = UserRole.builder()
+        .user(user)
+        .role(studentRole)
+        .build();
 
-  @Override
-  public User verifyUser(User userToAutentificate) throws InvalidCredentialsException {
-    try {
-      authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-          userToAutentificate.getUsername(), userToAutentificate.getPassword()));
-    } catch (AuthenticationException e) {
-      log.info("User with email {} was not authenticated!", userToAutentificate.getEmail());
-      throw new InvalidCredentialsException("Invalid credentials!");
+    user.setUserRoles(List.of(userRole));
+
+        log.info("User with email {} was registered!", user.getEmail());
+
+        return userRepository.save(user);
     }
 
-    return userRepository.findByEmail(userToAutentificate.getEmail())
-        .orElseThrow(() -> new EntityNotFoundException(String
-            .format("Cannot authenticate user with email %s", userToAutentificate.getUsername())));
-  }
+    @Override
+    public User verifyUser(User userToAutentificate) throws InvalidCredentialsException {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    userToAutentificate.getUsername(), userToAutentificate.getPassword()));
+        } catch (AuthenticationException e) {
+            log.info("User with email {} was not authenticated!", userToAutentificate.getEmail());
+            throw new InvalidCredentialsException("Invalid credentials!");
+        }
 
-  @Override
-  public Optional<String> getCurrentUserEmail() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
-      return Optional.ofNullable(userDetails.getUsername()); // Handle null username
+        return userRepository.findByEmail(userToAutentificate.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException(String
+                        .format("Cannot authenticate user with email %s", userToAutentificate.getUsername())));
     }
-    return Optional.empty();
-  }
+
+    @Override
+    public Optional<String> getCurrentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            return Optional.ofNullable(userDetails.getUsername()); // Handle null username
+        }
+        return Optional.empty();
+    }
 
     @Override
     public Optional<User> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
-            return Optional.of((User) userDetails); // Handle null username
+            String email = userDetails.getUsername();
+            return userRepository.findByEmail(email);
         }
         return Optional.empty();
     }
 
-  @Override
-  @Transactional
-  public void changePassword(ChangePasswordDto changePasswordDto) {
-    if (changePasswordDto.getNewPassword().equals(changePasswordDto.getOldPassword())) {
-      throw new InvalidCredentialsException(
-          String.format("Cannot change password for user with email %s, password are not matching!",
-              changePasswordDto.getEmail()));
-    }
-    User foundUser = this.userRepository.findByEmail(changePasswordDto.getEmail())
-        .orElseThrow(() -> new EntityNotFoundException(
-            String.format("User with email %s was not found!", changePasswordDto.getEmail())));
+    @Override
+    @Transactional
+    public void changePassword(ChangePasswordDto changePasswordDto) {
+        if (changePasswordDto.getNewPassword().equals(changePasswordDto.getOldPassword())) {
+            throw new InvalidCredentialsException(
+                    String.format("Cannot change password for user with email %s, password are not matching!",
+                            changePasswordDto.getEmail()));
+        }
+        User foundUser = this.userRepository.findByEmail(changePasswordDto.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("User with email %s was not found!", changePasswordDto.getEmail())));
 
-    foundUser.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
-    this.userRepository.save(foundUser);
-  }
+        foundUser.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        this.userRepository.save(foundUser);
+    }
 }

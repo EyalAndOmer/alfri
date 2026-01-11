@@ -1,43 +1,38 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, take } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { Role, UserDto } from '../types';
 import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
-export class UserService {
-  get userData(): UserDto {
-    const value = this._userData.getValue();
-    if (!value) {
-      throw new Error('User data is not available');
-    }
-
-    return value;
-  }
+export class UserService  {
+  readonly userData = signal<UserDto | undefined>(undefined);
 
   userId: number | undefined;
 
-  private readonly _userData: BehaviorSubject<UserDto | undefined> = new BehaviorSubject<UserDto | undefined>(undefined);
   private readonly BE_URL = `${environment.API_URL}/user`;
 
-  constructor(
-    private readonly http: HttpClient,
-    public jwtHelper: JwtHelperService,
-  ) {
-    this.loadUserData();
-  }
+  private readonly http = inject(HttpClient);
+  public readonly jwtHelper = inject(JwtHelperService);
 
   public loadUserData() {
+    // Check if data already exists
+    if (this.userData()) {
+      return;
+    }
+
     this.loadUserInfo()
       .pipe(take(1))
       .subscribe({
         next: (userData: UserDto) => {
-          this._userData.next(userData);
+          this.userData.set(userData);
         },
-        error: () => {this._userData.next(undefined)}
+        error: () => {
+          this.userData.set(undefined);
+        },
       });
   }
 
@@ -45,9 +40,40 @@ export class UserService {
     this.userId = userId;
   }
 
-  loggedIn() {
-    return !this.jwtHelper.isTokenExpired();
-  }
+  /**
+   * Checks if user is logged in by verifying token existence and expiration.
+   * Note: This is a client-side check only. Token signature validity is verified
+   * server-side on each API request. If the token is invalid (e.g., signing key changed),
+   * the server will return 401 and the token should be cleared via error handling.
+   */
+  loggedIn = () => {
+    try {
+      const token = this.jwtHelper.tokenGetter();
+
+      // Handle promise-based token getter
+      if (token instanceof Promise) {
+        // Can't reliably check async tokens synchronously
+        // Fall back to checking localStorage directly
+        const syncToken = localStorage.getItem('access_token');
+        if (!syncToken) {
+          return false;
+        }
+        return !this.jwtHelper.isTokenExpired(syncToken);
+      }
+
+      // No token means not logged in
+      if (!token) {
+        return false;
+      }
+
+      // Check if token is expired
+      return !this.jwtHelper.isTokenExpired(token);
+    } catch (error) {
+      // If token is malformed or invalid, consider not logged in
+      console.error('Invalid token format:', error);
+      return false;
+    }
+  };
 
   loadUserInfo(): Observable<UserDto> {
     return this.http.get<UserDto>(`${this.BE_URL}/profile`);

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {
@@ -10,7 +10,6 @@ import {
 } from '../types';
 import { JwtService } from './jwt.service';
 import { environment } from '../../environments/environment';
-import { UserService } from './user.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { AuthRole } from '@enums/auth-role';
 
@@ -20,12 +19,9 @@ import { AuthRole } from '@enums/auth-role';
 export class AuthService {
   private readonly URL = `${environment.API_URL}/auth`;
 
-  constructor(
-    private http: HttpClient,
-    private jwtService: JwtService,
-    private userService: UserService,
-    private jwtHelper: JwtHelperService,
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly jwtService = inject(JwtService);
+  private readonly jwtHelper = inject(JwtHelperService);
 
   postUser(userData: RegisterUserDto): Observable<UserDto> {
     const httpOptions = {
@@ -56,7 +52,7 @@ export class AuthService {
   }
 
   logOut(): Promise<void> {
-    return new Promise((resolve, _) => {
+    return new Promise((resolve) => {
       this.jwtService.removeToken();
       resolve();
     });
@@ -83,6 +79,7 @@ export class AuthService {
     }
 
     const userRoles = this.jwtHelper.decodeToken()?.roles;
+    console.log(userRoles);
 
     if (!userRoles) {
       return false;

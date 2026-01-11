@@ -1,62 +1,45 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, } from '@angular/forms';
-import { UserService } from '@services/user.service';
-import { Subject, takeUntil } from 'rxjs';
-import { NgForOf, NgIf } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { UserStore } from '../../stores/user.store';
+
 import { AuthService } from '@services/auth.service';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
 import { NotificationService } from '@services/notification.service';
 import { Router } from '@angular/router';
-import { MatCard } from '@angular/material/card';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatHeaderRowDef,
-  MatRow,
-  MatRowDef,
-  MatTable,
-} from '@angular/material/table';
-import { BaseChartDirective } from 'ng2-charts';
-import { MatChip, MatChipSet } from '@angular/material/chips';
 import { UserFormResultsComponent } from '@components/user-form-results/user-form-results.component';
 import { USER_FORM_ID } from '@pages/home/home.component';
 import { FormService } from '@services/form.service';
 import { HasRoleDirective } from '@directives/auth.directive';
 import { AnsweredForm, ChangePasswordDto, UserDto } from '../../types';
 import { AuthRole } from '@enums/auth-role';
+import { filter, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
-    NgIf,
     MatLabel,
     MatFormField,
     MatInput,
     MatButton,
     MatCard,
-    MatTable,
-    MatColumnDef,
-    MatHeaderCell,
-    MatCell,
-    MatHeaderRow,
-    MatRow,
-    MatRowDef,
-    MatCellDef,
-    MatHeaderRowDef,
-    MatHeaderCellDef,
-    BaseChartDirective,
-    MatChipSet,
-    MatChip,
-    NgForOf,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardContent,
+    MatIcon,
     UserFormResultsComponent,
     HasRoleDirective,
   ],
@@ -65,20 +48,18 @@ import { AuthRole } from '@enums/auth-role';
 export class ProfileComponent implements OnInit {
   private readonly destroy: Subject<void> = new Subject<void>();
   protected readonly AuthRole = AuthRole;
-
-  _userData: UserDto | undefined;
   formData: AnsweredForm | undefined;
+  _userData: UserDto | undefined;
   isLoading = true;
   profileForm: FormGroup;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private userService: UserService,
-    private authService: AuthService,
-    private notificationService: NotificationService,
-    private router: Router,
-    private formService: FormService
-  ) {
+  private readonly formBuilder = inject(FormBuilder);
+  readonly userStore = inject(UserStore);
+  private readonly authService = inject(AuthService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
+  private readonly formService = inject(FormService);
+  constructor() {
     this.profileForm = this.formBuilder.group(
       {
         currentPassword: ['', Validators.required],
@@ -89,24 +70,27 @@ export class ProfileComponent implements OnInit {
         validator: this.mustMatch('newPassword', 'confirmNewPassword'),
       },
     );
-    this.userService
+    this.userStore
       .loadUserInfo()
       .pipe(takeUntil(this.destroy))
       .subscribe((value) => {
         this._userData = value;
-        this.isLoading = false;
       });
   }
 
   ngOnInit() {
-    if (this.authService.hasRole([AuthRole.STUDENT])) {
-      this.formService.getExistingFormAnswers(USER_FORM_ID).subscribe({
+    this.formService
+      .getExistingFormAnswers(USER_FORM_ID)
+      .pipe(filter(() => this.authService.hasRole([AuthRole.STUDENT])))
+      .subscribe({
         next: (data: AnsweredForm) => {
           this.formData = data;
+          this.isLoading = false;
         },
-        error: () => {},
+        error: () => {
+          this.isLoading = false;
+        },
       });
-    }
   }
 
   mustMatch(controlName: string, matchingControlName: string) {
@@ -128,8 +112,13 @@ export class ProfileComponent implements OnInit {
 
   changePassword() {
     if (this.profileForm.valid) {
+      const userData = this.userStore.userData();
+      if (!userData) {
+        throw new Error('No user data available.');
+      }
+
       const passwordData: ChangePasswordDto = {
-        email: this.userData.email,
+        email: userData.email,
         oldPassword: this.profileForm.value.currentPassword,
         newPassword: this.profileForm.value.newPassword,
       };
@@ -144,11 +133,11 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  get userData(): UserDto {
-    return <UserDto>this._userData;
-  }
-
   redirectToUserForm() {
     this.router.navigate(['/grade-form']);
+  }
+
+  get userData(): UserDto {
+    return <UserDto>this._userData;
   }
 }

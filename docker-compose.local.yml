@@ -1,0 +1,86 @@
+# docker-compose.local.yml
+# Purpose: Local development compose that builds the three services locally (backend, frontend, python-service)
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: alfri_be
+    environment:
+      # Spring properties / env expected by the app
+      SPRING_PROFILES_ACTIVE: dev
+      # If DATABASE_PROD_URL is not provided in .env, default to the local postgres service
+      DATABASE_PROD_URL: ${DATABASE_PROD_URL:-jdbc:postgresql://db:5432/alfri}
+      DATABASE_PROD_USER: ${DATABASE_PROD_USER:-alfri}
+      DATABASE_PROD_PASSWORD: ${DATABASE_PROD_PASSWORD:-changeme}
+      # Python service discovery via Docker DNS (service name)
+      PYTHON_SERVICE_URL: http://python-ml-client:5000
+      # CORS: allow frontend origin during local dev
+      FRONTEND_ALLOWED_ORIGIN: http://localhost:4200
+      # Shared X-API-KEY for local testing (value from .env)
+      X_API_KEY: ${X_API_KEY}
+      # Dapr app id for local runs (optional; see README/prompts)
+      DAPR_APP_ID: alfri-backend
+      DAPR_HTTP_BASE_URL: http://backend-dapr:3500
+    ports:
+      - "8080:8080"
+    depends_on:
+      - python-ml-client
+      - db
+    networks:
+      - alfri-network
+
+  frontend:
+    build:
+      context: ./FE
+      dockerfile: Dockerfile
+    container_name: alfri_fe
+    environment:
+      # During local development the frontend can call the backend using Docker DNS name
+      # Build-time Angular envs often baked into files; for dev use runtime-config or use the dev server.
+      VITE_API_BASE_URL: http://alfri_be:8080
+      # If using X-API-KEY header from client for testing
+      X_API_KEY: ${X_API_KEY}
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - alfri-network
+
+  python-ml-client:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: alfri_py
+    environment:
+      MODEL_PATH: /app/models
+    ports:
+      - "5000:5000"
+    networks:
+      - alfri-network
+
+  # Local Postgres database for development and testing
+  db:
+    image: postgres:15-alpine
+    container_name: alfri_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: alfri
+      POSTGRES_USER: alfri
+      POSTGRES_PASSWORD: changeme
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - alfri-network
+
+volumes:
+  db_data:
+
+networks:
+  alfri-network:
+    driver: bridge

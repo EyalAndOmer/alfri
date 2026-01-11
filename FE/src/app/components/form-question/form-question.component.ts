@@ -1,7 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, Input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  Input,
+  signal,
+} from '@angular/core';
 import { QuestionTypes } from '@pages/grade-form/grade-form-types';
 import { GradeFormUtil } from '@pages/grade-form/grade-form-util';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -10,7 +21,7 @@ import { MatOption } from '@angular/material/autocomplete';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { MatSelect } from '@angular/material/select';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
-import { NgForOf, NgIf, NgSwitch, NgSwitchCase } from '@angular/common';
+
 import { Question } from '../../types';
 
 @Component({
@@ -32,10 +43,6 @@ import { Question } from '../../types';
     MatSelect,
     MatSlider,
     MatSliderThumb,
-    NgForOf,
-    NgIf,
-    NgSwitchCase,
-    NgSwitch,
     ReactiveFormsModule,
   ],
   templateUrl: './form-question.component.html',
@@ -46,7 +53,9 @@ export class FormQuestionComponent {
   protected readonly GradeFormUtil = GradeFormUtil;
 
   @Input() formGroup!: FormGroup;
-  @Input({ required: true, transform: (q: Question) => q }) set question(value: Question) {
+  @Input({ required: true, transform: (q: Question) => q }) set question(
+    value: Question,
+  ) {
     this._question.set(value);
   }
 
@@ -72,8 +81,11 @@ export class FormQuestionComponent {
   checkboxControls = computed(() => {
     const question = this.questionComputed();
     if (question.answerType === QuestionTypes.CHECKBOX) {
-      return question.options.map((_, index) =>
-        this.formGroup.get(`${question.questionIdentifier}${index}`) as FormControl
+      return question.options.map(
+        (_, index) =>
+          this.formGroup.get(
+            `${question.questionIdentifier}${index}`,
+          ) as FormControl,
       );
     }
     return [];

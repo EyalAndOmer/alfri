@@ -2,15 +2,24 @@ import { Component, OnInit } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { Router } from '@angular/router';
-import { NgForOf, NgIf } from '@angular/common';
+
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { KeywordService } from '@services/keyword.service';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { MatInput } from '@angular/material/input';
 import { SubjectExtendedDto } from '../../types';
-import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
-import { MatOption, MatSelect } from '@angular/material/select';
-import { MatAutocomplete, MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import {
+  MatCard,
+  MatCardContent,
+  MatCardHeader,
+  MatCardSubtitle,
+  MatCardTitle,
+} from '@angular/material/card';
+import { MatOption } from '@angular/material/select';
+import {
+  MatAutocomplete,
+  MatAutocompleteTrigger,
+} from '@angular/material/autocomplete';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
@@ -21,8 +30,6 @@ import { MatIcon } from '@angular/material/icon';
   imports: [
     MatTableModule,
     MatChipsModule,
-    NgForOf,
-    NgIf,
     MatFormField,
     MatInput,
     MatLabel,
@@ -31,7 +38,6 @@ import { MatIcon } from '@angular/material/icon';
     MatCardTitle,
     MatCardSubtitle,
     MatCardContent,
-    MatSelect,
     MatOption,
     MatAutocompleteTrigger,
     MatAutocomplete,
@@ -49,11 +55,13 @@ export class KeywordsComponent implements OnInit {
   isError = false;
 
   constructor(
-    private router: Router,
-    private keywordService: KeywordService,
+    private readonly router: Router,
+    private readonly keywordService: KeywordService,
   ) {}
 
   ngOnInit(): void {
+    this.handleRedirect();
+
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((searchText) => {
@@ -61,9 +69,13 @@ export class KeywordsComponent implements OnInit {
       });
   }
 
-  onSearch(event: any): void {
-    const searchText = event.target.value;
-    this.searchSubject.next(searchText);
+  onSearch(event: Event): void {
+    const target = event.target as HTMLInputElement;
+
+    if (target) {
+      const searchText = target.value;
+      this.searchSubject.next(searchText);
+    }
   }
 
   fetchKeywords(searchText: string): void {
@@ -83,7 +95,7 @@ export class KeywordsComponent implements OnInit {
       error: () => {
         this.filteredKeywords = [];
         this.isError = true;
-      }
+      },
     });
   }
 
@@ -99,7 +111,9 @@ export class KeywordsComponent implements OnInit {
   }
 
   onKeywordRemove(keyword: string): void {
-    this.selectedKeywords = this.selectedKeywords.filter((item) => item !== keyword);
+    this.selectedKeywords = this.selectedKeywords.filter(
+      (item) => item !== keyword,
+    );
     delete this.keywordSubjects[keyword];
   }
 
@@ -109,5 +123,20 @@ export class KeywordsComponent implements OnInit {
 
   displayKeyword(keyword: string): string {
     return keyword || '';
+  }
+
+  /**
+   * Handles the redirect to the keywords component from a keyword click
+   */
+  private handleRedirect() {
+    const keyword = history.state.word;
+    if (!keyword) {
+      return;
+    }
+
+    this.selectedKeywords.push(keyword);
+    this.keywordService.showSubjects(keyword).subscribe((subjects) => {
+      this.keywordSubjects[keyword] = subjects;
+    });
   }
 }
