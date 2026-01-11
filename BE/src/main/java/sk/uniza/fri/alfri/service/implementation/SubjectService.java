@@ -15,6 +15,7 @@ import sk.uniza.fri.alfri.common.pagitation.PageableAssembler;
 import sk.uniza.fri.alfri.common.pagitation.SearchDefinition;
 import sk.uniza.fri.alfri.dto.KeywordDTO;
 import sk.uniza.fri.alfri.dto.StudentYearCountDTO;
+import sk.uniza.fri.alfri.dto.SubjectGradeAverageByYearDTO;
 import sk.uniza.fri.alfri.dto.focus.FocusCategorySumDTO;
 import sk.uniza.fri.alfri.dto.subject.SubjectWithCountDto;
 import sk.uniza.fri.alfri.entity.Answer;
@@ -411,12 +412,12 @@ public class SubjectService implements ISubjectService {
     }
 
     @Override
-    public List<sk.uniza.fri.alfri.dto.SubjectGradeAverageByYearDTO> getSubjectGradeAveragesByYear(Integer subjectId) {
+    public List<SubjectGradeAverageByYearDTO> getSubjectGradeAveragesByYear(Integer subjectId) {
         log.info("Getting grade averages for subject with id {} grouped by year", subjectId);
         List<Tuple> results = studentSubjectRepository.findGradeAverageBySubjectIdGroupedByYear(subjectId);
 
         return results.stream()
-                .map(tuple -> new sk.uniza.fri.alfri.dto.SubjectGradeAverageByYearDTO(
+                .map(tuple -> new SubjectGradeAverageByYearDTO(
                         tuple.get("year", Integer.class),
                         tuple.get("averageGrade", Double.class),
                         tuple.get("studentCount", Long.class)
