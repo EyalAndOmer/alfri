@@ -204,7 +204,7 @@ public class SubjectService implements ISubjectService {
                                 answerText -> questionToFocusMap.getOrDefault(
                                         answerText.getAnswer().getAnswerQuestion().getQuestionIdentifier(), null),
                                 answerText -> Integer.parseInt(answerText.getTextOfAnswer()),
-                                (_, newValue) -> newValue));
+                                (oldValue, newValue) -> newValue));
 
         Integer mathFocus = values.getOrDefault("math_focus", null);
         Integer logicFocus = values.getOrDefault("logic_focus", null);
