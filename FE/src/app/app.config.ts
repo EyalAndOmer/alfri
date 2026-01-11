@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -11,11 +11,17 @@ import {
 import { JwtModule } from '@auth0/angular-jwt';
 import { tokenGetter } from '@interceptors/auth.interceptor';
 import { httpErrorInterceptor } from '@interceptors/http-error.interceptor';
+import { ConfigService } from '@services/config.service';
+import { firstValueFrom } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideAnimationsAsync(),
+    provideAppInitializer(() => {
+      const configService = inject(ConfigService);
+      return firstValueFrom(configService.loadConfig());
+    }),
     importProvidersFrom(
       JwtModule.forRoot({
         config: {
