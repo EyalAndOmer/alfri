@@ -13,7 +13,7 @@ export class UserService {
 
   userId: number | undefined;
   private readonly configService = inject(ConfigService);
-  private readonly BE_URL = `${this.configService.apiUrl}/user`;
+  private readonly BE_URL = `${this.configService.apiUrl()}/user`;
 
   private readonly http = inject(HttpClient);
   public readonly jwtHelper = inject(JwtHelperService);
