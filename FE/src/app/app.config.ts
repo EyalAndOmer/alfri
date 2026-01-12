@@ -26,11 +26,17 @@ export const appConfig: ApplicationConfig = {
       JwtModule.forRoot({
         config: {
           tokenGetter: tokenGetter,
-          allowedDomains: ['localhost:8080'],
+          allowedDomains: [
+            'localhost:8080',
+            'alfri-backend.happystone-577431b5.norwayeast.azurecontainerapps.io'
+          ],
           disallowedRoutes: [
             'http://localhost:8080/register',
             'http://localhost:8080/authenticate',
+            'https://alfri-backend.happystone-577431b5.norwayeast.azurecontainerapps.io/api/auth/register',
+            'https://alfri-backend.happystone-577431b5.norwayeast.azurecontainerapps.io/api/auth/authenticate',
           ],
+          skipWhenExpired: false,
         },
       }),
     ),

@@ -32,7 +32,7 @@ export const UserStore = signalStore(
   withMethods((store) => {
     const http = inject(HttpClient);
     const configService = inject(ConfigService);
-    const BE_URL = `${configService.apiUrl}/user`;
+    const BE_URL = `${configService.apiUrl()}/user`;
 
     return {
       loadUserData: rxMethod<void>(
