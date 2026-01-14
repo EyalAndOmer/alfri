@@ -78,35 +78,34 @@ graph TB
         subgraph StaticWebApps[Azure Static Web Apps - FREE]
             FE[Alfri FE]
         end
-        
+
         subgraph ContainerApps[Azure Container Apps Environment]
             BE[Alfri BE]
             ML[Alfri ML service]
         end
-        
+
         subgraph Database[Azure Database for PostgreSQL]
             DB[Alfri DB]
         end
     end
-    
+
     User[Student / Pedagog]
-    
+
     User -->|HTTPS| FE
     FE -->|REST API + JWT Token| BE
     BE -->|HTTP Internal| ML
     BE -->|PostgreSQL Connection| DB
     ML -->|Read/Write Training Data| DB
 
-    %% === Improved Azure-friendly color palette ===
-    style FE fill:#E0F2FE,stroke:#0284C7,stroke-width:3px   %% Frontend – Sky Blue
-    style BE fill:#DBEAFE,stroke:#1D4ED8,stroke-width:3px   %% Backend – Deep Azure Blue
-    style ML fill:#FEF3C7,stroke:#D97706,stroke-width:3px   %% ML – Warm Amber
-    style DB fill:#DCFCE7,stroke:#15803D,stroke-width:3px   %% Database – Green
+    style FE fill:#E0F2FE,stroke:#0284C7,stroke-width:3px
+    style BE fill:#DBEAFE,stroke:#1D4ED8,stroke-width:3px
+    style ML fill:#FEF3C7,stroke:#D97706,stroke-width:3px
+    style DB fill:#DCFCE7,stroke:#15803D,stroke-width:3px
 
-    style Azure fill:#F0F9FF,stroke:#0369A1,stroke-width:2px %% Azure Cloud container
-    style StaticWebApps fill:#F8FAFC,stroke:#38BDF8,stroke-width:2px %% Static Web Apps
-    style ContainerApps fill:#F8FAFC,stroke:#2563EB,stroke-width:2px %% Container Apps
-    style Database fill:#F8FAFC,stroke:#16A34A,stroke-width:2px %% PostgreSQL
+    style Azure fill:#F0F9FF,stroke:#0369A1,stroke-width:2px
+    style StaticWebApps fill:#F8FAFC,stroke:#38BDF8,stroke-width:2px
+    style ContainerApps fill:#F8FAFC,stroke:#2563EB,stroke-width:2px
+    style Database fill:#F8FAFC,stroke:#16A34A,stroke-width:2px
 ```
 ---
 
