@@ -76,17 +76,16 @@
 graph TB
     subgraph Azure[Microsoft Azure Cloud]
         subgraph StaticWebApps[Azure Static Web Apps - FREE]
-            FE[Angular Frontend<br/>Material Design UI<br/>JWT Token Management<br/>Real-time Charts]
+            FE[Alfri FE]
         end
         
         subgraph ContainerApps[Azure Container Apps Environment]
-            BE[ALFRI Backend<br/>Spring Boot 3.3 Java 21<br/>REST API<br/>JWT Authentication<br/>0.5 CPU / 1GB RAM]
-            
-            ML[ML Service<br/>Flask TensorFlow Python 3.12<br/>Grade Prediction<br/>Course Clustering<br/>1 CPU / 2GB RAM]
+            BE[Alfri BE]
+            ML[Alfri ML service]
         end
         
         subgraph Database[Azure Database for PostgreSQL]
-            DB[(PostgreSQL 15<br/>Flexible Server B1MS<br/>32 GB Storage<br/>750h FREE)]
+            DB[Alfri DB]
         end
     end
     
@@ -97,15 +96,17 @@ graph TB
     BE -->|HTTP Internal| ML
     BE -->|PostgreSQL Connection| DB
     ML -->|Read/Write Training Data| DB
-    
-    style FE fill:#fee2e2,stroke:#dc2626,stroke-width:3px
-    style BE fill:#dbeafe,stroke:#2563eb,stroke-width:3px
-    style ML fill:#fef3c7,stroke:#f59e0b,stroke-width:3px
-    style DB fill:#dcfce7,stroke:#16a34a,stroke-width:3px
-    style Azure fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
-    style StaticWebApps fill:#f8fafc,stroke:#94a3b8,stroke-width:2px
-    style ContainerApps fill:#f8fafc,stroke:#94a3b8,stroke-width:2px
-    style Database fill:#f8fafc,stroke:#94a3b8,stroke-width:2px
+
+    %% === Improved Azure-friendly color palette ===
+    style FE fill:#E0F2FE,stroke:#0284C7,stroke-width:3px   %% Frontend – Sky Blue
+    style BE fill:#DBEAFE,stroke:#1D4ED8,stroke-width:3px   %% Backend – Deep Azure Blue
+    style ML fill:#FEF3C7,stroke:#D97706,stroke-width:3px   %% ML – Warm Amber
+    style DB fill:#DCFCE7,stroke:#15803D,stroke-width:3px   %% Database – Green
+
+    style Azure fill:#F0F9FF,stroke:#0369A1,stroke-width:2px %% Azure Cloud container
+    style StaticWebApps fill:#F8FAFC,stroke:#38BDF8,stroke-width:2px %% Static Web Apps
+    style ContainerApps fill:#F8FAFC,stroke:#2563EB,stroke-width:2px %% Container Apps
+    style Database fill:#F8FAFC,stroke:#16A34A,stroke-width:2px %% PostgreSQL
 ```
 ---
 
